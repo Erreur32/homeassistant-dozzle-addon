@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to GitHub Container Registry (GHCR)
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:latest
+        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+    - name: Push Docker image to GHCR
+      run: |
+        docker push ghcr.io/${{ github.repository }}:latest
+        docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
