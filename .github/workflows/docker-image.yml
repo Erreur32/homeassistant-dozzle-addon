@@ -17,12 +17,14 @@ jobs:
     - name: Log in to GitHub Container Registry (GHCR)
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-    - name: Build the Docker image
+    - name: Build and Push the Docker image
       run: |
-        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:latest
-        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:${{ github.sha }}
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon
 
-    - name: Push Docker image to GHCR
-      run: |
-        docker push ghcr.io/${{ github.repository }}:latest
-        docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+        # Build the image with "latest" and commit SHA tags
+        docker build . --file Dockerfile --tag $IMAGE_NAME:latest
+        docker build . --file Dockerfile --tag $IMAGE_NAME:${{ github.sha }}
+
+        # Push both tags
+        docker push $IMAGE_NAME:latest
+        docker push $IMAGE_NAME:${{ github.sha }}
