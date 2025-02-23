@@ -11,10 +11,7 @@ RUN apk add --no-cache python3 py3-pip
 COPY requirements.txt /tmp/
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Install Bashio from Home Assistant repository
-COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
-
+ 
 
 # Copy the startup script into the container
 COPY run.sh /
