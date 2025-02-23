@@ -1,17 +1,10 @@
-# Dockerfile
+# Use Home Assistant base image
 ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
-LABEL maintainer="erreur32"
+LABEL maintainer="tonpseudo"
 
-# Install Docker CLI
-# Install Python3 and pip (required for Bashio)
-RUN apk add --no-cache python3 py3-pip
-
-# Install Bashio from Home Assistant repository
-COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
-
- 
+# Install required dependencies
+RUN apk add --no-cache docker-cli python3 py3-pip py3-virtualenv bashio
 
 # Copy the startup script into the container
 COPY run.sh /
