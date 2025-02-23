@@ -1,7 +1,7 @@
 # Dockerfile
 ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
-LABEL maintainer="tonpseudo"
+LABEL maintainer="erreur32"
 
 # Install Docker CLI
 RUN apk add --no-cache docker-cli
