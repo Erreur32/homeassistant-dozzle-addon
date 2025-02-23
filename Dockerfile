@@ -4,7 +4,11 @@ FROM $BUILD_FROM
 LABEL maintainer="tonpseudo"
 
 # Install required dependencies
-RUN apk add --no-cache docker-cli python3 py3-pip py3-virtualenv bashio
+RUN apk add --no-cache docker-cli python3 py3-pip py3-virtualenv
+
+# Manually install Bashio from Home Assistant repository
+RUN wget -O /usr/bin/bashio https://github.com/hassio-addons/bashio/releases/latest/download/bashio \
+    && chmod +x /usr/bin/bashio
 
 # Copy the startup script into the container
 COPY run.sh /
