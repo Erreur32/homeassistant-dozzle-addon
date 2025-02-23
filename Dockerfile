@@ -7,7 +7,8 @@ LABEL maintainer="tonpseudo"
 RUN apk add --no-cache docker-cli
 
 # Install Bashio from Home Assistant repository
-RUN curl -fsSL https://raw.githubusercontent.com/hassio-addons/bashio/main/install.sh | bash -s
+COPY requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 
 # Copy the startup script into the container
