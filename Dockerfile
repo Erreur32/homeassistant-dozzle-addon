@@ -4,7 +4,12 @@ FROM $BUILD_FROM
 LABEL maintainer="erreur32"
 
 # Install Docker CLI
-RUN apk add --no-cache docker-cli
+# Install Python3 and pip (required for Bashio)
+RUN apk add --no-cache python3 py3-pip
+
+# Install Bashio from Home Assistant repository
+COPY requirements.txt /tmp/
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Install Bashio from Home Assistant repository
 COPY requirements.txt /tmp/
