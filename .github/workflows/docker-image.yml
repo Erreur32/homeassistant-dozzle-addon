@@ -29,8 +29,8 @@ jobs:
 
 
         # Build the image with "latest" and commit SHA tags
-        docker build . --file Dockerfile --tag $IMAGE_NAME:latest
-        docker build . --file Dockerfile --tag $IMAGE_NAME:${{ github.sha }}
+        docker build . --file dozzle/Dockerfile --tag $IMAGE_NAME:latest
+        docker build . --file dozzle/Dockerfile --tag $IMAGE_NAME:${{ github.sha }}
 
         # Push both tags
         docker push $IMAGE_NAME:latest
