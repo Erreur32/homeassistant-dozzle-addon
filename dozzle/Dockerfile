@@ -1,14 +1,16 @@
 # Use Home Assistant base image
 ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
-LABEL maintainer="tonpseudo"
+LABEL maintainer="erreur32"
 
-# Install required dependencies
-RUN apk add --no-cache docker-cli jq
-
-# Install Bashio manually from Home Assistant source
-RUN curl -sSL -o /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/main/bashio \
+# Install necessary dependencies (Dozzle + Bashio)
+RUN apk add --no-cache docker-cli jq curl \
+    && wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/main/bashio \
     && chmod +x /usr/bin/bashio
+
+# Install Dozzle
+RUN wget -O /usr/bin/dozzle https://github.com/amir20/dozzle/releases/latest/download/dozzle-linux-amd64 \
+    && chmod +x /usr/bin/dozzle
 
 # Copy the startup script into the container
 COPY run.sh /
