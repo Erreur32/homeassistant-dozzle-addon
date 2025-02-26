@@ -18,12 +18,11 @@ RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
 
 # Cloner et compiler Dozzle depuis la branche master pour inclure le dossier ui
 WORKDIR /opt/dozzle
-RUN git clone --depth=1 https://github.com/amir20/dozzle.git . && \
-    cd ui && yarn install && yarn build && cd .. && \
-    mv ui/dist . && \
-    go mod tidy && \
-    go build -o /usr/bin/dozzle && \
-    chmod +x /usr/bin/dozzle
+RUN git clone --depth=1 https://github.com/amir20/dozzle.git . \
+    && if [ -d "ui" ]; then cd ui && yarn install && yarn build && cd .. && mv ui/dist .; fi \
+    && go mod tidy \
+    && go build -o /usr/bin/dozzle \
+    && chmod +x /usr/bin/dozzle
 
 # Nettoyer le répertoire de build
 RUN rm -rf /opt/dozzle
