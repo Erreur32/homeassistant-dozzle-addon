@@ -7,8 +7,9 @@ LABEL maintainer="erreur32"
 
 # Install necessary dependencies (Dozzle + Bashio)
 #RUN apk add --no-cache docker-cli jq curl bashio
+
 RUN apk add --no-cache docker-cli jq curl \
-    && wget -O /usr/bin/bashio https://github.com/hassio-addons/bashio/releases/latest/download/bashio \
+    && wget -O /usr/bin/bashio https://github.com/hassio-addons/bashio/releases/download/v0.14.3/bashio \
     && chmod +x /usr/bin/bashio
 
 
