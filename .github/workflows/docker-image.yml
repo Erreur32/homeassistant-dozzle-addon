@@ -44,3 +44,6 @@ jobs:
 
         docker push $IMAGE_NAME:latest
         docker push $IMAGE_NAME:${{ github.sha }}
+        
+    - name: Clear Docker cache
+      run: docker builder prune -af
