@@ -1,6 +1,6 @@
 # homeassistant-dozzle-addon
-homeassistant dozzle add-on repository
-by Erreur32
+
+homeassistant dozzle add-on repository by Erreur32
  
 [Dozzle](https://dozzle.dev/) can run in [agent mode](https://dozzle.dev/guide/agent) which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
 
