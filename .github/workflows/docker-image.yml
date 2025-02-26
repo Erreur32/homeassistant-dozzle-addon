@@ -1,9 +1,8 @@
-name: Docker Image CI
+name: Build and Push Docker Image
 
 permissions:
   packages: write
   contents: read
-
 
 on:
   push:
@@ -19,19 +18,27 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Install dependencies (yq)
+      run: sudo apt-get install -y jq curl
+
     - name: Log in to GitHub Container Registry (GHCR)
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-    - name: Build and Push the Docker image
+    - name: Extract `BUILD_FROM` from `build.yaml`
+      id: extract_base
+      run: echo "BUILD_FROM=$(yq eval '.build_from.amd64' dozzle/build.yaml)" >> $GITHUB_ENV
+
+    - name: Build the Docker image
       run: |
         IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon
-        IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
 
+        # Build the image using the correct base image
+        docker build --build-arg BUILD_FROM=$BUILD_FROM -t $IMAGE_NAME:latest -f dozzle/Dockerfile .
+        docker build --build-arg BUILD_FROM=$BUILD_FROM -t $IMAGE_NAME:${{ github.sha }} -f dozzle/Dockerfile .
 
-        # Build the image with "latest" and commit SHA tags
-        docker build . --file dozzle/Dockerfile --tag $IMAGE_NAME:latest
-        docker build . --file dozzle/Dockerfile --tag $IMAGE_NAME:${{ github.sha }}
+    - name: Push Docker image to GHCR
+      run: |
+        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon
 
-        # Push both tags
         docker push $IMAGE_NAME:latest
         docker push $IMAGE_NAME:${{ github.sha }}
