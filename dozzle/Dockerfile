@@ -3,7 +3,7 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-LABEL maintainer="Erreur32"
+LABEL maintainer="erreur32"
 
 # Installer les dépendances nécessaires
 RUN apk add --no-cache docker-cli jq curl \
