@@ -1,9 +1,11 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 # Utilisation de l’image de base de Home Assistant
-ARG BUILD_FROM
+# Définir une image de base par défaut si non définie
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
 
 LABEL maintainer="Erreur32"
+
 
 # Installer les dépendances nécessaires
 RUN apk add --no-cache docker-cli jq curl \
