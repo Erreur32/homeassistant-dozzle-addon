@@ -1,31 +1,20 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.15
+# Use Home Assistant base image
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
-
 LABEL maintainer="erreur32"
 
-# Installer les dépendances nécessaires
-RUN apk add --no-cache docker-cli jq curl git nodejs npm yarn
+# Install necessary dependencies (Dozzle + Bashio)
+RUN apk add --no-cache docker-cli jq curl \
+    && wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/main/bashio \
+    && chmod +x /usr/bin/bashio
 
-# Installer Go 1.24.0 manuellement
-RUN apk del go || true && \
-    curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
-    tar -C /usr/local -xzf go.tar.gz && \
-    rm go.tar.gz && \
-    ln -s /usr/local/go/bin/go /usr/bin/go
+# Install Dozzle
+RUN wget -O /usr/bin/dozzle https://github.com/amir20/dozzle/releases/latest/download/dozzle-linux-amd64 \
+    && chmod +x /usr/bin/dozzle
 
-# Cloner et compiler Dozzle
-WORKDIR /opt/dozzle
-RUN git clone https://github.com/amir20/dozzle.git . && \
-    cd ui && yarn install && yarn build && cd .. && \
-    go mod tidy && \
-    go build -o /usr/bin/dozzle && \
-    chmod +x /usr/bin/dozzle
-
-# Nettoyer
-RUN rm -rf /opt/dozzle
-
-# Copier le script de démarrage
-COPY run.sh /run.sh
+# Copy the startup script into the container
+COPY run.sh /
 RUN chmod +x /run.sh
 
+# Set the default command to execute the startup script
 CMD [ "/run.sh" ]
