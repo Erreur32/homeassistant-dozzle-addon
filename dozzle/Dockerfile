@@ -1,21 +1,22 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-dockerfile
 # Utilisation de l’image de base de Home Assistant
-ARG BUILD_FROM
+# Use Home Assistant base image
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM $BUILD_FROM
-
 LABEL maintainer="erreur32"
 
-# Installer les dépendances nécessaires
+# Install necessary dependencies (Dozzle + Bashio)
 RUN apk add --no-cache docker-cli jq curl \
     && wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/main/bashio \
     && chmod +x /usr/bin/bashio
 
-# Installer Dozzle
+# Install Dozzle
 RUN wget -O /usr/bin/dozzle https://github.com/amir20/dozzle/releases/latest/download/dozzle-linux-amd64 \
     && chmod +x /usr/bin/dozzle
 
-# Copier les fichiers nécessaires
-#COPY rootfs/ /
+# Copy the startup script into the container
+COPY run.sh /
+RUN chmod +x /run.sh
 
-# Définir la commande de lancement de l'add-on
-CMD [ "/usr/bin/dozzle", "--host", "0.0.0.0", "--port", "8090" ]
+# Set the default command to execute the startup script
+CMD [ "/run.sh" ]
