@@ -4,7 +4,11 @@ FROM $BUILD_FROM
 LABEL maintainer="erreur32"
 
 # Installer les dépendances nécessaires
-RUN apk add --no-cache docker-cli jq curl git go
+RUN apk add --no-cache docker-cli jq curl git && \
+    curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz && \
+    ln -s /usr/local/go/bin/go /usr/bin/go
 
 # Télécharger et compiler Dozzle
 WORKDIR /opt/dozzle
