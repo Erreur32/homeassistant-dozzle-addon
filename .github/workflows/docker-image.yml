@@ -15,23 +15,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout du repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies (jq, curl)
+      - name: Installer les dépendances (jq, curl)
         run: sudo apt-get install -y jq curl
 
-      - name: Log in to GitHub Container Registry (GHCR)
+      - name: Se connecter à GitHub Container Registry (GHCR)
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
-      - name: Build Docker image
+      - name: Construire l'image Docker
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon"
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
-          docker build -t $IMAGE_NAME:latest -f Dockerfile .
-          docker build -t $IMAGE_NAME:${{ github.sha }} -f Dockerfile .
+          docker build -t $IMAGE_NAME:latest -f dozzle/Dockerfile dozzle
+          docker build -t $IMAGE_NAME:${{ github.sha }} -f dozzle/Dockerfile dozzle
 
-      - name: Push Docker image to GHCR
+      - name: Pousser l'image Docker vers GHCR
         run: |
           IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon"
           IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')
