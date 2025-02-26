@@ -6,27 +6,26 @@ LABEL maintainer="erreur32"
 # Installer les dépendances nécessaires
 RUN apk add --no-cache docker-cli jq curl git nodejs npm yarn
 
-# Télécharger bashio
-RUN wget -O /usr/bin/bashio \
-  https://raw.githubusercontent.com/hassio-addons/bashio/refs/heads/main/lib/bashio \
-  && chmod +x /usr/bin/bashio
+# Télécharger bashio via le bon lien
+RUN wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/refs/heads/main/lib/bashio \
+    && chmod +x /usr/bin/bashio
 
 # Installer Go 1.24.0 manuellement
-RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz \
-  && tar -C /usr/local -xzf go.tar.gz \
-  && rm go.tar.gz \
-  && ln -s /usr/local/go/bin/go /usr/bin/go
+RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz && \
+    ln -s /usr/local/go/bin/go /usr/bin/go
 
-# Cloner et compiler Dozzle depuis la branche main (sans --depth=1)
+# Cloner et compiler Dozzle depuis la version v7.7.0
 WORKDIR /opt/dozzle
-RUN git clone --branch main https://github.com/amir20/dozzle.git . \
-  && cd ui && yarn install && yarn build && cd .. \
-  && mv ui/dist . \
-  && go mod tidy \
-  && go build -o /usr/bin/dozzle \
-  && chmod +x /usr/bin/dozzle
+RUN git clone --depth=1 --branch v7.7.0 https://github.com/amir20/dozzle.git . && \
+    cd ui && yarn install && yarn build && cd .. && \
+    mv ui/dist . && \
+    go mod tidy && \
+    go build -o /usr/bin/dozzle && \
+    chmod +x /usr/bin/dozzle
 
-# Nettoyer
+# Nettoyer le répertoire de build
 RUN rm -rf /opt/dozzle
 
 # Copier le script de démarrage
