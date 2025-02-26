@@ -1,4 +1,4 @@
-urname: Build and Push Docker Image
+name: Build and Push Docker Image
 
 permissions:
   packages: write
@@ -30,7 +30,8 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        IMAGE_NAME=ghcr.io/erreur32/homeassistant-dozzle-addon
+        IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon"
+        IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')  # ✅ Conversion en minuscules
 
         # Build the image using the correct base image
         docker build --build-arg BUILD_FROM=$BUILD_FROM -t $IMAGE_NAME:latest -f dozzle/Dockerfile .
@@ -38,7 +39,8 @@ jobs:
 
     - name: Push Docker image to GHCR
       run: |
-        IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon
+        IMAGE_NAME="ghcr.io/${{ github.repository_owner }}/homeassistant-dozzle-addon"
+        IMAGE_NAME=$(echo "$IMAGE_NAME" | tr '[:upper:]' '[:lower:]')  # ✅ Conversion en minuscules
 
         docker push $IMAGE_NAME:latest
         docker push $IMAGE_NAME:${{ github.sha }}
