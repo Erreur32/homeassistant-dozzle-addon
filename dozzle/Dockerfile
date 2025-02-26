@@ -14,7 +14,8 @@ RUN git clone --depth=1 https://github.com/amir20/dozzle.git . &&     go mod tid
 RUN rm -rf /opt/dozzle
 
 # Copier le script de démarrage
-COPY run.sh /run.sh
+COPY dozzle/run.sh /run.sh
+
 RUN chmod +x /run.sh
 
 # Définir le point d’entrée
