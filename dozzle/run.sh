@@ -1,15 +1,16 @@
-# run.sh
 #!/usr/bin/with-contenv bashio
 
 # Print a message indicating that Dozzle is starting
-echo "Starting Dozzle..."
+# Debug : afficher les logs au démarrage
+echo "🚀 Dozzle Add-on is starting..."
+export BASHIO_LOG_LEVEL="debug"
+
+# Vérifier si Bashio fonctionne
+if ! command -v bashio &> /dev/null; then
+    echo "❌ Bashio not found! Exiting..."
+    exit 1
+fi
 
 # Start Dozzle in the foreground (correct execution)
 exec /usr/bin/dozzle --host 0.0.0.0 --port 8666
 
-# Run the Dozzle container with the necessary configurations
-#docker run --rm \
-#    --network=host \  # Use the host network mode to ensure full connectivity
-#    -e DOZZLE_BASE=/api/panel \  # Set the base path for Dozzle when running in Home Assistant
-#    -v /var/run/docker.sock:/var/run/docker.sock \  # Mount the Docker socket to allow access to logs
-#    amir20/dozzle:latest
