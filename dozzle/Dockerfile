@@ -19,7 +19,6 @@ RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
 # Cloner et compiler Dozzle (release v8.11.7)
 WORKDIR /opt/dozzle
 RUN git clone --depth=1 --branch v8.11.7 https://github.com/amir20/dozzle.git . && \
-    cd ui && yarn install && yarn build && cd .. && \
     go mod tidy && \
     go build -o /usr/bin/dozzle && \
     chmod +x /usr/bin/dozzle
