@@ -24,6 +24,3 @@ ports:
   "8080/tcp": 8080
 ports_description:
   "8080/tcp": "Web interface for Dozzle"
-
-
-# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
