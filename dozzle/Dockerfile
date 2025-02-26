@@ -6,7 +6,7 @@ LABEL maintainer="erreur32"
 # Installer les dépendances nécessaires
 RUN apk add --no-cache docker-cli jq curl git nodejs npm yarn
 
-# Télécharger bashio via le bon lien
+# Télécharger bashio avec le bon lien
 RUN wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/refs/heads/main/lib/bashio \
     && chmod +x /usr/bin/bashio
 
@@ -16,9 +16,9 @@ RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
     rm go.tar.gz && \
     ln -s /usr/local/go/bin/go /usr/bin/go
 
-# Cloner et compiler Dozzle depuis la branche master pour inclure le dossier ui
+# Cloner et compiler Dozzle depuis la branche master (qui contient le dossier ui)
 WORKDIR /opt/dozzle
-RUN git clone --depth=1 https://github.com/amir20/dozzle.git . && \
+RUN git clone --depth=1 --branch master https://github.com/amir20/dozzle.git . && \
     cd ui && yarn install && yarn build && cd .. && \
     mv ui/dist . && \
     go mod tidy && \
