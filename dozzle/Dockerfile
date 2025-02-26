@@ -15,7 +15,7 @@ RUN wget -O /usr/bin/dozzle https://github.com/amir20/dozzle/releases/latest/dow
     && chmod +x /usr/bin/dozzle
 
 # Copier les fichiers nécessaires
-COPY rootfs/ /
+#COPY rootfs/ /
 
 # Définir la commande de lancement de l'add-on
 CMD [ "/usr/bin/dozzle", "--host", "0.0.0.0", "--port", "8090" ]
