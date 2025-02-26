@@ -6,7 +6,10 @@ FROM $BUILD_FROM
 LABEL maintainer="erreur32"
 
 # Install necessary dependencies (Dozzle + Bashio)
-RUN apk add --no-cache docker-cli jq curl bashio
+#RUN apk add --no-cache docker-cli jq curl bashio
+RUN apk add --no-cache docker-cli jq curl \
+    && wget -O /usr/bin/bashio https://github.com/hassio-addons/bashio/releases/latest/download/bashio \
+    && chmod +x /usr/bin/bashio
 
 
 # Install Dozzle
