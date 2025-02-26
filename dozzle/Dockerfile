@@ -15,7 +15,8 @@ RUN wget -O /usr/bin/dozzle https://github.com/amir20/dozzle/releases/latest/dow
     && chmod +x /usr/bin/dozzle
 
 # Copy the startup script into the container
-COPY run.sh /
+COPY dozzle/run.sh /run.sh
+
 RUN chmod +x /run.sh
 
 # Set the default command to execute the startup script
