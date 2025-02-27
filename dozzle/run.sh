@@ -29,9 +29,8 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
     exit 1
 fi
 
-exec /usr/local/bin/dozzle --addr :${PORT} --docker-endpoint unix:///var/run/docker.sock
-
-#exec /usr/local/bin/dozzle --addr :${PORT}
+#exec /usr/local/bin/dozzle --addr :${PORT} --docker-endpoint unix:///var/run/docker.sock
+exec /usr/local/bin/dozzle --addr :${PORT}
 
 
 
@@ -39,7 +38,7 @@ exec /usr/local/bin/dozzle --addr :${PORT} --docker-endpoint unix:///var/run/doc
 #exec /usr/local/bin/dozzle --addr :${PORT}
 # Lancer en arrière-plan pour éviter les conflits PID avec s6
 #nohup /usr/local/bin/dozzle --addr :${PORT} > /dev/stdout 2>&1 &
- 
+
 # Run the Dozzle container with the necessary configurations
 #docker run --rm \
 #    --network=host \  # Use the host network mode to ensure full connectivity
