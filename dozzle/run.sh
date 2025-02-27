@@ -2,12 +2,12 @@
 
 set -e
 
-# Détection automatique du mode (HA ou local)
-if bashio::config.exists 'port'; then
-    PORT=$(bashio::config 'port')
-else
-    PORT=${PORT:-8099}  # Port par défaut si non défini
-fi
+# port variable ext.
+# Définir le port : si la config HA existe, on la prend, sinon on met 8099 par défaut
+#PORT=$(bashio::config 'port' || echo "8099")
+
+#ingress
+PORT=8099
 
 echo "Starting Dozzle on port ${PORT}..."
 
