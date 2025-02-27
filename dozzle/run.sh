@@ -7,7 +7,7 @@ echo "Starting Dozzle..."
  
 
 # Utilisez bashio pour lire les options de configuration
-CONFIG_PATH=/data/options.yaml
+CONFIG_PATH=/data/options.json
 
 # Exemple de lecture d'une option de configuration
 DOZZLE_LEVEL=$(bashio::config 'DOZZLE_LEVEL')
