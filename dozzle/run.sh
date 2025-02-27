@@ -9,6 +9,13 @@ set -e
 #ingress
 PORT=8099
 
+# Vérifie si la mise à jour automatique est activée
+if bashio::config.true 'auto_update'; then
+    echo "Auto-update enabled. Checking for updates..."
+    apk update && apk upgrade
+fi
+
+
 echo "Starting Dozzle on port ${PORT}..."
 
 if [ ! -f "/usr/local/bin/dozzle" ]; then
