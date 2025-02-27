@@ -4,7 +4,6 @@ slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
 arch: ["armv7", "armhf", "aarch64", "amd64", "i386"]
-privileged: ["SYS_ADMIN"]
 
 startup: "services"
 boot: "auto"
@@ -12,9 +11,9 @@ host_network: true
 protected: false
 
 devices:
-  - "/var/run/docker.sock:/var/run/docker.sock"
   - "/dev/log"
   - "/dev/kmsg"
+#  - "/var/run/docker.sock:/var/run/docker.sock"
 
 hassio_role: "admin"
 docker_api: true
