@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.93"
+version: "0.1.92"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -17,8 +17,8 @@ devices:
 
 hassio_role: "admin"
 docker_api: true
-environment:
-  DOZZLE_INGRESS: "true"
+#environment:
+#  DOZZLE_INGRESS: "true"
 
 
 privileged:
