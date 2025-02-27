@@ -18,11 +18,10 @@ devices:
 hassio_role: "admin"
 docker_api: true
 
-privileged: true
-
-#  - "SYS_ADMIN"
-#  - "DAC_READ_SEARCH"
-#  - "NET_ADMIN"
+privileged:
+  - "SYS_ADMIN"
+  - "DAC_READ_SEARCH"
+  - "NET_ADMIN"
 
 map:
   - "config:rw"
