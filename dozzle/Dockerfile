@@ -1,36 +1,11 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.15
+ARG BUILD_FROM
 FROM $BUILD_FROM
 
-LABEL maintainer="erreur32"
+LABEL io.hass.type="addon"
+LABEL io.hass.name="Dozzle"
+LABEL io.hass.version="1.0.0"
 
-# Installer les dépendances nécessaires
-RUN apk add --no-cache docker-cli jq curl git nodejs npm yarn
+COPY dozzle/run.sh /run.sh
+RUN chmod a+x /run.sh
 
-# Télécharger bashio via le bon lien
-RUN wget -O /usr/bin/bashio https://raw.githubusercontent.com/hassio-addons/bashio/refs/heads/main/lib/bashio \
-    && chmod +x /usr/bin/bashio
-
-# Installer Go 1.24.0 manuellement
-RUN curl -sSL https://go.dev/dl/go1.24.0.linux-amd64.tar.gz -o go.tar.gz && \
-    tar -C /usr/local -xzf go.tar.gz && \
-    rm go.tar.gz && \
-    ln -s /usr/local/go/bin/go /usr/bin/go
-
-# Cloner et compiler Dozzle depuis la version v7.7.0
-WORKDIR /opt/dozzle
-RUN git clone --depth=1 --branch v8.0.1 https://github.com/amir20/dozzle.git . && \
-    cd ui && yarn install && yarn build && cd .. && \
-    mv ui/dist . && \
-    go mod tidy && \
-    go build -o /usr/bin/dozzle && \
-    chmod +x /usr/bin/dozzle
-
-# Nettoyer le répertoire de build
-RUN rm -rf /opt/dozzle
-
-# Copier le script de démarrage
-COPY run.sh /run.sh
-RUN chmod +x /run.sh
-
-# Point d'entrée
-CMD [ "/run.sh" ]
+CMD ["/run.sh"]
