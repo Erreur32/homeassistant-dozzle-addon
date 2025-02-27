@@ -20,6 +20,7 @@ if [ ! -S "/var/run/docker.sock" ]; then
     echo "[Error] Docker socket not found! Make sure it's mapped in Home Assistant."
     exit 1
 fi
+
 # Vérifie si l'API Supervisor est accessible
 #if ! curl -s --connect-timeout 2 http://supervisor/info > /dev/null; then
 #    echo "[WARN] Impossible de contacter l'API Home Assistant Supervisor."
