@@ -25,6 +25,7 @@ map:
   - "share:rw"
   - "backup:rw"
   - "media:rw"
+  - "docker_socket:rw"
 
 homeassistant: true
 panel_icon: "mdi:docker"
