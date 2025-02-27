@@ -1,20 +1,11 @@
-<<<<<<< HEAD
-ARG BUILD_FROM
-FROM $BUILD_FROM
-=======
 FROM ghcr.io/home-assistant/amd64-base:3.15
->>>>>>> 88f893c (Mise à jour de l'addon Dozzle pour HA)
 
-LABEL io.hass.type="addon"
-LABEL io.hass.name="Dozzle"
-LABEL io.hass.version="1.0.0"
+LABEL maintainer="erreur32"
 
-<<<<<<< HEAD
-COPY dozzle/run.sh /run.sh
-RUN chmod a+x /run.sh
 
-CMD ["/run.sh"]
-=======
+# ✅ Ajout du mode "host" pour éviter les problèmes réseau
+ENV DOCKER_HOST=unix:///var/run/docker.sock
+
 # Mettre à jour les dépôts et installer libc6-compat
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
@@ -29,11 +20,11 @@ RUN apk del --purge gcompat \
     && apk add --allow-untrusted --force-overwrite glibc-2.35-r1.apk \
     && rm -f glibc-2.35-r1.apk
 
-
 # Vérifier que glibc est bien installé
 RUN ldd --version || true
 
-# Copier le binaire Dozzle
+
+# 📌 **Fix des chemins pour HA (dossier `dozzle/` utilisé comme racine)**
 COPY bin/dozzle /usr/local/bin/dozzle
 RUN chmod +x /usr/local/bin/dozzle
 
@@ -42,4 +33,3 @@ COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
 CMD [ "/run.sh" ]
->>>>>>> 88f893c (Mise à jour de l'addon Dozzle pour HA)
