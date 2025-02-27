@@ -10,22 +10,25 @@ PORT=8099
 
 # Vérifie si la mise à jour automatique est activée
 if bashio::config.true 'auto_update'; then
-    echo "Auto-update enabled. Checking for updates..."
+    echo "[INFO] Auto-update enabled. Checking for updates..."
     apk update && apk upgrade
 fi
 
 
 # Vérifier que le socket Docker est accessible
 if [ ! -S "/var/run/docker.sock" ]; then
-    echo "Error: Docker socket not found! Make sure it's mapped in Home Assistant."
+    echo "[Error] Docker socket not found! Make sure it's mapped in Home Assistant."
     exit 1
 fi
-
+# Vérifie si l'API Supervisor est accessible
+#if ! curl -s --connect-timeout 2 http://supervisor/info > /dev/null; then
+#    echo "[WARN] Impossible de contacter l'API Home Assistant Supervisor."
+#fi
 
 echo "Starting Dozzle on port ${PORT}..."
 
 if [ ! -f "/usr/local/bin/dozzle" ]; then
-    echo "Error: Dozzle binary not found in /usr/local/bin/dozzle"
+    echo "[Error] Dozzle binary not found in /usr/local/bin/dozzle"
     exit 1
 fi
 
