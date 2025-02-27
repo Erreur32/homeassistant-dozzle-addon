@@ -38,19 +38,21 @@ map:
 
 panel_icon: "mdi:docker"
 
-ingress: true
-ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
-ingress_entry: "/"
+#ingress: true
+#ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
+#ingress_entry: "/"
 
 ## 🔥 Suppression des options inutiles en mode Ingress
 # Ingress permet de ne pas exposer directement le port vers l'extérieur
 # Donc, on n'a **PAS** besoin d'options ou d'un port configuré par l'utilisateur.
 
 #ingress: false  # Désactiver ingress car il ne fonctionne pas avec des ports variables
+ingress: false
 #options:
 #  port: 8099
 #schema:
-#  port: int
+#   port: int
+
 #environment:
 #  TZ: "Europe/Paris"
 
