@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Dozzle
 version: "1.0.0"
 slug: dozzle
@@ -8,11 +9,21 @@ arch:
   - aarch64
   - amd64
   - i386
+=======
+name: "Dozzle"
+version: "1.2"
+supervisor: ">=2025.01.0"
+slug: "dozzle"
+description: "An add-on to view Docker logs for Home Assistant"
+url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
+arch: ["armv7", "armhf", "aarch64", "amd64", "i386"]
+>>>>>>> 88f893c (Mise à jour de l'addon Dozzle pour HA)
 startup: "services"
 boot: "auto"
 host_network: true
 options: {}
 schema: {}
+<<<<<<< HEAD
 ports:
   8080/tcp: 8080
 webui: "http://[HOST]:[PORT:8080]"
@@ -21,3 +32,21 @@ ingress_port: 8099
 ingress_entry: "/"
 panel_icon: "mdi:docker"
 panel_title: "Dozzle"
+=======
+privileged: ["SYS_ADMIN"]
+devices: ["/dev/log", "/dev/kmsg"]
+host_network: true
+map:
+  - "config:rw"
+  - "addons:rw"
+  - "ssl:rw"
+  - "share:rw"
+  - "backup:rw"
+  - "media:rw"
+homeassistant: true
+ingress: true
+ingress_stream: false
+ingress_port: 8099
+ingress_entry: "/"
+panel_icon: "mdi:docker"
+>>>>>>> 88f893c (Mise à jour de l'addon Dozzle pour HA)
