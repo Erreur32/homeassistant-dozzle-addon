@@ -16,6 +16,13 @@ if bashio::config.true 'auto_update'; then
 fi
 
 
+# Vérifier que le socket Docker est accessible
+if [ ! -S "/var/run/docker.sock" ]; then
+    echo "Error: Docker socket not found! Make sure it's mapped in Home Assistant."
+    exit 1
+fi
+
+
 echo "Starting Dozzle on port ${PORT}..."
 
 if [ ! -f "/usr/local/bin/dozzle" ]; then
@@ -23,7 +30,11 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
     exit 1
 fi
 
-exec /usr/local/bin/dozzle --addr :${PORT}
+exec /usr/local/bin/dozzle --addr :${PORT} --docker-endpoint unix:///var/run/docker.sock
+
+#exec /usr/local/bin/dozzle --addr :${PORT}
+
+
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}
