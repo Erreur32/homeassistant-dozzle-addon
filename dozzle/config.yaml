@@ -19,16 +19,10 @@ hassio_role: "admin"
 docker_api: true
 
 privileged: true
+
 #  - "SYS_ADMIN"
 #  - "DAC_READ_SEARCH"
 #  - "NET_ADMIN"
-#environment:
-#  TZ: "Europe/Paris"
-
-#options:
-#  auto_update: true  # Désactivé par défaut
-#schema:
-#  auto_update: bool
 
 map:
   - "config:rw"
@@ -40,9 +34,7 @@ map:
   - "docker_socket:rw"
   - "supervisor:rw"
 
-#homeassistant: true
 panel_icon: "mdi:docker"
-
 
 ingress: true
 ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
@@ -57,3 +49,10 @@ ingress_entry: "/"
 #  port: 8099
 #schema:
 #  port: int
+#environment:
+#  TZ: "Europe/Paris"
+
+#options:
+#  auto_update: true  # Désactivé par défaut
+#schema:
+#  auto_update: bool
