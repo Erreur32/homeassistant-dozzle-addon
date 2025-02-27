@@ -1,11 +1,24 @@
-# run.sh
 #!/usr/bin/with-contenv bashio
-
+# run.sh
 # Print a message indicating that Dozzle is starting
 echo "Starting Dozzle..."
+ #!/usr/bin/with-contenv bashio
+
+ 
+
+# Utilisez bashio pour lire les options de configuration
+CONFIG_PATH=/data/options.yaml
+
+# Exemple de lecture d'une option de configuration
+DOZZLE_LEVEL=$(bashio::config 'DOZZLE_LEVEL')
+
+# Commande pour démarrer Dozzle
+exec dozzle --level "$DOZZLE_LEVEL"
+
+
 
 # Start Dozzle in the foreground (correct execution)
-exec /usr/bin/dozzle --host 0.0.0.0 --port 8666
+#exec /usr/bin/dozzle --host 0.0.0.0 --port 8666
 
 # Run the Dozzle container with the necessary configurations
 #docker run --rm \
