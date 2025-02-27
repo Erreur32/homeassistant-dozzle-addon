@@ -1,7 +1,6 @@
 #!/usr/bin/with-contenv bashio
 
 set -e
-
 # port variable ext.
 # Définir le port : si la config HA existe, on la prend, sinon on met 8099 par défaut
 #PORT=$(bashio::config 'port' || echo "8099")

@@ -31,6 +31,10 @@ RUN chmod +x /usr/local/bin/dozzle
 # Ajouter le script de démarrage
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
+RUN mkdir -p /run/s6/container_environment
+
+
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
 #CMD [ "/run.sh" ]
 ENTRYPOINT [ "/run.sh" ]
