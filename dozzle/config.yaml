@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.93"
+version: "0.1.34"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -17,9 +17,9 @@ devices:
 
 hassio_role: "admin"
 docker_api: true
-environment:
-  DOZZLE_INGRESS: "true"
 
+environment:
+  DOZZLE_BASE_URL: "/"
 
 privileged:
   - "SYS_ADMIN"
@@ -38,16 +38,16 @@ map:
 
 panel_icon: "mdi:docker"
 
-#ingress: true
-#ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
-#ingress_entry: "/"
+ingress: true
+ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
+ingress_entry: "/"
 
 ## 🔥 Suppression des options inutiles en mode Ingress
 # Ingress permet de ne pas exposer directement le port vers l'extérieur
 # Donc, on n'a **PAS** besoin d'options ou d'un port configuré par l'utilisateur.
 
 #ingress: false  # Désactiver ingress car il ne fonctionne pas avec des ports variables
-ingress: false
+#ingress: false
 #options:
 #  port: 8099
 #schema:
