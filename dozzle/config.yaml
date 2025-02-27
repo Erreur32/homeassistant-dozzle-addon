@@ -13,11 +13,12 @@ devices: ["/dev/log", "/dev/kmsg"]
 
 host_network: true
 protected: false
-options:
-  auto_update: true  # Désactivé par défaut
 
-schema:
-  auto_update: bool
+#options:
+#  auto_update: true  # Désactivé par défaut
+#schema:
+#  auto_update: bool
+
 map:
   - "config:rw"
   - "addons:rw"
