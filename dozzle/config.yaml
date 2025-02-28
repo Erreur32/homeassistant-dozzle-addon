@@ -35,8 +35,8 @@ ingress: true
 ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
 ingress_entry: "/"
 environment:
-  DOZZLE_INGRESS: "true"
   DOZZLE_BASE_URL: "/api/hassio_ingress/dozzle/"
+ # DOZZLE_INGRESS: "true"
  #  DOZZLE_BASE_URL: "/"
 
 
