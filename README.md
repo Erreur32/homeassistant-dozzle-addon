@@ -1,7 +1,7 @@
 # homeassistant-dozzle-addon
 homeassistant dozzle addon add-on repository ( only acces via http://homeassistant:8099 )
 
-I'm working on it to have ingress directly in HA ;)
+![logo](https://github.com/user-attachments/assets/b184931c-03d4-4e8a-b716-a9b17055892d)
 
 
 [Dozzle](https://dozzle.dev/) can run in [agent mode](https://dozzle.dev/guide/agent) which can expose Docker hosts to other Dozzle instances. All communication is done over a secured connection using TLS. This means that you can deploy Dozzle on a remote host and connect to it from your local machine.
@@ -11,8 +11,17 @@ I'm working on it to have ingress directly in HA ;)
 ## Add-ons
 
 This repository contains the following add-ons
-
 ### [Dozzle Agent add-on](./dozzle-agent)
+
+## Settings
+ Disable
+ - Protected mod : off
+
+
+## TODO:
+- [x] Ingress directly in HA ;)
+- [x] Secure access
+
 
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
