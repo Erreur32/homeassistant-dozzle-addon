@@ -1,5 +1,4 @@
 bin_orig/
-cosign.key
-cosign.pub
+keys/
 Aide
-dozzle/bin/
+bin/
