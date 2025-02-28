@@ -7,7 +7,7 @@ arch: ["amd64"]
 panel_icon: "mdi:docker"
 startup: "services"
 boot: "auto"
-host_network: false
+host_network: true
 protected: false
 devices:
   - "/dev/log"
