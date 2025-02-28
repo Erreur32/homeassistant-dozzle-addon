@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.34"
+version: "0.1.32"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -37,6 +37,5 @@ environment:
   DOZZLE_INGRESS: "false"
 
 # Optionnel : si vous avez un profil AppArmor personnalisé
-apparmor: "profile:dozzle_secure"
+apparmor: "profile:dozzle_dozzle"
 
- 

@@ -1,0 +1,33 @@
+#include <tunables/global>
+
+/usr/bin/dozzle {
+  # Autoriser l'accès au socket Docker en lecture seule
+  /var/run/docker.sock r,
+
+  # Autoriser la lecture des logs systèmes
+  /dev/log r,
+  /dev/kmsg r,
+
+  # Autoriser l'accès en lecture seule aux répertoires de configuration de HA
+  /config/** r,
+  /addons/** r,
+  /ssl/** r,
+  /share/** r,
+  /backup/** r,
+  /media/** r,
+
+  # Autoriser la lecture des bibliothèques et exécutables système
+  /lib/** r,
+  /usr/lib/** r,
+  /bin/** r,
+  /sbin/** r,
+
+  # Autoriser l'accès en écriture uniquement si nécessaire dans /tmp
+  /tmp/** rw,
+
+  # Autoriser les connexions réseau (selon tes besoins)
+  network inet stream,
+
+  # Interdire toute autre écriture
+  deny /** w,
+}
