@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.31"
+version: "0.1.32"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -40,7 +40,8 @@ ingress: true
 ingress_port: 8099  # Port interne utilisé, HA s'occupe du routage
 ingress_entry: "/"
 environment:
-  DOZZLE_BASE_URL: "/api/hassio_ingress/dozzle/"
+  DOZZLE_INGRESS: "true"
+#  DOZZLE_BASE_URL: "/api/hassio_ingress/dozzle/"
 
  # DOZZLE_INGRESS: "true"
  #  DOZZLE_BASE_URL: "/"
