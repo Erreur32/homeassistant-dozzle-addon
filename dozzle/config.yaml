@@ -36,7 +36,3 @@ environment:
   # Désactive la logique d'ingress interne de Dozzle si nécessaire
   DOZZLE_INGRESS: "false"
 
-# Optionnel : si vous avez un profil AppArmor personnalisé
-#apparmor: "profile:dozzle_dozzle"
-#apparmor: "profile:usr.local.bin.dozzle"
-# tamere
