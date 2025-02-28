@@ -30,14 +30,10 @@ privileged:
 
 hassio_role: "admin"
 docker_api: true
-# Ingress activé pour l'accès via HA
-ingress: true
+# access direct
+ingress: false
 ingress_port: 8099
 ingress_entry: "/"
-
 environment:
-  # Indique à Dozzle l'URL de base quand il est servi via Ingress
-  DOZZLE_BASE_URL: "/api/hassio_ingress/dozzle_secure/"
-  # Désactive la logique d'ingress interne de Dozzle si nécessaire
-  DOZZLE_INGRESS: "false"
+  DOZZLE_BASE_URL: "/"
 
