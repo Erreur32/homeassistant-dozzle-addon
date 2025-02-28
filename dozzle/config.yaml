@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.31"
+version: "0.1.32"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -9,7 +9,6 @@ startup: "services"
 boot: "auto"
 host_network: true
 protected: false
-
 devices:
   - "/dev/log"
   - "/dev/kmsg"
@@ -22,7 +21,6 @@ privileged:
   - "SYS_ADMIN"
   - "DAC_READ_SEARCH"
   - "NET_ADMIN"
-
 map:
   - "config:rw"
   - "addons:rw"
