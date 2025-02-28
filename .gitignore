@@ -2,3 +2,4 @@ bin_orig/
 cosign.key
 cosign.pub
 Aide
+dozzle/bin/
