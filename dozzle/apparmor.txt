@@ -1,6 +1,6 @@
 #include <tunables/global>
 
-/usr/bin/dozzle {
+ /usr/local/bin/dozzle {
   # Autoriser l'accès au socket Docker en lecture seule
   /var/run/docker.sock r,
 
