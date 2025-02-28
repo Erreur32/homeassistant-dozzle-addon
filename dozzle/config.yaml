@@ -39,4 +39,4 @@ environment:
 # Optionnel : si vous avez un profil AppArmor personnalisé
 #apparmor: "profile:dozzle_dozzle"
 #apparmor: "profile:usr.local.bin.dozzle"
-
+# tamere
