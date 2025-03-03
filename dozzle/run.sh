@@ -7,11 +7,7 @@ set -m
 bashio::log.info "Starting Dozzle..."
 
 # Get the port from config or use default
-if bashio::config.has_value 'port'; then
-    PORT=$(bashio::config 'port')
-else
-    PORT=8099
-fi
+PORT=8099
 
 # Get the log level from config or use default
 if bashio::config.has_value 'log_level'; then
@@ -23,15 +19,15 @@ fi
 # Configure logging
 bashio::log.level "${LOG_LEVEL}"
 
-# Vérifie si la mise à jour automatique est activée
+# Check for auto-update
 if bashio::config.true 'auto_update'; then
     bashio::log.info "Auto-update enabled. Checking for updates..."
     apk update && apk upgrade
 fi
 
-# Vérifier que le socket Docker est accessible
+# Check Docker socket access
 if [ ! -S "/var/run/docker.sock" ]; then
-    bashio::log.error "Docker socket not found! Make sure it's mapped in Home Assistant."
+    bashio::log.error "Docker socket not found at /var/run/docker.sock"
     exit 1
 fi
 
@@ -40,7 +36,7 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
     exit 1
 fi
 
-# Set environment variables
+# Set environment variables for ingress support
 export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
@@ -50,7 +46,7 @@ bashio::log.info "Dozzle configuration:"
 bashio::log.info "Address: ${DOZZLE_ADDR}"
 bashio::log.info "Base path: ${DOZZLE_BASE}"
 
-# Start Dozzle with proper configuration
+# Start Dozzle
 exec /usr/local/bin/dozzle
 
 # Démarrer Dozzle

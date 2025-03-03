@@ -47,9 +47,10 @@ You can access Dozzle in two ways:
 
 ## Security Recommendations
 
-- Consider enabling authentication if exposing to external networks
-- Review Docker socket permissions
-- Keep the add-on updated
+> [!IMPORTANT]
+>
+>  - Consider enabling authentication if exposing to external networks
+>  - Keep the add-on updated
 
 ## Supported Architectures
 
@@ -66,17 +67,9 @@ This Home Assistant add-on is licensed under MIT License.
 
 ## Add-ons
 
-> [!IMPORTANT]
-> Acces only via external URL eg. http://homeassistant:8099 .
 
 
-This repository contains the following add-ons
-### [Dozzle Agent add-on](./dozzle-agent)
-
-## Settings
- Disable
- - Protected mod : off
-
+ 
 
 ## TODO:
 - [x] Ingress directly in HA ;)
@@ -84,10 +77,10 @@ This repository contains the following add-ons
 
 ## Versions
 
-- Version actuelle : 0.1.36
+- Version actuelle : 0.1.37
 - Basé sur Dozzle et Alpine Linux 3.15
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.36-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.37-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
