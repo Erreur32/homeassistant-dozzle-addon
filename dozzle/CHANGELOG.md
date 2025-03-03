@@ -45,6 +45,11 @@
 
 ## 0.1.39
 
+### 🔄 Revert
+- Reverted to last known working configuration
+- Restored ingress path to "/ingress"
+- Fixed external access configuration
+
 ### 🐛 Bug Fixes
 - Fixed ingress path configuration
 - Added proper authentication for Home Assistant
