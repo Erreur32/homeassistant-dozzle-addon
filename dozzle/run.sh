@@ -3,8 +3,14 @@
 set -e
 
 # Get config values
-PORT=$(bashio::addon.ingress_port)
+PORT=$(bashio::config 'port')
 INGRESS_PATH=$(bashio::addon.ingress_entry)
+SLUG=$(bashio::addon.slug)
+LOG_LEVEL=$(bashio::config 'log_level')
+
+# Configure logging
+bashio::log.level "${LOG_LEVEL}"
+bashio::log.info "Starting Dozzle with port ${PORT}..."
 
 # Vérifie si la mise à jour automatique est activée
 if bashio::config.true 'auto_update'; then
@@ -18,17 +24,22 @@ if [ ! -S "/var/run/docker.sock" ]; then
     exit 1
 fi
 
-bashio::log.info "Starting Dozzle on port ${PORT}..."
-
 if [ ! -f "/usr/local/bin/dozzle" ]; then
     bashio::log.error "Dozzle binary not found in /usr/local/bin/dozzle"
     exit 1
 fi
 
-# Start Dozzle with ingress configuration
-exec /usr/local/bin/dozzle \
-    --addr ":${PORT}" \
-    --base "${INGRESS_PATH}"
+# Set the base path for ingress
+export DOZZLE_BASE="/api/hassio_ingress/${SLUG}"
+export DOZZLE_ADDR="0.0.0.0:${PORT}"
+
+# Log configuration
+bashio::log.info "Dozzle configuration:"
+bashio::log.info "Base path: ${DOZZLE_BASE}"
+bashio::log.info "Address: ${DOZZLE_ADDR}"
+
+# Start Dozzle with proper configuration
+exec /usr/local/bin/dozzle
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}

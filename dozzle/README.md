@@ -1,4 +1,8 @@
-# Dozzle Add-on for Home Assistant
+# Home Assistant Add-on: Dozzle
+
+[![Release][release-shield]][release] ![Project Stage][project-stage-shield] ![Project Maintenance][maintenance-shield]
+
+Dozzle est une interface web en temps réel pour visualiser les logs Docker dans Home Assistant.
 
 ![logo](https://github.com/user-attachments/assets/b184931c-03d4-4e8a-b716-a9b17055892d)
 
@@ -78,4 +82,11 @@ This repository contains the following add-ons
 - [x] Ingress directly in HA ;)
 - [x] Secure access
 
+## Versions
+
+- Version actuelle : 0.1.34
+- Basé sur Dozzle et Alpine Linux 3.15
+
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.34-blue.svg
+[release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases

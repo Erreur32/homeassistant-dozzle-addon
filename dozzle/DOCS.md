@@ -11,6 +11,7 @@ Dozzle is a real-time log viewer for Docker containers. This add-on provides a s
 - Clean and intuitive web interface
 - Native Home Assistant integration
 - Secure access through Home Assistant authentication
+- Configurable port and logging options
 
 ## Installation
 
@@ -20,32 +21,42 @@ Dozzle is a real-time log viewer for Docker containers. This add-on provides a s
 4. Add this repository URL: `https://github.com/Erreur32/homeassistant-dozzle-addon`
 5. Find "Dozzle" in the list and click "Install"
 
-## How to use
-
-1. Start the add-on
-2. Click "OPEN WEB UI" to access Dozzle
-3. You will see a list of all your Docker containers
-4. Click on any container to view its logs in real-time
-
 ## Configuration
 
-The add-on comes with a default configuration that works out of the box:
+The add-on offers several configuration options that can be modified in the add-on configuration panel:
 
 ```yaml
-ingress: true
-ingress_port: 8099
-docker_api: true
+# Example configuration
+port: 8099              # The port Dozzle will run on
+log_level: info         # The log level (trace/debug/info/notice/warning/error/fatal)
+auto_update: false      # Enable/disable automatic updates
 ```
 
-### Optional Configuration
+### Option: `port`
 
-- `protected`: Enable this if you want to require authentication
-- `host_network`: Can be disabled if you don't need host network access
+The port number that Dozzle will use. Default is `8099`. Change this if the port is already in use by another service.
+
+### Option: `log_level`
+
+The `log_level` option controls the level of log output by the add-on and can be changed to be more or less verbose, which might be useful when you are dealing with an unknown problem. Possible values are:
+
+- `trace`: Show every detail, like all called internal functions
+- `debug`: Shows detailed debug information
+- `info`: Normal (usually) interesting events
+- `notice`: Important events
+- `warning`: Exceptional occurrences that are not errors
+- `error`: Runtime errors that do not require immediate action
+- `fatal`: Something went terribly wrong. Add-on becomes unusable
+
+### Option: `auto_update`
+
+Enable this to automatically update the add-on when new versions are available.
 
 ## Network
 
-- Ingress port: 8099 (internal)
-- You can also access directly via `http://homeassistant:8099` (if needed)
+- Default port: 8099 (configurable)
+- The add-on runs on the host network for direct access to Docker logs
+- Ingress is enabled for easy access through Home Assistant UI
 
 ## Storage
 
@@ -60,8 +71,11 @@ Need help? Found a bug? Please [open an issue](https://github.com/Erreur32/homea
 ### Q: Why can't I see any containers?
 A: Check if Docker socket is properly mounted and verify Docker API access permissions.
 
+### Q: How do I change the port?
+A: Go to the add-on configuration page and modify the `port` option to your desired port number.
+
 ### Q: Is authentication required?
-A: By default, the add-on uses Home Assistant authentication. You can enable additional protection by setting `protected: true`.
+A: By default, the add-on uses Home Assistant authentication. You can enable additional protection by setting `protected: true` in the add-on configuration.
 
 ### Q: Does it affect performance?
 A: Dozzle is very lightweight and only reads logs when requested. It doesn't store any data locally.

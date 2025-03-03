@@ -1,13 +1,41 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
-## 0.1.32 (2024-03-xx)
+## 0.1.34
+
+### 🚀 New Features
+- Added configurable port option in Home Assistant UI
+- Added log level configuration option
+- Added auto-update option
+- Improved ingress support for direct Home Assistant integration
+
+### 🔧 Changes
+- Updated documentation with new configuration options
+- Improved error handling and logging
+- Added detailed configuration instructions
+- Enhanced Docker socket error detection
+
+### 🐛 Bug Fixes
+- Fixed routing pattern issue with ingress path
+- Corrected environment variable configuration
+- Fixed Docker socket mounting issues
+
+## 0.1.33
+
+### 🎉 Initial Release
+- Basic Dozzle integration with Home Assistant
+- Real-time Docker log viewing
+- Direct access via ingress
+- Basic configuration options
+
+## [0.1.32] - 2024-03-xx
 
 ### Added
 - ✨ Ingress support for direct Home Assistant UI integration
 - 🔒 Improved security configuration
 - 🔄 Auto-update capability
 - 📝 Enhanced documentation and README
+- 🐳 Better Docker socket handling
 
 ### Changed
 - 🚀 Updated base image to latest Home Assistant AMD64 base
@@ -18,17 +46,27 @@
 ### Fixed
 - 🐛 Docker socket permissions handling
 - 🔍 Path resolution for ingress support
+- 🔐 Security-related configurations
 
-## 1.2.0
+## [1.2.0] - 2023
 
-- Add an apparmor profile
-- Update to 3.15 base image with s6 v3
-- Add a sample script to run as service and constrain in aa profile
+### Added
+- AppArmor profile for enhanced security
+- Sample script for service running with AppArmor constraints
 
-## 1.1.0
+### Changed
+- Updated to 3.15 base image with s6 v3
+- Improved service management
 
-- Updates
+## [1.1.0] - 2023
 
-## 1.0.0
+### Changed
+- General updates and improvements
+- Enhanced stability
 
-- Initial release
+## [1.0.0] - 2023
+
+### Added
+- Initial release of Dozzle add-on
+- Basic Docker log viewing functionality
+- External access support
