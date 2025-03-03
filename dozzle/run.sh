@@ -52,7 +52,7 @@ else
 fi
 
 # Set environment variables for ingress support
-export DOZZLE_BASE="/ingress"
+export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
 
