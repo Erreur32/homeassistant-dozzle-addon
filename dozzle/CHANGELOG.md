@@ -1,6 +1,20 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.44
+
+### 🐛 Bug Fixes
+- Fixed ingress configuration and paths
+- Updated ingress_entry to "ingress"
+- Corrected DOZZLE_BASE path
+- Cleaned up configuration format
+
+### 🔧 Changes
+- Standardized configuration values format
+- Removed unnecessary quotes
+- Updated documentation
+- Enhanced ingress routing
+
 ## 0.1.42
 
 ### 🐛 Bug Fixes
