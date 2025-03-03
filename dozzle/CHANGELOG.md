@@ -1,6 +1,20 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.35
+
+### 🐛 Bug Fixes
+- Fixed bashio script errors
+- Fixed ingress authentication issues
+- Fixed Docker socket access
+- Corrected environment variables configuration
+
+### 🔧 Changes
+- Improved error handling in startup script
+- Enhanced logging configuration
+- Simplified ingress configuration
+- Removed deprecated configuration options
+
 ## 0.1.34
 
 ### 🚀 New Features

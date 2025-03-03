@@ -1,16 +1,27 @@
 #!/usr/bin/with-contenv bashio
 
-set -e
+# Enable job control
+set -m
 
 # Get config values
-PORT=$(bashio::config 'port')
-INGRESS_PATH=$(bashio::addon.ingress_entry)
-SLUG=$(bashio::addon.slug)
-LOG_LEVEL=$(bashio::config 'log_level')
+bashio::log.info "Starting Dozzle..."
+
+# Get the port from config or use default
+if bashio::config.has_value 'port'; then
+    PORT=$(bashio::config 'port')
+else
+    PORT=8099
+fi
+
+# Get the log level from config or use default
+if bashio::config.has_value 'log_level'; then
+    LOG_LEVEL=$(bashio::config 'log_level')
+else
+    LOG_LEVEL="info"
+fi
 
 # Configure logging
 bashio::log.level "${LOG_LEVEL}"
-bashio::log.info "Starting Dozzle with port ${PORT}..."
 
 # Vérifie si la mise à jour automatique est activée
 if bashio::config.true 'auto_update'; then
@@ -30,13 +41,14 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
 fi
 
 # Set the base path for ingress
-export DOZZLE_BASE="/api/hassio_ingress/${SLUG}"
+export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
+export DOZZLE_NO_ANALYTICS="true"
 
 # Log configuration
 bashio::log.info "Dozzle configuration:"
-bashio::log.info "Base path: ${DOZZLE_BASE}"
 bashio::log.info "Address: ${DOZZLE_ADDR}"
+bashio::log.info "Base path: ${DOZZLE_BASE}"
 
 # Start Dozzle with proper configuration
 exec /usr/local/bin/dozzle
