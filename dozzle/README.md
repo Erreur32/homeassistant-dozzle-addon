@@ -20,6 +20,7 @@ Dozzle est une interface web en temps réel pour visualiser les logs Docker dans
 - 🔒 Secure access through Home Assistant
 - 🐳 Support for all Docker containers
 - 🧹 Automatic log cleaning option
+- 🖥️ Multi-architecture support
 
 ## Installation
 
@@ -52,8 +53,10 @@ The add-on now includes automatic log cleaning capabilities:
 ### Access Methods
 
 You can access Dozzle in two ways:
-1. **Recommended**: Directly through Home Assistant UI (Ingress at `/ingress/`)
-2. External access via `http://homeassistant:8099` (if needed)
+1. **Recommended**: Directly through Home Assistant UI (Ingress)
+2. External access via `http://homeassistant:8099`
+
+Both access methods are now properly configured and should work simultaneously.
 
 ### Ingress Access
 
@@ -61,6 +64,7 @@ The add-on now properly supports Home Assistant ingress:
 - Access through the Home Assistant sidebar
 - Proper authentication handling
 - Secure access through Home Assistant's reverse proxy
+- Simplified base path configuration
 
 ## Security Recommendations
 
@@ -73,7 +77,11 @@ The add-on now properly supports Home Assistant ingress:
 
 ## Supported Architectures
 
+![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
+![Supports armhf Architecture][armhf-shield]
+![Supports armv7 Architecture][armv7-shield]
+![Supports i386 Architecture][i386-shield]
 
 ## Support
 
@@ -86,11 +94,15 @@ This Home Assistant add-on is licensed under MIT License.
 
 ## Version Information
 
-- Current Version: 0.1.39
+- Current Version: 0.1.42
 - Based on Dozzle and Alpine Linux 3.15
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.39-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.42-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
+[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
+[armhf-shield]: https://img.shields.io/badge/armhf-yes-green.svg
+[armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
+[i386-shield]: https://img.shields.io/badge/i386-yes-green.svg

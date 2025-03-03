@@ -52,7 +52,7 @@ else
 fi
 
 # Set environment variables for ingress support
-export DOZZLE_BASE="/ingress/"
+export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
 
@@ -60,6 +60,7 @@ export DOZZLE_NO_ANALYTICS="true"
 bashio::log.info "Dozzle configuration:"
 bashio::log.info "Address: ${DOZZLE_ADDR}"
 bashio::log.info "Base path: ${DOZZLE_BASE}"
+bashio::log.info "External access: http://homeassistant:${PORT}"
 
 # Start Dozzle
 exec /usr/local/bin/dozzle

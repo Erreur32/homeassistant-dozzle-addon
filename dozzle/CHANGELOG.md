@@ -1,6 +1,34 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.42
+
+### 🐛 Bug Fixes
+- Fixed external access and ingress routing
+- Added proper webui configuration
+- Simplified base path handling
+
+### 🔧 Changes
+- Improved access configuration
+- Enhanced external URL handling
+- Updated documentation for access methods
+
+## 0.1.41
+
+### 🚀 New Features
+- Added multi-architecture support (aarch64, amd64, armhf, armv7, i386)
+- Updated documentation for all supported architectures
+
+### 🐛 Bug Fixes
+- Fixed 404 errors in ingress and external access
+- Simplified base path configuration
+- Corrected routing paths
+
+### 🔧 Changes
+- Updated architecture badges in documentation
+- Enhanced build configuration
+- Improved path handling
+
 ## 0.1.39
 
 ### 🐛 Bug Fixes
