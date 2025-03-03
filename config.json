@@ -1,5 +1,7 @@
 {
   "name": "Home Assistant Dozzle Add-ons",
   "url": "https://github.com/Erreur32/homeassistant-dozzle-addon",
-  "maintainer": "Erreur32"
+  "maintainer": "Erreur32",
+  "slug": "dozzle_repository",
+  "version": "0.1.39"
 } 
