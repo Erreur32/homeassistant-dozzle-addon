@@ -1,6 +1,20 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.37
+
+### 🐛 Bug Fixes
+- Fixed ingress configuration and routing
+- Corrected environment variables for proper ingress support
+- Updated device paths format for better compatibility
+- Fixed JSON parsing errors in configuration
+
+### 🔧 Changes
+- Simplified port configuration
+- Removed unnecessary privileges and mappings
+- Improved error messages
+- Enhanced ingress integration with Home Assistant
+
 ## 0.1.36
 
 ### 🐛 Bug Fixes
@@ -98,17 +112,3 @@
 - Initial release of Dozzle add-on
 - Basic Docker log viewing functionality
 - External access support
-
-## 0.1.37
-
-### 🐛 Bug Fixes
-- Fixed ingress configuration and routing
-- Corrected environment variables for proper ingress support
-- Updated device paths format for better compatibility
-- Fixed JSON parsing errors in configuration
-
-### 🔧 Changes
-- Simplified port configuration
-- Removed unnecessary privileges and mappings
-- Improved error messages
-- Enhanced ingress integration with Home Assistant
