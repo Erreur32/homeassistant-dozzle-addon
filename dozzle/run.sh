@@ -6,6 +6,13 @@ set -m
 # Get config values
 bashio::log.info "Starting Dozzle..."
 
+# Function to clean Docker logs
+clean_docker_logs() {
+    bashio::log.info "Cleaning Docker container logs..."
+    find /var/lib/docker/containers/ -type f -name "*.log" -exec truncate -s 0 {} \;
+    bashio::log.info "Docker logs cleaned successfully"
+}
+
 # Get the port from config or use default
 PORT=8099
 
@@ -36,8 +43,16 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
     exit 1
 fi
 
+# Clean logs at startup if enabled
+if bashio::config.true 'clean_logs_on_start'; then
+    bashio::log.info "Auto-clean logs enabled. Cleaning logs..."
+    clean_docker_logs
+else
+    bashio::log.info "Auto-clean logs disabled. Skipping log cleanup."
+fi
+
 # Set environment variables for ingress support
-export DOZZLE_BASE="/"
+export DOZZLE_BASE="/ingress/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
 

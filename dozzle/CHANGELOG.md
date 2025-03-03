@@ -1,6 +1,31 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.39
+
+### 🐛 Bug Fixes
+- Fixed ingress path configuration
+- Added proper authentication for Home Assistant
+- Corrected base path for ingress access
+- Fixed JSON parsing errors
+
+### 🔧 Changes
+- Updated ingress configuration
+- Added auth_api support
+- Improved error handling
+- Enhanced ingress documentation
+
+## 0.1.38
+
+### 🚀 New Features
+- Added automatic log cleaning option at startup
+- Added log cleaning function
+- Added configuration option `clean_logs_on_start`
+
+### 🔧 Changes
+- Updated documentation with log cleaning information
+- Improved startup logging messages
+
 ## 0.1.37
 
 ### 🐛 Bug Fixes

@@ -19,6 +19,7 @@ Dozzle est une interface web en temps réel pour visualiser les logs Docker dans
 - 🔄 Auto-update capability
 - 🔒 Secure access through Home Assistant
 - 🐳 Support for all Docker containers
+- 🧹 Automatic log cleaning option
 
 ## Installation
 
@@ -35,15 +36,31 @@ Dozzle est une interface web en temps réel pour visualiser les logs Docker dans
 The add-on provides several configuration options:
 
 ```yaml
-auto_update: true  # Enable automatic updates
-protected: false   # Allow access without authentication
+auto_update: true          # Enable automatic updates
+protected: false           # Allow access without authentication
+clean_logs_on_start: false # Clean container logs on addon startup
+log_level: "info"         # Set logging level
 ```
+
+### Log Management
+
+The add-on now includes automatic log cleaning capabilities:
+
+- **Automatic Cleaning**: Enable `clean_logs_on_start` to automatically clean all container logs when the add-on starts
+- **Manual Cleaning**: You can manually clean logs by restarting the add-on with `clean_logs_on_start` enabled
 
 ### Access Methods
 
 You can access Dozzle in two ways:
-1. **Recommended**: Directly through Home Assistant UI (Ingress)
+1. **Recommended**: Directly through Home Assistant UI (Ingress at `/ingress/`)
 2. External access via `http://homeassistant:8099` (if needed)
+
+### Ingress Access
+
+The add-on now properly supports Home Assistant ingress:
+- Access through the Home Assistant sidebar
+- Proper authentication handling
+- Secure access through Home Assistant's reverse proxy
 
 ## Security Recommendations
 
@@ -52,6 +69,7 @@ You can access Dozzle in two ways:
 >  - Consider enabling authentication if exposing to external networks
 >  - Review Docker socket permissions
 >  - Keep the add-on updated
+>  - Be cautious with log cleaning in production environments
 
 ## Supported Architectures
 
@@ -68,10 +86,10 @@ This Home Assistant add-on is licensed under MIT License.
 
 ## Version Information
 
-- Current Version: 0.1.37
+- Current Version: 0.1.39
 - Based on Dozzle and Alpine Linux 3.15
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.37-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.39-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg

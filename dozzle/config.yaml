@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.37"
+version: "0.1.39"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -12,20 +12,23 @@ init: false
 watchdog: "http://[HOST]:8099"
 ingress: true
 ingress_port: 8099
-ingress_entry: "/"
+ingress_entry: "/ingress"
 panel_admin: false
+auth_api: true
 
 # Options for the add-on
 options:
   port: 8099
   log_level: "info"
   auto_update: false
+  clean_logs_on_start: false
 
 # Schema for the add-on options
 schema:
   port: "port"
   log_level: "list(trace|debug|info|notice|warning|error|fatal)"
   auto_update: "bool"
+  clean_logs_on_start: "bool"
 
 # Docker configuration
 privileged:
@@ -51,6 +54,6 @@ devices:
   - "/var/run/docker.sock:/var/run/docker.sock:rw"
 
 environment:
-  DOZZLE_BASE: "%%ingress_entry%%"
+  DOZZLE_BASE: "/ingress/"
   DOZZLE_NO_ANALYTICS: "true"
   DOZZLE_ADDR: "0.0.0.0:8099"
