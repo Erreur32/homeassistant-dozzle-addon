@@ -50,6 +50,7 @@ You can access Dozzle in two ways:
 > [!IMPORTANT]
 >
 >  - Consider enabling authentication if exposing to external networks
+>  - Review Docker socket permissions
 >  - Keep the add-on updated
 
 ## Supported Architectures
@@ -65,20 +66,10 @@ You can access Dozzle in two ways:
 
 This Home Assistant add-on is licensed under MIT License.
 
-## Add-ons
+## Version Information
 
-
-
- 
-
-## TODO:
-- [x] Ingress directly in HA ;)
-- [x] Secure access
-
-## Versions
-
-- Version actuelle : 0.1.37
-- Basé sur Dozzle et Alpine Linux 3.15
+- Current Version: 0.1.37
+- Based on Dozzle and Alpine Linux 3.15
 
 [release-shield]: https://img.shields.io/badge/version-v0.1.37-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
