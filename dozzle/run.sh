@@ -1,42 +1,34 @@
 #!/usr/bin/with-contenv bashio
 
 set -e
-# port variable ext.
-# Définir le port : si la config HA existe, on la prend, sinon on met 8099 par défaut
-#PORT=$(bashio::config 'port' || echo "8099")
 
-#ingress
-PORT=8099
+# Get config values
+PORT=$(bashio::addon.ingress_port)
+INGRESS_PATH=$(bashio::addon.ingress_entry)
 
 # Vérifie si la mise à jour automatique est activée
 if bashio::config.true 'auto_update'; then
-    echo "[INFO] Auto-update enabled. Checking for updates..."
+    bashio::log.info "Auto-update enabled. Checking for updates..."
     apk update && apk upgrade
 fi
 
-
 # Vérifier que le socket Docker est accessible
 if [ ! -S "/var/run/docker.sock" ]; then
-    echo "[Error] Docker socket not found! Make sure it's mapped in Home Assistant."
+    bashio::log.error "Docker socket not found! Make sure it's mapped in Home Assistant."
     exit 1
 fi
 
-# Vérifie si l'API Supervisor est accessible
-#if ! curl -s --connect-timeout 2 http://supervisor/info > /dev/null; then
-#    echo "[WARN] Impossible de contacter l'API Home Assistant Supervisor."
-#fi
-
-echo "Starting Dozzle on port ${PORT}..."
+bashio::log.info "Starting Dozzle on port ${PORT}..."
 
 if [ ! -f "/usr/local/bin/dozzle" ]; then
-    echo "[Error] Dozzle binary not found in /usr/local/bin/dozzle"
+    bashio::log.error "Dozzle binary not found in /usr/local/bin/dozzle"
     exit 1
 fi
 
-#exec /usr/local/bin/dozzle --addr :${PORT} --docker-endpoint unix:///var/run/docker.sock
-exec /usr/local/bin/dozzle --addr :${PORT}
-
-
+# Start Dozzle with ingress configuration
+exec /usr/local/bin/dozzle \
+    --addr ":${PORT}" \
+    --base "${INGRESS_PATH}"
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}
