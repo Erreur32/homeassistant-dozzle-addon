@@ -1,0 +1,6 @@
+channel: stable
+addons:
+  dozzle:
+    repository: Erreur32/homeassistant-dozzle-addon
+    target: dozzle
+    image: ghcr.io/erreur32/dozzle/{arch} 
