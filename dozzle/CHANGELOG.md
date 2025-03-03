@@ -1,6 +1,20 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.36
+
+### 🐛 Bug Fixes
+- Fixed watchdog configuration format
+- Updated device paths to new format
+- Changed hassio_role to "default"
+- Removed deprecated Docker socket mapping format
+
+### 🔧 Changes
+- Simplified environment variables
+- Updated all version references
+- Cleaned up configuration structure
+- Improved documentation consistency
+
 ## 0.1.35
 
 ### 🐛 Bug Fixes

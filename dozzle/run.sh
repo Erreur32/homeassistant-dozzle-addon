@@ -40,7 +40,7 @@ if [ ! -f "/usr/local/bin/dozzle" ]; then
     exit 1
 fi
 
-# Set the base path for ingress
+# Set environment variables
 export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
