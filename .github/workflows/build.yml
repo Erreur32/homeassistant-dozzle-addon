@@ -13,9 +13,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [amd64, armv7, armhf, aarch64, i386]
     permissions:
       contents: read
       packages: write
@@ -39,7 +36,7 @@ jobs:
         with:
           context: ./dozzle
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:latest
-          platforms: linux/${{ matrix.arch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
+          platforms: linux/amd64
           build-args: |
-            BUILD_ARCH=${{ matrix.arch }} 
+            BUILD_ARCH=amd64 
