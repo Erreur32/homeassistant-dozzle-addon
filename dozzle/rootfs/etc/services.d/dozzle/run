@@ -16,7 +16,10 @@ main() {
 
     # Load config values with defaults
     port=$(bashio::config 'port' 8099)
-    base="/"
+    
+    # Get ingress entry point from Home Assistant
+    base=$(bashio::addon.ingress_entry)
+    
     agent=$(bashio::config 'agent' false)
     agent_port=$(bashio::config 'agent_port' 7007)
     clean_logs=$(bashio::config 'clean_logs_on_start' false)
@@ -55,7 +58,7 @@ main() {
         exec dozzle --agent --port "${agent_port}"
     else
         bashio::log.info "Starting with ingress support..."
-        exec dozzle --port "${port}" --base "${base}"
+        exec dozzle --addr "0.0.0.0:${port}" --base "${base}"
     fi
 }
 

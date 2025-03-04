@@ -1,6 +1,14 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.47
+
+### 🚀 Improvements
+- ✨ Proper implementation of Home Assistant ingress
+- 🔄 Using dynamic ingress entry point
+- 🛠️ Fixed ingress configuration issues
+- 🔒 Enhanced security with Home Assistant authentication
+
 ## 0.1.46
 
 ### 🔧 Changes
