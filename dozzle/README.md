@@ -38,17 +38,10 @@ The add-on provides several configuration options:
 
 ```yaml
 auto_update: true          # Enable automatic updates
-protected: false           # Allow access without authentication
-clean_logs_on_start: false # Clean container logs on addon startup
+protected: false           # Need to be set on FALSE to work!
+clean_logs_on_start: false # Clean container logs on addon startup ( not working )
 log_level: "info"         # Set logging level
 ```
-
-### Log Management
-
-The add-on now includes automatic log cleaning capabilities:
-
-- **Automatic Cleaning**: Enable `clean_logs_on_start` to automatically clean all container logs when the add-on starts
-- **Manual Cleaning**: You can manually clean logs by restarting the add-on with `clean_logs_on_start` enabled
 
 ### Access Methods
 
@@ -65,6 +58,14 @@ The add-on now properly supports Home Assistant ingress:
 - Proper authentication handling
 - Secure access through Home Assistant's reverse proxy
 - Simplified base path configuration
+
+### Log Management
+
+The add-on now includes automatic log cleaning capabilities:
+
+- **Automatic Cleaning**: Enable `clean_logs_on_start` to automatically clean all container logs when the add-on starts
+- **Manual Cleaning**: You can manually clean logs by restarting the add-on with `clean_logs_on_start` enabled
+
 
 ## Security Recommendations
 
