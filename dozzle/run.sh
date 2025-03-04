@@ -38,6 +38,7 @@ main() {
     export DOZZLE_FOLLOW="true"
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
+    export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
 
     # Log configuration
     bashio::log.info "Starting Dozzle..."
