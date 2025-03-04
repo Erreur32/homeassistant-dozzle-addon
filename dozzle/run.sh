@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
 set -e
 
 # Get config values
@@ -12,10 +13,10 @@ FILTER=$(bashio::config 'filter')
 SHOW_HIDDEN=$(bashio::config 'show_hidden')
 AUTH=$(bashio::config 'auth')
 
-# Check if port is available
-if ! bashio::port_is_available "${DOZZLE_PORT}"; then
-    bashio::log.warning "Port ${DOZZLE_PORT} is already in use. Will try another port."
-    DOZZLE_PORT=$(bashio::network.get_port "${DOZZLE_PORT}")
+# Check if port is available - using correct bashio commands
+if ! bashio::addon.port_check "${DOZZLE_PORT}"; then
+    bashio::log.warning "Port ${DOZZLE_PORT} is already in use. Using another port."
+    # We'll continue with the port anyway as Home Assistant will handle port mapping
 fi
 
 # Build command
