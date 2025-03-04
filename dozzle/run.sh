@@ -13,20 +13,30 @@ fi
 
 # Get ingress entry point from Home Assistant
 INGRESS_ENTRY=$(bashio::addon.ingress_entry)
-bashio::log.info "Ingress entry point: ${INGRESS_ENTRY}"
+bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 
 # Build command - Use fixed port 8099 for Dozzle
-CMD="dozzle --addr 0.0.0.0:8099 --base ${INGRESS_ENTRY}"
+# Trim whitespace from INGRESS_ENTRY
+INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
+
+if [[ -z "${INGRESS_ENTRY}" ]]; then
+    bashio::log.warning "Ingress entry point is empty, starting without base path"
+    CMD="dozzle --addr 0.0.0.0:8099"
+else
+    bashio::log.info "Using base path: '${INGRESS_ENTRY}'"
+    CMD="dozzle --addr 0.0.0.0:8099 --base ${INGRESS_ENTRY}"
+fi
 
 # Add options based on config
 [[ "${REMOTE_ACCESS}" = "true" ]] && CMD="${CMD} --accept-remote-addr=.*"
 
 if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
+    bashio::log.info "Agent mode enabled on port ${DOZZLE_AGENT_PORT}"
     CMD="${CMD} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
 fi
 
-bashio::log.info "Starting Dozzle on port 8099 with base path ${INGRESS_ENTRY}..."
+bashio::log.info "Starting Dozzle on port 8099"
 bashio::log.debug "Command: ${CMD}"
 
-# Run Dozzle
-exec ${CMD}
+# Run Dozzle - Use eval to properly handle the command
+eval exec ${CMD}

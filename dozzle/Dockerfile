@@ -39,10 +39,16 @@ RUN chmod +x /usr/local/bin/dozzle
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
+# Copier le répertoire rootfs
+COPY rootfs /
+
+# S'assurer que tous les scripts sont exécutables
+RUN chmod +x /etc/cont-init.d/* /etc/services.d/*/run /etc/services.d/*/finish
+
 # Configuration S6
 RUN mkdir -p /run/s6/container_environment
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
 # Point d'entrée
-ENTRYPOINT [ "/run.sh" ]
+ENTRYPOINT ["/init"]
 
