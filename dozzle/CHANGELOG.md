@@ -1,6 +1,13 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.45
+
+### 🔧 Correction de la configuration d'ingress
+### 🔒 Amélioration de la gestion des tokens
+### 🌐 Optimisation du support SSL pour l'ingress
+### 📝 Mise à jour de la documentation
+
 ## 0.1.44
 
 ### 🔧 Changes

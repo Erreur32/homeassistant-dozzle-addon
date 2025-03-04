@@ -38,6 +38,7 @@ main() {
     export DOZZLE_FOLLOW="true"
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
+    export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
 
     # Log configuration
     bashio::log.info "Starting Dozzle..."
@@ -48,12 +49,13 @@ main() {
     bashio::log.info "Clean logs: ${clean_logs}"
     bashio::log.info "Log level: ${log_level}"
 
-    # Start Dozzle
+    # Start Dozzle with ingress support
     if [ "$agent" = true ]; then
         bashio::log.info "Starting in agent mode..."
         exec dozzle --agent --port "${agent_port}"
     else
-        exec dozzle --port "${port}"
+        bashio::log.info "Starting with ingress support..."
+        exec dozzle --port "${port}" --base "${base}"
     fi
 }
 

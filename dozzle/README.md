@@ -13,7 +13,7 @@ Real-time Docker log monitoring interface for Home Assistant.
 
 ## About
 
-Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version is optimized to work as a Home Assistant add-on.
+Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version (0.1.45) is optimized to work as a Home Assistant add-on with improved ingress support.
 
 ## Features
 
