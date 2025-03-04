@@ -22,7 +22,7 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-# Base command
+# Base command with address binding for external access
 CMD="dozzle --addr 0.0.0.0:${PORT}"
 
 # Add base path for ingress if available
@@ -33,10 +33,9 @@ else
     bashio::log.warning "Ingress entry point is empty, starting without base path"
 fi
 
-# Enable remote access if configured
+# Remote access is enabled by binding to 0.0.0.0 above
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
-    bashio::log.info "Remote access enabled"
-    CMD="${CMD} --accept-remote-addr=.*"
+    bashio::log.info "Remote access enabled via port binding to 0.0.0.0"
 fi
 
 # Enable agent mode if configured
