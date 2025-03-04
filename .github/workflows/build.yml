@@ -42,4 +42,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
           platforms: linux/amd64
           build-args: |
-            BUILD_ARCH=amd64 
+            BUILD_ARCH=amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify image exists
+        run: |
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
+          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }} 
