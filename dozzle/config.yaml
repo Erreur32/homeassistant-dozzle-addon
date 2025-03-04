@@ -28,30 +28,13 @@ devices: []
 usb: false
 udev: true
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
-options:
-  port: 8099
-  agent: false
-  agent_port: 7007
-  clean_logs_on_start: false
-  log_level: info
-schema:
-  port: int
-  agent: bool
-  agent_port: int
-  clean_logs_on_start: bool
-  log_level: str
-environment:
-  DOZZLE_BASE: "/"
-  DOZZLE_JSON: "true"
-  DOZZLE_WEBSOCKET: "true"
-  DOZZLE_TAILSIZE: "1000"
-  DOZZLE_FOLLOW: "true"
-  DOZZLE_ADDR: "0.0.0.0:${port}"
+options: {}
+schema: {}
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
 hassio_api: true
-hassio_role: default
+hassio_role: admin
 docker_api: true
 auth_api: true
 map:
