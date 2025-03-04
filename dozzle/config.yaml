@@ -27,7 +27,7 @@ host_dbus: false
 devices: []
 usb: false
 udev: true
-image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle:8.11.7"
+image: "ghcr.io/erreur32/homeassistant-dozzle-addon/{arch}"
 options:
   port: 8099
   agent: false
