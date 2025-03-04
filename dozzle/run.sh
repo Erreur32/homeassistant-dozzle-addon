@@ -1,45 +1,39 @@
 #!/usr/bin/with-contenv bashio
-# shellcheck shell=bash
-# ==============================================================================
-# Home Assistant Add-on: Dozzle
-# ==============================================================================
+set -e
 
-# ==============================================================================
-# RUN LOGIC
-# ------------------------------------------------------------------------------
-main() {
-    local dozzle_port
-    local dozzle_agent_enabled
-    local dozzle_agent_port
+# Get config values
+LOG_LEVEL=$(bashio::config 'log_level')
+REMOTE_ACCESS=$(bashio::config 'remote_access')
+DOZZLE_PORT=$(bashio::config 'dozzle_port')
+DOZZLE_AGENT_ENABLED=$(bashio::config 'dozzle_agent_enabled')
+DOZZLE_AGENT_PORT=$(bashio::config 'dozzle_agent_port')
+BASE=$(bashio::config 'base')
+FILTER=$(bashio::config 'filter')
+SHOW_HIDDEN=$(bashio::config 'show_hidden')
+AUTH=$(bashio::config 'auth')
 
-    # Load config values with defaults
-    dozzle_port=$(bashio::config 'dozzle_port' 8099)
-    dozzle_agent_enabled=$(bashio::config 'dozzle_agent_enabled' false)
-    dozzle_agent_port=$(bashio::config 'dozzle_agent_port' 7007)
+# Check if port is available
+if ! bashio::port_is_available "${DOZZLE_PORT}"; then
+    bashio::log.warning "Port ${DOZZLE_PORT} is already in use. Will try another port."
+    DOZZLE_PORT=$(bashio::network.get_port "${DOZZLE_PORT}")
+fi
 
-    # Check port availability
-    if ! bashio::net.wait_for 8099; then
-        bashio::log.error "Port 8099 is not available"
-        exit 1
-    fi
+# Build command
+CMD="/app/dozzle --addr 0.0.0.0:${DOZZLE_PORT}"
 
-    # Log configuration
-    bashio::log.info "Starting Dozzle..."
-    bashio::log.info "Dozzle port: ${dozzle_port}"
-    bashio::log.info "Dozzle Agent enabled: ${dozzle_agent_enabled}"
-    bashio::log.info "Dozzle Agent port: ${dozzle_agent_port}"
+# Add options based on config
+[[ "${REMOTE_ACCESS}" = "true" ]] && CMD="${CMD} --accept-remote-addr=.*"
+[[ -n "${BASE}" ]] && CMD="${CMD} --base ${BASE}"
+[[ -n "${FILTER}" ]] && CMD="${CMD} --filter ${FILTER}"
+[[ "${SHOW_HIDDEN}" = "true" ]] && CMD="${CMD} --show-hidden"
+[[ "${AUTH}" = "true" ]] && CMD="${CMD} --auth"
 
-    # Start Dozzle
-    if [ "$dozzle_agent_enabled" = true ]; then
-        bashio::log.info "Starting Dozzle Agent..."
-        exec dozzle --agent --addr "0.0.0.0:${dozzle_agent_port}"
-    else
-        bashio::log.info "Starting Dozzle..."
-        exec dozzle --addr "0.0.0.0:${dozzle_port}"
-    fi
-}
+if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
+    CMD="${CMD} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
+fi
 
-# ==============================================================================
-# EXECUTE LOGIC
-# ------------------------------------------------------------------------------
-main "$@"
+bashio::log.info "Starting Dozzle..."
+bashio::log.debug "Command: ${CMD}"
+
+# Run Dozzle
+exec ${CMD}
