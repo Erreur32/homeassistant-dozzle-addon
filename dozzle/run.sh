@@ -14,10 +14,6 @@ main() {
     local agent_port
     local clean_logs
     local log_level
-    local ssl
-    local certfile
-    local keyfile
-    local password
 
     # Load config values with defaults
     port=$(bashio::config 'port' 8099)
@@ -26,10 +22,6 @@ main() {
     agent_port=$(bashio::config 'agent_port' 7007)
     clean_logs=$(bashio::config 'clean_logs_on_start' false)
     log_level=$(bashio::config 'log_level' 'info')
-    ssl=$(bashio::config 'ssl' false)
-    certfile=$(bashio::config 'certfile' 'fullchain.pem')
-    keyfile=$(bashio::config 'keyfile' 'privkey.pem')
-    password=$(bashio::config 'password' 'homeassistant')
 
     # Check port availability
     if ! bashio::net.wait_for 8099; then
@@ -53,20 +45,13 @@ main() {
     export DOZZLE_FOLLOW="true"
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
-    export DOZZLE_PASSWORD="${password}"
 
     # Handle SUPERVISOR_TOKEN
     if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
         export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
     else
         bashio::log.warning "SUPERVISOR_TOKEN not found, some features may be limited"
-    fi
-
-    # SSL configuration
-    if [ "$ssl" = true ]; then
-        bashio::log.info "SSL is enabled"
-        export DOZZLE_SSL_CERT="/ssl/${certfile}"
-        export DOZZLE_SSL_KEY="/ssl/${keyfile}"
+        export SUPERVISOR_TOKEN=""
     fi
 
     # Log configuration
@@ -77,7 +62,6 @@ main() {
     bashio::log.info "Agent port: ${agent_port}"
     bashio::log.info "Clean logs: ${clean_logs}"
     bashio::log.info "Log level: ${log_level}"
-    bashio::log.info "SSL: ${ssl}"
     bashio::log.info "Ingress enabled: true"
 
     # Start Dozzle with ingress support

@@ -34,20 +34,12 @@ options:
   agent_port: 7007
   clean_logs_on_start: false
   log_level: info
-  ssl: false
-  certfile: fullchain.pem
-  keyfile: privkey.pem
-  password: homeassistant
 schema:
   port: int
   agent: bool
   agent_port: int
   clean_logs_on_start: bool
   log_level: str
-  ssl: bool
-  certfile: str
-  keyfile: str
-  password: str
 environment:
   SUPERVISOR_TOKEN: "${SUPERVISOR_TOKEN}"
   DOZZLE_BASE: "/"
