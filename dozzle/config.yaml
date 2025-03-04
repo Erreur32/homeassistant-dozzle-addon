@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.43"
+version: "0.1.44"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -73,7 +73,6 @@ environment:
   DOZZLE_FOLLOW: "true"
   DOZZLE_JSON: "true"
   DOZZLE_WEBSOCKET: "true"
-  SUPERVISOR_TOKEN: "${SUPERVISOR_TOKEN}"
 
 # Proxy configuration
 proxy:

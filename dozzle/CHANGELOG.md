@@ -1,6 +1,14 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.44
+
+### 🔧 Changes
+- Fixed add-on visibility in Home Assistant store
+- Removed explicit SUPERVISOR_TOKEN configuration
+- Simplified ingress authentication handling
+- Improved script structure and error handling
+
 ## 0.1.43
 
 ### 🔧 Changes
