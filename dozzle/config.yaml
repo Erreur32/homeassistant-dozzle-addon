@@ -73,7 +73,6 @@ environment:
   DOZZLE_FOLLOW: "true"
   DOZZLE_JSON: "true"
   DOZZLE_WEBSOCKET: "true"
-  SUPERVISOR_TOKEN: "${SUPERVISOR_TOKEN}"
 
 # Proxy configuration
 proxy:
