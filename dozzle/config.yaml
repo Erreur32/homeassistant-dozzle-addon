@@ -51,4 +51,31 @@ environment:
   DOZZLE_WEBSOCKET: "true"
   DOZZLE_TAILSIZE: "1000"
   DOZZLE_FOLLOW: "true"
+  DOZZLE_ADDR: "0.0.0.0:[PORT:8099]"
 image: "ghcr.io/amir20/dozzle:latest"
+
+# Ajout des paramètres critiques pour la visibilité
+privileged:
+  - SYS_ADMIN
+  - DAC_READ_SEARCH
+
+hassio_api: true
+hassio_role: default
+docker_api: true
+
+# File system mapping
+map:
+  - config:rw
+  - ssl:rw
+  - share:rw
+  - backup:rw
+  - media:rw
+
+# Device access
+devices:
+  - /dev/log
+  - /dev/kmsg
+  - /var/run/docker.sock
+
+# Watchdog configuration
+watchdog: "http://[HOST]:[PORT:8099]"

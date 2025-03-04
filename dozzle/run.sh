@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
 # ==============================================================================
@@ -16,6 +17,7 @@ main() {
     local ssl
     local certfile
     local keyfile
+    local password
 
     # Load config values with defaults
     port=$(bashio::config 'port' 8099)
@@ -27,6 +29,13 @@ main() {
     ssl=$(bashio::config 'ssl' false)
     certfile=$(bashio::config 'certfile' 'fullchain.pem')
     keyfile=$(bashio::config 'keyfile' 'privkey.pem')
+    password=$(bashio::config 'password' 'homeassistant')
+
+    # Check port availability
+    if ! bashio::net.wait_for 8099; then
+        bashio::log.error "Port 8099 is not available"
+        exit 1
+    fi
 
     # Clean logs if enabled
     if [ "$clean_logs" = true ]; then
@@ -44,6 +53,7 @@ main() {
     export DOZZLE_FOLLOW="true"
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
+    export DOZZLE_PASSWORD="${password}"
 
     # Handle SUPERVISOR_TOKEN
     if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
@@ -68,6 +78,7 @@ main() {
     bashio::log.info "Clean logs: ${clean_logs}"
     bashio::log.info "Log level: ${log_level}"
     bashio::log.info "SSL: ${ssl}"
+    bashio::log.info "Ingress enabled: true"
 
     # Start Dozzle with ingress support
     if [ "$agent" = true ]; then
@@ -75,7 +86,7 @@ main() {
         exec dozzle --agent --port "${agent_port}"
     else
         bashio::log.info "Starting with ingress support..."
-        exec dozzle --port "${port}" --base "${base}"
+        exec dozzle --port "${port}" --base "${base}" --addr "0.0.0.0:${port}"
     fi
 }
 
