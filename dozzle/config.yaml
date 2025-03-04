@@ -50,7 +50,6 @@ environment:
   DOZZLE_TAILSIZE: "1000"
   DOZZLE_FOLLOW: "true"
   DOZZLE_ADDR: "0.0.0.0:${port}"
-image: "amir20/dozzle:8.11.7"
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
