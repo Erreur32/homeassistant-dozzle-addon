@@ -31,26 +31,23 @@ image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 options:
   log_level: "info"
   remote_access: true
-  dozzle_port: 8099
   dozzle_agent_enabled: false
   dozzle_agent_port: 7007
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   remote_access: bool
-  dozzle_port: int
   dozzle_agent_enabled: bool
-  dozzle_agent_port: int
+  dozzle_agent_port: int(1,65535)
 options_description:
   log_level: "Log level (default: info)"
   remote_access: "Enable remote access through port 8099 (default: true)"
-  dozzle_port: "Port for Dozzle web interface (default: 8099)"
   dozzle_agent_enabled: "Enable Dozzle Agent mode (default: false)"
   dozzle_agent_port: "Port for Dozzle Agent (default: 7007)"
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
 hassio_api: true
-hassio_role: admin
+hassio_role: default
 docker_api: true
 auth_api: true
 map:
