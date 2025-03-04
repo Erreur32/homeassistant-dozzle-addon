@@ -51,8 +51,9 @@ privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
 hassio_api: true
-hassio_role: admin
+hassio_role: default
 docker_api: true
+auth_api: true
 map:
   - config:rw
   - ssl:rw

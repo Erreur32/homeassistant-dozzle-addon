@@ -46,14 +46,6 @@ main() {
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
 
-    # Handle SUPERVISOR_TOKEN
-    if bashio::var.has_value "${SUPERVISOR_TOKEN:-}"; then
-        bashio::log.info "SUPERVISOR_TOKEN is set"
-    else
-        bashio::log.warning "SUPERVISOR_TOKEN not found, some features may be limited"
-        # Ne pas définir SUPERVISOR_TOKEN si non trouvé
-    fi
-
     # Log configuration
     bashio::log.info "Starting Dozzle..."
     bashio::log.info "Port: ${port}"
