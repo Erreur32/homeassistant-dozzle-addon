@@ -8,20 +8,14 @@
 # RUN LOGIC
 # ------------------------------------------------------------------------------
 main() {
-    local port
-    local base
-    local agent
-    local agent_port
-    local clean_logs
-    local log_level
+    local dozzle_port
+    local dozzle_agent_enabled
+    local dozzle_agent_port
 
     # Load config values with defaults
-    port=$(bashio::config 'port' 8099)
-    base=$(bashio::config 'base' '/')
-    agent=$(bashio::config 'agent' false)
-    agent_port=$(bashio::config 'agent_port' 7007)
-    clean_logs=$(bashio::config 'clean_logs_on_start' false)
-    log_level=$(bashio::config 'log_level' 'info')
+    dozzle_port=$(bashio::config 'dozzle_port' 8099)
+    dozzle_agent_enabled=$(bashio::config 'dozzle_agent_enabled' false)
+    dozzle_agent_port=$(bashio::config 'dozzle_agent_port' 7007)
 
     # Check port availability
     if ! bashio::net.wait_for 8099; then
@@ -29,32 +23,19 @@ main() {
         exit 1
     fi
 
-    # Clean logs if enabled
-    if [ "$clean_logs" = true ]; then
-        bashio::log.info "Cleaning Docker logs..."
-        find /var/lib/docker/containers/ -type f -name "*.log" -exec truncate -s 0 {} \;
-    fi
-
-    # Set log level
-    bashio::log.level "$log_level"
-
     # Log configuration
     bashio::log.info "Starting Dozzle..."
-    bashio::log.info "Port: ${port}"
-    bashio::log.info "Base: ${base}"
-    bashio::log.info "Agent mode: ${agent}"
-    bashio::log.info "Agent port: ${agent_port}"
-    bashio::log.info "Clean logs: ${clean_logs}"
-    bashio::log.info "Log level: ${log_level}"
-    bashio::log.info "Ingress enabled: true"
+    bashio::log.info "Dozzle port: ${dozzle_port}"
+    bashio::log.info "Dozzle Agent enabled: ${dozzle_agent_enabled}"
+    bashio::log.info "Dozzle Agent port: ${dozzle_agent_port}"
 
-    # Start Dozzle with ingress support
-    if [ "$agent" = true ]; then
-        bashio::log.info "Starting in agent mode..."
-        exec dozzle --agent --addr "0.0.0.0:${agent_port}"
+    # Start Dozzle
+    if [ "$dozzle_agent_enabled" = true ]; then
+        bashio::log.info "Starting Dozzle Agent..."
+        exec dozzle --agent --addr "0.0.0.0:${dozzle_agent_port}"
     else
-        bashio::log.info "Starting with ingress support..."
-        exec dozzle --addr "0.0.0.0:${port}" --base "${base}"
+        bashio::log.info "Starting Dozzle..."
+        exec dozzle --addr "0.0.0.0:${dozzle_port}"
     fi
 }
 

@@ -28,8 +28,18 @@ devices: []
 usb: false
 udev: true
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
-options: {}
-schema: {}
+options:
+  dozzle_port: 8099
+  dozzle_agent_enabled: false
+  dozzle_agent_port: 7007
+schema:
+  dozzle_port: int
+  dozzle_agent_enabled: bool
+  dozzle_agent_port: int
+options_description:
+  dozzle_port: "Port for Dozzle web interface (default: 8099)"
+  dozzle_agent_enabled: "Enable Dozzle Agent mode. When enabled, Dozzle will run as an agent instead of a standalone service"
+  dozzle_agent_port: "Port for Dozzle Agent (default: 7007). Only used when agent mode is enabled"
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
