@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: erreur32/homeassistant-dozzle-addon
+  VERSION: 0.1.46
 
 jobs:
   build:
@@ -36,7 +37,9 @@ jobs:
         with:
           context: ./dozzle
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
           platforms: linux/amd64
           build-args: |
             BUILD_ARCH=amd64 
