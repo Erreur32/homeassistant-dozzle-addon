@@ -1,29 +1,25 @@
-# Dozzle for Home Assistant
+# Dozzle
 
 [![Release][release-shield]][release]
 ![Project Stage][project-stage-shield]
 ![Project Maintenance][maintenance-shield]
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
-
-[![Buy me a coffee][buymeacoffee-shield]][buymeacoffee]
-
 Real-time Docker log monitoring interface for Home Assistant.
 
 ## About
 
-Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version (0.1.45) is optimized to work as a Home Assistant add-on with improved ingress support.
+Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version (0.1.46) is optimized to work as a Home Assistant add-on with improved ingress support.
 
 ## Features
 
 - Intuitive web interface for Docker log visualization
 - Real-time log updates
-- Home Assistant ingress support
-- Configurable external access
-- Log filtering and search
-- Docker and Docker Swarm container support
-- Modern responsive interface
+- SSL support with automatic certificate generation
+- Password protection
+- Ingress support for direct Home Assistant integration
+- Agent mode for distributed logging
+- Automatic log cleaning option
+- Configurable log level
 
 ## Installation
 
@@ -57,8 +53,6 @@ auto_clean_logs: false
 agent: false
 ```
 
-
-
 ## Usage
 
 ### Access via Ingress
@@ -75,38 +69,33 @@ agent: false
 
 ## Support
 
-For any questions or issues, please:
-1. Check the [documentation][docs]
-2. Visit the [community forum][forum]
-3. Join the [Discord][discord] server
+Got questions?
+
+You can open an issue here: [Dozzle issue tracker][issue]
 
 ## Contributing
 
-Contributions are welcome! Feel free to:
-1. Fork the project
-2. Create a branch for your feature
-3. Submit a pull request
+This is an active open-source project. We are always open to people who want to use
+the code or contribute back to it.
+
+Thank you for being involved! :heart_eyes:
+
+## Authors & contributors
+
+The original setup of this repository is by [Erreur32][erreur32].
+
+For a full list of all authors and contributors,
+check [the contributor's page][contributors].
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT License - see the [LICENSE.md][license] file for details
 
-## Credits
-
-- [Dozzle][dozzle] - The original project
-- [Home Assistant][home-assistant] - The home automation platform
-- [Docker][docker] - The containerization platform
-
-[release-shield]: https://img.shields.io/github/v/release/Erreur32/homeassistant-dozzle-addon?include_prereleases&style=flat-square
-[release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
+[contributors]: https://github.com/Erreur32/homeassistant-dozzle-addon/graphs/contributors
+[erreur32]: https://github.com/Erreur32
+[issue]: https://github.com/Erreur32/homeassistant-dozzle-addon/issues
+[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE.md
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg
-[discord]: https://discord.gg/c5DvZ4e
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
-[forum]: https://community.home-assistant.io/
-[buymeacoffee-shield]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg
-[docs]: https://github.com/Erreur32/homeassistant-dozzle-addon/wiki
-[dozzle]: https://github.com/amir20/dozzle
-[home-assistant]: https://home-assistant.io
-[docker]: https://www.docker.com
+[project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.46-blue.svg
+[release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases/tag/v0.1.46

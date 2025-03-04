@@ -11,7 +11,7 @@ main() {
     bashio::log.blue " Dozzle - Docker Log Viewer"
     bashio::log.blue "-----------------------------------------------------------"
     bashio::log.blue ""
-    bashio::log.blue " Version: 0.1.45"
+    bashio::log.blue " Version: 0.1.46"
     bashio::log.blue "-----------------------------------------------------------"
 }
 

@@ -44,7 +44,13 @@ main() {
     export DOZZLE_FOLLOW="true"
     export DOZZLE_JSON="true"
     export DOZZLE_WEBSOCKET="true"
-    export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
+
+    # Handle SUPERVISOR_TOKEN
+    if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+        export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
+    else
+        bashio::log.warning "SUPERVISOR_TOKEN not found, some features may be limited"
+    fi
 
     # SSL configuration
     if [ "$ssl" = true ]; then

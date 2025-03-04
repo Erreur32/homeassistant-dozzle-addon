@@ -8,6 +8,8 @@
 - Added password protection option
 - Added SSL configuration options in add-on settings
 - Updated documentation with SSL information
+- Aligned configuration with Portainer's working setup
+- Improved token management for Home Assistant
 
 ## 0.1.45
 
@@ -40,8 +42,6 @@
 - Updated run.sh script to handle agent mode
 - Added agent and agent_port options in configuration
 - Improved documentation for agent mode
-
-### 🔧 Changes
 - Updated architecture badges in documentation
 - Enhanced build configuration
 - Improved path handling
