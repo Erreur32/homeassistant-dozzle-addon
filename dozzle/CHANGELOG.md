@@ -1,6 +1,14 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.46
+
+### 🔧 Changes
+- Added SSL support with automatic certificate generation
+- Added password protection option
+- Added SSL configuration options in add-on settings
+- Updated documentation with SSL information
+
 ## 0.1.45
 
 ### 🔧 Changes

@@ -13,6 +13,9 @@ main() {
     local agent_port
     local clean_logs
     local log_level
+    local ssl
+    local certfile
+    local keyfile
 
     # Load config values with defaults
     port=$(bashio::config 'port' 8099)
@@ -21,6 +24,9 @@ main() {
     agent_port=$(bashio::config 'agent_port' 7007)
     clean_logs=$(bashio::config 'clean_logs_on_start' false)
     log_level=$(bashio::config 'log_level' 'info')
+    ssl=$(bashio::config 'ssl' false)
+    certfile=$(bashio::config 'certfile' 'fullchain.pem')
+    keyfile=$(bashio::config 'keyfile' 'privkey.pem')
 
     # Clean logs if enabled
     if [ "$clean_logs" = true ]; then
@@ -40,6 +46,13 @@ main() {
     export DOZZLE_WEBSOCKET="true"
     export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
 
+    # SSL configuration
+    if [ "$ssl" = true ]; then
+        bashio::log.info "SSL is enabled"
+        export DOZZLE_SSL_CERT="/ssl/${certfile}"
+        export DOZZLE_SSL_KEY="/ssl/${keyfile}"
+    fi
+
     # Log configuration
     bashio::log.info "Starting Dozzle..."
     bashio::log.info "Port: ${port}"
@@ -48,6 +61,7 @@ main() {
     bashio::log.info "Agent port: ${agent_port}"
     bashio::log.info "Clean logs: ${clean_logs}"
     bashio::log.info "Log level: ${log_level}"
+    bashio::log.info "SSL: ${ssl}"
 
     # Start Dozzle with ingress support
     if [ "$agent" = true ]; then
