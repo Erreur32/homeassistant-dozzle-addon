@@ -50,7 +50,7 @@ schema:
   auth: bool
 options_description:
   log_level: "Log level (default: info)"
-  remote_access: "Enable remote access (default: true)"
+  remote_access: "Enable remote access through port 8099 (default: true)"
   dozzle_port: "Port for Dozzle web interface (default: 8099)"
   dozzle_agent_enabled: "Enable Dozzle Agent mode (default: false)"
   dozzle_agent_port: "Port for Dozzle Agent (default: 7007)"
