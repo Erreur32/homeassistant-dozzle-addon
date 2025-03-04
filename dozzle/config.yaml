@@ -80,15 +80,3 @@ proxy:
   - type: "tcp"
     port: "[PORT:8099]"
     host: "[HOST]"
-
-# Auth configuration
-auth_api: true
-panel_admin: false
-
-# Ingress configuration
-ingress:
-  - type: "tcp"
-    port: "[PORT:8099]"
-    host: "[HOST]"
-    path: "/"
-    ssl: true

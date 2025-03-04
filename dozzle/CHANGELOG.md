@@ -3,10 +3,12 @@
 
 ## 0.1.45
 
-### 🔧 Correction de la configuration d'ingress
-### 🔒 Amélioration de la gestion des tokens
-### 🌐 Optimisation du support SSL pour l'ingress
-### 📝 Mise à jour de la documentation
+### 🔧 Changes
+- Aligned configuration with Portainer's working setup
+- Simplified ingress configuration
+- Optimized token management
+- Improved SSL support
+- Updated documentation
 
 ## 0.1.44
 
@@ -27,12 +29,14 @@
 ## 0.1.42
 
 ### 🔧 Changes
-- Improved ingress configuration
-- Added webui option for better integration
-- Removed user-configurable options for ingress (base and ssl)
-- Optimized automatic ingress management by Home Assistant
-- Added reverse proxy configuration (TCP type)
-- Using dynamic variables for ports ([PORT:8099])
+- Updated run.sh script to handle agent mode
+- Added agent and agent_port options in configuration
+- Improved documentation for agent mode
+
+### 🔧 Changes
+- Updated architecture badges in documentation
+- Enhanced build configuration
+- Improved path handling
 
 ## 0.1.41
 
@@ -50,14 +54,10 @@
 - 🔄 Agent mode support with default port 8098
 
 ### 🔧 Changes
-- Updated run.sh script to handle agent mode
-- Added agent and agent_port options in configuration
-- Improved documentation for agent mode
-
-### 🔧 Changes
-- Updated architecture badges in documentation
-- Enhanced build configuration
-- Improved path handling
+- Updated ingress configuration
+- Added auth_api support
+- Improved error handling
+- Enhanced ingress documentation
 
 ## 0.1.39
 
@@ -71,12 +71,6 @@
 - Added proper authentication for Home Assistant
 - Corrected base path for ingress access
 - Fixed JSON parsing errors
-
-### 🔧 Changes
-- Updated ingress configuration
-- Added auth_api support
-- Improved error handling
-- Enhanced ingress documentation
 
 ## 0.1.38
 
