@@ -27,7 +27,7 @@ options:
   log_level: "info"
   clean_logs_on_start: false
   agent: false
-  agent_port: 8098
+  agent_port: 7007
 
 # Schema for the add-on options
 schema:
