@@ -1,6 +1,14 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.41
+
+### 🔧 Changes
+- Mise à jour de Dozzle vers la version 8.11.7
+- Ajout du label dozzle.version dans le Dockerfile
+- Amélioration des logs pour le mode agent
+- Mise à jour de la documentation avec la version de Dozzle
+
 ## 0.1.40
 
 ### 🚀 New Features
