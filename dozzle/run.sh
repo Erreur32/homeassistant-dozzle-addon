@@ -26,6 +26,22 @@ fi
 # Configure logging
 bashio::log.level "${LOG_LEVEL}"
 
+# Check for agent mode
+if bashio::config.true 'agent'; then
+    bashio::log.info "Agent mode enabled"
+    if bashio::config.has_value 'agent_port'; then
+        AGENT_PORT=$(bashio::config 'agent_port')
+        bashio::log.info "Agent port set to: ${AGENT_PORT}"
+        DOZZLE_AGENT="--agent --port ${AGENT_PORT}"
+    else
+        bashio::log.info "Using default agent port: 7007"
+        DOZZLE_AGENT="--agent --port 7007"
+    fi
+else
+    bashio::log.info "Agent mode disabled"
+    DOZZLE_AGENT=""
+fi
+
 # Check for auto-update
 if bashio::config.true 'auto_update'; then
     bashio::log.info "Auto-update enabled. Checking for updates..."
@@ -63,7 +79,7 @@ bashio::log.info "Base path: ${DOZZLE_BASE}"
 bashio::log.info "External access: http://homeassistant:${PORT}"
 
 # Start Dozzle
-exec /usr/local/bin/dozzle
+exec /usr/local/bin/dozzle ${DOZZLE_AGENT}
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}

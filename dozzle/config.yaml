@@ -25,15 +25,17 @@ auth_api: true
 options:
   port: 8099
   log_level: "info"
-  auto_update: false
   clean_logs_on_start: false
+  agent: false
+  agent_port: 8098
 
 # Schema for the add-on options
 schema:
   port: port
   log_level: list(trace|debug|info|notice|warning|error|fatal)
-  auto_update: bool
   clean_logs_on_start: bool
+  agent: bool
+  agent_port: port
 
 # Docker configuration
 privileged:
