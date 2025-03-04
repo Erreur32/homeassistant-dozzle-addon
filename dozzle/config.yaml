@@ -1,7 +1,7 @@
 name: "Dozzle"
 version: "0.1.46"
 slug: "dozzle"
-description: "Real-time log viewer for Docker containers"
+description: "Real-time log viewer for Docker containers."
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
 arch:
   - armhf
