@@ -3,4 +3,4 @@ addons:
   dozzle:
     repository: Erreur32/homeassistant-dozzle-addon
     target: dozzle
-    image: ghcr.io/erreur32/homeassistant-dozzle-addon/{arch} 
+    image: ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch} 
