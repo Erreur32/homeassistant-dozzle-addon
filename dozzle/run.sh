@@ -12,8 +12,7 @@ if [[ -z "${DOZZLE_AGENT_PORT}" ]]; then
 fi
 
 # Build command - Use fixed port 8099 for Dozzle
-# Use 0.0.0.0 to make it accessible from both ingress and external
-CMD="dozzle --addr 0.0.0.0:8099 --base /"
+CMD="dozzle --addr 0.0.0.0:8099"
 
 # Add options based on config
 [[ "${REMOTE_ACCESS}" = "true" ]] && CMD="${CMD} --accept-remote-addr=.*"
