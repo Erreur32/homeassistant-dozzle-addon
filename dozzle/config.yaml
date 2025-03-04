@@ -18,7 +18,7 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 ports:
-  8099/tcp: "{{ port }}"
+  8099/tcp: 8099
 ports_description:
   8099/tcp: "Web interface for direct access (not needed for Home Assistant Ingress)"
 webui: "http://[HOST]:[PORT:8099]"
