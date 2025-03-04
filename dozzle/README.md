@@ -21,6 +21,7 @@ Dozzle est une interface web en temps réel pour visualiser les logs Docker dans
 - 🐳 Support for all Docker containers
 - 🧹 Automatic log cleaning option
 - 🖥️ Multi-architecture support
+- 🔐 Enhanced ingress security
 
 ## Installation
 
@@ -39,8 +40,8 @@ The add-on provides several configuration options:
 ```yaml
 auto_update: true          # Enable automatic updates
 protected: false           # Need to be set on FALSE to work!
-clean_logs_on_start: false # Clean container logs on addon startup ( not working )
-log_level: "info"         # Set logging level
+clean_logs_on_start: false # Clean container logs on addon startup
+log_level: "info"          # Set logging level
 ```
 
 ### Access Methods
@@ -58,6 +59,8 @@ The add-on now properly supports Home Assistant ingress:
 - Proper authentication handling
 - Secure access through Home Assistant's reverse proxy
 - Simplified base path configuration
+- SSL support through Home Assistant's certificates
+- WebUI integration for better accessibility
 
 ### Log Management
 
@@ -65,7 +68,6 @@ The add-on now includes automatic log cleaning capabilities:
 
 - **Automatic Cleaning**: Enable `clean_logs_on_start` to automatically clean all container logs when the add-on starts
 - **Manual Cleaning**: You can manually clean logs by restarting the add-on with `clean_logs_on_start` enabled
-
 
 ## Security Recommendations
 
@@ -75,6 +77,7 @@ The add-on now includes automatic log cleaning capabilities:
 >  - Review Docker socket permissions
 >  - Keep the add-on updated
 >  - Be cautious with log cleaning in production environments
+>  - Use ingress for secure access through Home Assistant
 
 ## Supported Architectures
 
@@ -95,10 +98,10 @@ This Home Assistant add-on is licensed under MIT License.
 
 ## Version Information
 
-- Current Version: 0.1.41
+- Current Version: 0.1.42
 - Based on Dozzle v8.11.7 and Alpine Linux 3.15
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.41-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.42-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg

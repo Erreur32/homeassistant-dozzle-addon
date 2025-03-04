@@ -2,7 +2,7 @@ FROM ghcr.io/home-assistant/amd64-base:3.15
 
 LABEL maintainer="erreur32"
 LABEL io.hass.type="addon"
-LABEL io.hass.version="0.1.41"
+LABEL io.hass.version="0.1.42"
 LABEL dozzle.version="8.11.7"
 
 # ✅ Configuration du mode "host" pour Docker

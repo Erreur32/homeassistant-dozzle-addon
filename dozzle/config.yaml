@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.41"
+version: "0.1.42"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -20,6 +20,7 @@ ingress_port: 8099
 ingress_entry: "/"
 panel_admin: false
 auth_api: true
+webui: "http://[HOST]:[PORT:8099]"
 
 # Options for the add-on
 options:

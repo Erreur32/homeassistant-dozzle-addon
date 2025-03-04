@@ -16,6 +16,13 @@ clean_docker_logs() {
 # Get the port from config or use default
 PORT=8099
 
+# Get the base path from config or use default
+if bashio::config.has_value 'base'; then
+    BASE=$(bashio::config 'base')
+else
+    BASE="/"
+fi
+
 # Get the log level from config or use default
 if bashio::config.has_value 'log_level'; then
     LOG_LEVEL=$(bashio::config 'log_level')
@@ -28,17 +35,23 @@ bashio::log.level "${LOG_LEVEL}"
 
 # Check for agent mode
 if bashio::config.true 'agent'; then
-    bashio::log.info "Agent mode enabled"
+    bashio::log.info "=== Agent Mode Configuration ==="
+    bashio::log.info "Agent mode is enabled"
     if bashio::config.has_value 'agent_port'; then
         AGENT_PORT=$(bashio::config 'agent_port')
-        bashio::log.info "Agent port set to: ${AGENT_PORT}"
+        bashio::log.info "Agent port configured: ${AGENT_PORT}"
+        bashio::log.info "Agent will be accessible on port ${AGENT_PORT}"
         DOZZLE_AGENT="--agent --port ${AGENT_PORT}"
     else
+        bashio::log.info "No custom agent port specified"
         bashio::log.info "Using default agent port: 7007"
+        bashio::log.info "Agent will be accessible on port 7007"
         DOZZLE_AGENT="--agent --port 7007"
     fi
+    bashio::log.info "Agent mode is ready to accept connections"
+    bashio::log.info "================================"
 else
-    bashio::log.info "Agent mode disabled"
+    bashio::log.info "Agent mode is disabled - running in standard mode"
     DOZZLE_AGENT=""
 fi
 
@@ -68,7 +81,7 @@ else
 fi
 
 # Set environment variables for ingress support
-export DOZZLE_BASE="/"
+export DOZZLE_BASE="${BASE}"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
 
@@ -78,8 +91,8 @@ bashio::log.info "Address: ${DOZZLE_ADDR}"
 bashio::log.info "Base path: ${DOZZLE_BASE}"
 bashio::log.info "External access: http://homeassistant:${PORT}"
 
-# Start Dozzle
-exec /usr/local/bin/dozzle ${DOZZLE_AGENT}
+# Start Dozzle with the correct base path
+exec /usr/local/bin/dozzle ${DOZZLE_AGENT} --base "${BASE}"
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}

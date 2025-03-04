@@ -1,6 +1,14 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.42
+
+### 🔧 Changes
+- Amélioration de la configuration de l'ingress
+- Ajout de l'option webui pour une meilleure intégration
+- Suppression des options de configuration utilisateur pour l'ingress (base et ssl)
+- Optimisation de la gestion automatique de l'ingress par Home Assistant
+
 ## 0.1.41
 
 ### 🔧 Changes
