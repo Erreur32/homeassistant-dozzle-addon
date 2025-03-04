@@ -94,10 +94,10 @@ This Home Assistant add-on is licensed under MIT License.
 
 ## Version Information
 
-- Current Version: 0.1.39
-- Based on Dozzle and Alpine Linux 3.15
+- Current Version: 0.1.41
+- Based on Dozzle v8.11.7 and Alpine Linux 3.15
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.39-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.41-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
