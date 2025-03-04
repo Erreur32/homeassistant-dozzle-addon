@@ -1,42 +1,17 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
-## 0.1.44
-
-### 🐛 Bug Fixes
-- Fixed ingress configuration and paths
-- Updated ingress_entry to "ingress"
-- Corrected DOZZLE_BASE path
-- Cleaned up configuration format
-
-### 🔧 Changes
-- Standardized configuration values format
-- Removed unnecessary quotes
-- Updated documentation
-- Enhanced ingress routing
-
-## 0.1.42
-
-### 🐛 Bug Fixes
-- Fixed external access and ingress routing
-- Added proper webui configuration
-- Simplified base path handling
-
-### 🔧 Changes
-- Improved access configuration
-- Enhanced external URL handling
-- Updated documentation for access methods
-
-## 0.1.41
+## 0.1.40
 
 ### 🚀 New Features
-- Added multi-architecture support (aarch64, amd64, armhf, armv7, i386)
-- Updated documentation for all supported architectures
+- ✨ Ajout du mode agent Dozzle
+- 🔧 Configuration du port agent personnalisable
+- 🔄 Support du mode agent avec port par défaut 8098
 
-### 🐛 Bug Fixes
-- Fixed 404 errors in ingress and external access
-- Simplified base path configuration
-- Corrected routing paths
+### 🔧 Changes
+- Mise à jour du script run.sh pour gérer le mode agent
+- Ajout des options agent et agent_port dans la configuration
+- Amélioration de la documentation pour le mode agent
 
 ### 🔧 Changes
 - Updated architecture badges in documentation
