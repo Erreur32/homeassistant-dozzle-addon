@@ -22,17 +22,24 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-if [[ -z "${INGRESS_ENTRY}" ]]; then
-    bashio::log.warning "Ingress entry point is empty, starting without base path"
-    CMD="dozzle --addr 0.0.0.0:${PORT}"
-else
+# Base command
+CMD="dozzle --addr 0.0.0.0:${PORT}"
+
+# Add base path for ingress if available
+if [[ -n "${INGRESS_ENTRY}" ]]; then
     bashio::log.info "Using base path: '${INGRESS_ENTRY}'"
-    CMD="dozzle --addr 0.0.0.0:${PORT} --base ${INGRESS_ENTRY}"
+    CMD="${CMD} --base ${INGRESS_ENTRY}"
+else
+    bashio::log.warning "Ingress entry point is empty, starting without base path"
 fi
 
-# Remote access is handled by Home Assistant, no need for additional flags
-# [[ "${REMOTE_ACCESS}" = "true" ]] && CMD="${CMD} --accept-remote-addr=.*"
+# Enable remote access if configured
+if [[ "${REMOTE_ACCESS}" = "true" ]]; then
+    bashio::log.info "Remote access enabled"
+    CMD="${CMD} --accept-remote-addr=.*"
+fi
 
+# Enable agent mode if configured
 if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
     bashio::log.info "Agent mode enabled on port ${DOZZLE_AGENT_PORT}"
     CMD="${CMD} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
