@@ -13,14 +13,10 @@ FILTER=$(bashio::config 'filter')
 SHOW_HIDDEN=$(bashio::config 'show_hidden')
 AUTH=$(bashio::config 'auth')
 
-# Check if port is available - using correct bashio commands
-if ! bashio::addon.port_check "${DOZZLE_PORT}"; then
-    bashio::log.warning "Port ${DOZZLE_PORT} is already in use. Using another port."
-    # We'll continue with the port anyway as Home Assistant will handle port mapping
-fi
+# No port check - Home Assistant handles port mapping
 
 # Build command
-CMD="/app/dozzle --addr 0.0.0.0:${DOZZLE_PORT}"
+CMD="dozzle --addr 0.0.0.0:${DOZZLE_PORT}"
 
 # Add options based on config
 [[ "${REMOTE_ACCESS}" = "true" ]] && CMD="${CMD} --accept-remote-addr=.*"
