@@ -1,33 +1,43 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.43
+
+### 🔧 Changes
+- Fixed ingress authentication with SUPERVISOR_TOKEN
+- Optimized TCP proxy configuration
+- Improved environment variable management
+- Fixed authentication errors in logs
+
 ## 0.1.42
 
 ### 🔧 Changes
-- Amélioration de la configuration de l'ingress
-- Ajout de l'option webui pour une meilleure intégration
-- Suppression des options de configuration utilisateur pour l'ingress (base et ssl)
-- Optimisation de la gestion automatique de l'ingress par Home Assistant
+- Improved ingress configuration
+- Added webui option for better integration
+- Removed user-configurable options for ingress (base and ssl)
+- Optimized automatic ingress management by Home Assistant
+- Added reverse proxy configuration (TCP type)
+- Using dynamic variables for ports ([PORT:8099])
 
 ## 0.1.41
 
 ### 🔧 Changes
-- Mise à jour de Dozzle vers la version 8.11.7
-- Ajout du label dozzle.version dans le Dockerfile
-- Amélioration des logs pour le mode agent
-- Mise à jour de la documentation avec la version de Dozzle
+- Updated Dozzle to version 8.11.7
+- Added dozzle.version label in Dockerfile
+- Improved logs for agent mode
+- Updated documentation with Dozzle version
 
 ## 0.1.40
 
 ### 🚀 New Features
-- ✨ Ajout du mode agent Dozzle
-- 🔧 Configuration du port agent personnalisable
-- 🔄 Support du mode agent avec port par défaut 8098
+- ✨ Added Dozzle agent mode
+- 🔧 Configurable agent port
+- 🔄 Agent mode support with default port 8098
 
 ### 🔧 Changes
-- Mise à jour du script run.sh pour gérer le mode agent
-- Ajout des options agent et agent_port dans la configuration
-- Amélioration de la documentation pour le mode agent
+- Updated run.sh script to handle agent mode
+- Added agent and agent_port options in configuration
+- Improved documentation for agent mode
 
 ### 🔧 Changes
 - Updated architecture badges in documentation

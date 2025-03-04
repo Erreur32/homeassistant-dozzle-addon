@@ -14,13 +14,9 @@ clean_docker_logs() {
 }
 
 # Get the port from config or use default
-PORT=8099
-
-# Get the base path from config or use default
-if bashio::config.has_value 'base'; then
-    BASE=$(bashio::config 'base')
-else
-    BASE="/"
+PORT=$(bashio::config 'port')
+if [ -z "${PORT}" ]; then
+    PORT=8099
 fi
 
 # Get the log level from config or use default
@@ -81,9 +77,14 @@ else
 fi
 
 # Set environment variables for ingress support
-export DOZZLE_BASE="${BASE}"
+export DOZZLE_BASE="/"
 export DOZZLE_ADDR="0.0.0.0:${PORT}"
 export DOZZLE_NO_ANALYTICS="true"
+export DOZZLE_TAILSIZE="1000"
+export DOZZLE_FOLLOW="true"
+export DOZZLE_JSON="true"
+export DOZZLE_WEBSOCKET="true"
+export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
 
 # Log configuration
 bashio::log.info "Dozzle configuration:"
@@ -91,8 +92,8 @@ bashio::log.info "Address: ${DOZZLE_ADDR}"
 bashio::log.info "Base path: ${DOZZLE_BASE}"
 bashio::log.info "External access: http://homeassistant:${PORT}"
 
-# Start Dozzle with the correct base path
-exec /usr/local/bin/dozzle ${DOZZLE_AGENT} --base "${BASE}"
+# Start Dozzle with ingress support
+exec /usr/local/bin/dozzle ${DOZZLE_AGENT} --base "/"
 
 # Démarrer Dozzle
 #exec /usr/local/bin/dozzle --addr :${PORT}
