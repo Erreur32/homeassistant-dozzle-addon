@@ -1,7 +1,7 @@
 name: "Dozzle"
 version: "0.1.46"
 slug: "dozzle"
-description: "Real-time log viewer for Docker containers."
+description: "Real-time log viewer for Docker containers"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
 arch:
   - armhf
@@ -33,7 +33,6 @@ options:
   ssl: false
   certfile: fullchain.pem
   keyfile: privkey.pem
-  password: homeassistant
 schema:
   port: int
   agent: bool
@@ -43,7 +42,6 @@ schema:
   ssl: bool
   certfile: str
   keyfile: str
-  password: str
 environment:
   SUPERVISOR_TOKEN: "${SUPERVISOR_TOKEN}"
   DOZZLE_BASE: "/"
@@ -52,30 +50,21 @@ environment:
   DOZZLE_TAILSIZE: "1000"
   DOZZLE_FOLLOW: "true"
   DOZZLE_ADDR: "0.0.0.0:${port}"
-image: "amir20/dozzle:latest"
-
-# Ajout des paramètres critiques pour la visibilité
+image: "amir20/dozzle:8.11.7"
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
-
 hassio_api: true
 hassio_role: default
 docker_api: true
-
-# File system mapping
 map:
   - config:rw
   - ssl:rw
   - share:rw
   - backup:rw
   - media:rw
-
-# Device access
 devices:
   - /dev/log
   - /dev/kmsg
   - /var/run/docker.sock
-
-# Watchdog configuration
 watchdog: "http://[HOST]:[PORT:8099]"
