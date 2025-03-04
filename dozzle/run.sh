@@ -38,14 +38,6 @@ main() {
     # Set log level
     bashio::log.level "$log_level"
 
-    # Export environment variables
-    export DOZZLE_BASE="${base}"
-    export DOZZLE_ADDR="0.0.0.0:${port}"
-    export DOZZLE_TAILSIZE="1000"
-    export DOZZLE_FOLLOW="true"
-    export DOZZLE_JSON="true"
-    export DOZZLE_WEBSOCKET="true"
-
     # Log configuration
     bashio::log.info "Starting Dozzle..."
     bashio::log.info "Port: ${port}"
@@ -62,7 +54,7 @@ main() {
         exec dozzle --agent --port "${agent_port}"
     else
         bashio::log.info "Starting with ingress support..."
-        exec dozzle --port "${port}" --base "${base}" --addr "0.0.0.0:${port}"
+        exec dozzle --port "${port}" --base "${base}"
     fi
 }
 
