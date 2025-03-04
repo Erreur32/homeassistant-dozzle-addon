@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.46"
+version: "0.1.45"
 slug: "dozzle"
 description: "An add-on to view Docker logs for Home Assistant"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -16,7 +16,7 @@ host_network: true
 init: false
 watchdog: "http://[HOST]:[PORT:8099]"
 ingress: true
-ingress_port: "[PORT:8099]"
+ingress_port: 8099
 ingress_entry: "/"
 panel_admin: false
 auth_api: true
@@ -24,7 +24,7 @@ webui: "http://[HOST]:[PORT:8099]"
 
 # Ports configuration
 ports:
-  "[PORT:8099]/tcp": "[PORT:8099]"
+  8099/tcp: 8099
 
 # Options for the add-on
 options:
@@ -78,5 +78,10 @@ environment:
 # Proxy configuration
 proxy:
   - type: "tcp"
+<<<<<<< HEAD
     port: "[PORT:8099]"
     host: "[HOST]"
+=======
+    port: 8099
+    host: "[HOST]"
+>>>>>>> 8c415c8 (🔧 fix: Update to version 0.1.45)
