@@ -51,8 +51,8 @@ environment:
   DOZZLE_WEBSOCKET: "true"
   DOZZLE_TAILSIZE: "1000"
   DOZZLE_FOLLOW: "true"
-  DOZZLE_ADDR: "0.0.0.0:[PORT:8099]"
-image: "ghcr.io/amir20/dozzle:latest"
+  DOZZLE_ADDR: "0.0.0.0:${port}"
+image: "amir20/dozzle:latest"
 
 # Ajout des paramètres critiques pour la visibilité
 privileged:
