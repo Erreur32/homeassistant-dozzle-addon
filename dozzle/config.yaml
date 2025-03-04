@@ -41,7 +41,6 @@ schema:
   clean_logs_on_start: bool
   log_level: str
 environment:
-  SUPERVISOR_TOKEN: "${SUPERVISOR_TOKEN}"
   DOZZLE_BASE: "/"
   DOZZLE_JSON: "true"
   DOZZLE_WEBSOCKET: "true"
@@ -52,7 +51,7 @@ privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
 hassio_api: true
-hassio_role: default
+hassio_role: admin
 docker_api: true
 map:
   - config:rw
