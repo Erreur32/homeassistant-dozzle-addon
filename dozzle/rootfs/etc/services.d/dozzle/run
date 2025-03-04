@@ -20,6 +20,12 @@ main() {
     # Get ingress entry point from Home Assistant
     base=$(bashio::addon.ingress_entry)
     
+    # Set default base path if empty
+    if [ -z "${base}" ]; then
+        base="/"
+        bashio::log.warning "Ingress entry point is empty, using default: ${base}"
+    fi
+    
     agent=$(bashio::config 'agent' false)
     agent_port=$(bashio::config 'agent_port' 7007)
     clean_logs=$(bashio::config 'clean_logs_on_start' false)
