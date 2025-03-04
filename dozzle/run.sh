@@ -47,8 +47,9 @@ main() {
     export DOZZLE_WEBSOCKET="true"
 
     # Handle SUPERVISOR_TOKEN
-    if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+    if [ -n "${SUPERVISOR_TOKEN:-}" ]; then
         export SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
+        bashio::log.info "SUPERVISOR_TOKEN is set"
     else
         bashio::log.warning "SUPERVISOR_TOKEN not found, some features may be limited"
         export SUPERVISOR_TOKEN=""
