@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: erreur32/homeassistant-dozzle-addon
-  VERSION: 0.1.46
+  VERSION: 0.1.47
 
 jobs:
   build:
