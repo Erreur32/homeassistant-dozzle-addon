@@ -17,7 +17,7 @@ main() {
 
     # Load config values with defaults
     port=$(bashio::config 'port' 8099)
-    base="/"
+    base=$(bashio::config 'base' '/')
     agent=$(bashio::config 'agent' false)
     agent_port=$(bashio::config 'agent_port' 7007)
     clean_logs=$(bashio::config 'clean_logs_on_start' false)
@@ -51,10 +51,10 @@ main() {
     # Start Dozzle with ingress support
     if [ "$agent" = true ]; then
         bashio::log.info "Starting in agent mode..."
-        exec dozzle --agent --port "${agent_port}"
+        exec dozzle --agent --addr "0.0.0.0:${agent_port}"
     else
         bashio::log.info "Starting with ingress support..."
-        exec dozzle --port "${port}" --base "${base}"
+        exec dozzle --addr "0.0.0.0:${port}" --base "${base}"
     fi
 }
 
