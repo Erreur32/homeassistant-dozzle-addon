@@ -27,7 +27,7 @@ ingress_entry: "/"
 ports:
   8081/tcp: 8099
 ports_description:
-  8081/tcp: "External port mapping (internal:8081 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
+  8081/tcp: "External Port redirection - (internal:8081 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
 
 # System Configuration
 host_network: false
@@ -43,27 +43,27 @@ image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 
 # Configuration Options
 options:
-  log_level: "info"
-  remote_access: true
-  advanced_mode: false
-  dozzle_agent_enabled: false
-  dozzle_agent_port: 7007
+  # Main Options
+  loglevel: "info"
+  remoteaccess: true
+
+  # Dozzle Agent
+  dozzleagent: false
+  agentport: 7007
 
 # Schema Configuration
 schema:
-  log_level: list(trace|debug|info|notice|warning|error|fatal)
-  remote_access: bool
-  advanced_mode: bool
-  dozzle_agent_enabled: bool
-  dozzle_agent_port: int(1,65535)
+  loglevel: list(trace|debug|info|notice|warning|error|fatal)
+  remoteaccess: bool
+  dozzleagent: bool
+  agentport: int(1,65535)
 
 # Options Descriptions
 options_description:
-  log_level: "Log level (default: info)"
-  remote_access: "Enable remote access through the configured port (default: true)"
-  advanced_mode: "------- Dozzle Agent Configuration -------"
-  dozzle_agent_enabled: "Enable Dozzle Agent mode for remote connections (default: false)"
-  dozzle_agent_port: "Port for Dozzle Agent when agent mode is enabled (default: 7007)"
+  loglevel: "Log level (default: info)"
+  remoteaccess: "External Port - Enable external access (default: true)"
+  dozzleagent: "Dozzle Agent - Enable remote agent mode (default: false)"
+  agentport: "Agent Port - Port for remote agent connections (default: 7007)"
 
 # System Permissions
 privileged:
