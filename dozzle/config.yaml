@@ -20,8 +20,7 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
-panel_type: "iframe"
-webui: "http://[HOST]:[PORT:8099]"
+webui: "http://[HOST]:[PORT:8081/tcp]"
 ingress_entry: "/"
 
 # External Port Configuration
@@ -44,11 +43,9 @@ image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 
 # Configuration Options
 options:
-  # Main Options
   log_level: "info"
   remote_access: true
-
-  # Dozzle Agent Options
+  advanced_mode: false
   dozzle_agent_enabled: false
   dozzle_agent_port: 7007
 
@@ -56,16 +53,15 @@ options:
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   remote_access: bool
+  advanced_mode: bool
   dozzle_agent_enabled: bool
   dozzle_agent_port: int(1,65535)
 
 # Options Descriptions
 options_description:
-  # Main Options
   log_level: "Log level (default: info)"
   remote_access: "Enable remote access through the configured port (default: true)"
-
-  # Dozzle Agent Options
+  advanced_mode: "------- Dozzle Agent Configuration -------"
   dozzle_agent_enabled: "Enable Dozzle Agent mode for remote connections (default: false)"
   dozzle_agent_port: "Port for Dozzle Agent when agent mode is enabled (default: 7007)"
 
