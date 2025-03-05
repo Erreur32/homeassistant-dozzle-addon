@@ -73,18 +73,32 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
 # Start Ingress instance with namespace and no analytics
-CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics"
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS}"
+
+# Add base path first if available
+if [[ -n "${INGRESS_ENTRY}" ]]; then
+    bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
+    # Remove leading slash if present
+    INGRESS_ENTRY="${INGRESS_ENTRY#/}"
+    CMD_INGRESS="${CMD_INGRESS} --base /${INGRESS_ENTRY}"
+fi
+
+# Add other parameters
+CMD_INGRESS="${CMD_INGRESS} --namespace dozzle_ingress --no-analytics"
 if [ -n "${LOG_LEVEL}" ]; then
     CMD_INGRESS="${CMD_INGRESS} --level ${LOG_LEVEL}"
 fi
 
-if [[ -n "${INGRESS_ENTRY}" ]]; then
-    bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
-    CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
-fi
+# Start Dozzle instances
+bashio::log.info "Starting Dozzle Ingress instance on port ${INTERNAL_PORT_INGRESS}"
+bashio::log.debug "Ingress Command: ${CMD_INGRESS}"
+${CMD_INGRESS} &
+PID_INGRESS=$!
+
+# Wait for ingress to be ready (2 seconds)
+sleep 2
 
 # Debug ingress setup
-bashio::log.debug "Ingress command: ${CMD_INGRESS}"
 bashio::log.debug "Testing ingress endpoint..."
 curl -I "http://localhost:${INTERNAL_PORT_INGRESS}${INGRESS_ENTRY}" || bashio::log.warning "Failed to reach ingress endpoint"
 
@@ -121,12 +135,6 @@ if [[ "${AGENT_ENABLED}" = "true" ]]; then
     CMD_INGRESS="${CMD_INGRESS} --agent --agent-addr 0.0.0.0:${AGENT_PORT}"
     [[ -n "${CMD_EXTERNAL}" ]] && CMD_EXTERNAL="${CMD_EXTERNAL} --agent --agent-addr 0.0.0.0:${AGENT_PORT}"
 fi
-
-# Start Dozzle instances
-bashio::log.info "Starting Dozzle Ingress instance on port ${INTERNAL_PORT_INGRESS}"
-bashio::log.debug "Ingress Command: ${CMD_INGRESS}"
-${CMD_INGRESS} &
-PID_INGRESS=$!
 
 # Start External instance if enabled
 if [[ -n "${CMD_EXTERNAL}" ]]; then
