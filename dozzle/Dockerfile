@@ -1,9 +1,9 @@
-FROM --platform=$BUILDPLATFORM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
+#FROM --platform=$BUILDPLATFORM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 # Définition de l'architecture
 
 ARG BUILD_ARCH=amd64
-FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
+ARG BUILDPLATFORM
 
 LABEL maintainer="erreur32"
 LABEL \
