@@ -16,7 +16,7 @@ INTERNAL_PORT_EXTERNAL=8081
 DEFAULT_EXTERNAL_PORT=8099
 
 # Get external port from Home Assistant
-EXTERNAL_PORT=$(bashio::addon.port 8080)
+EXTERNAL_PORT=$(bashio::addon.port ${DEFAULT_EXTERNAL_PORT})
 if [[ -z "${EXTERNAL_PORT}" ]]; then
     EXTERNAL_PORT=${DEFAULT_EXTERNAL_PORT}
     bashio::log.info "Using default external port ${DEFAULT_EXTERNAL_PORT}"
@@ -45,8 +45,8 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-# Start Ingress instance
-CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS}"
+# Start Ingress instance with unique ID and no analytics
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --id dozzle_ingress --no-analytics"
 if [[ -n "${INGRESS_ENTRY}" ]]; then
     bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
     CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
@@ -54,7 +54,8 @@ fi
 
 # Start External instance if enabled
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
-    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL}"
+    # External instance with unique ID and no analytics
+    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --id dozzle_external --no-analytics"
     if [[ -n "${EXTERNAL_PORT}" ]]; then
         bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT}"
         if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then
