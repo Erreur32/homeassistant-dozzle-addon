@@ -68,10 +68,7 @@ Need help? Found a bug? Please [open an issue](https://github.com/Erreur32/homea
 
 ## Frequently Asked Questions
 
-### Q: Why can't I see any containers?
-A: Check if Docker socket is properly mounted and verify Docker API access permissions.
-
-### Q: How do I change the port?
+### Q: How do I change the port? 
 A: Go to the add-on configuration page and modify the `port` option to your desired port number.
 
 ### Q: Is authentication required?

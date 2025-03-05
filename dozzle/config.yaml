@@ -32,21 +32,32 @@ watchdog: "http://[HOST]:[PORT:8099]"
 usb: false
 udev: true
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
+
+# Main configuration options
 options:
   log_level: "info"
   remote_access: true
+
+  # Dozzle Agent configuration (for remote connections)
   dozzle_agent_enabled: false
   dozzle_agent_port: 7007
+
+# Schema configuration
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   remote_access: bool
   dozzle_agent_enabled: bool
   dozzle_agent_port: int(1,65535)
+
+# Options descriptions
 options_description:
   log_level: "Log level (default: info)"
   remote_access: "Enable remote access through the configured port (default: true)"
+  
+  # Dozzle Agent options
   dozzle_agent_enabled: "Enable Dozzle Agent mode for remote connections (default: false)"
   dozzle_agent_port: "Port for Dozzle Agent when agent mode is enabled (default: 7007)"
+
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
