@@ -1,6 +1,6 @@
 # Home Assistant Add-on: Dozzle
 
-[![Release][release-shield]][release] ![Project Stage][project-stage-shield] ![Project Maintenance][maintenance-shield]
+[![Release][release-shield]][release] ![Project Stage][project-stage-shield] ![Project Maintenance][maintenance-shield] [![License][license-shield]][license] [![Issues][issues-shield]][issue] [![Stargazers][stars-shield]][stars]
 
 Real-time Docker logs viewer for Home Assistant. Monitor all your container logs in one place, directly from your Home Assistant interface.
 
@@ -39,3 +39,9 @@ MIT License
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
+[license-shield]: https://img.shields.io/github/license/Erreur32/homeassistant-dozzle-addon.svg
+[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE.md
+[issues-shield]: https://img.shields.io/github/issues/Erreur32/homeassistant-dozzle-addon.svg
+[issue]: https://github.com/Erreur32/homeassistant-dozzle-addon/issues
+[stars-shield]: https://img.shields.io/github/stars/Erreur32/homeassistant-dozzle-addon.svg
+[stars]: https://github.com/Erreur32/homeassistant-dozzle-addon/stargazers
