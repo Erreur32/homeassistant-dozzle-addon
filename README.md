@@ -40,7 +40,7 @@ MIT License
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
 [license-shield]: https://img.shields.io/github/license/Erreur32/homeassistant-dozzle-addon.svg
-[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE.md
+[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE
 [issues-shield]: https://img.shields.io/github/issues/Erreur32/homeassistant-dozzle-addon.svg
 [issue]: https://github.com/Erreur32/homeassistant-dozzle-addon/issues
 [stars-shield]: https://img.shields.io/github/stars/Erreur32/homeassistant-dozzle-addon.svg

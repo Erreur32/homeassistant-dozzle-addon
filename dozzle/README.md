@@ -92,12 +92,12 @@ check [the contributor's page][contributors].
 
 ## License
 
-MIT License - see the [LICENSE.md][license] file for details
+MIT License - see the [LICENSE][license] file for details
 
 [contributors]: https://github.com/Erreur32/homeassistant-dozzle-addon/graphs/contributors
 [erreur32]: https://github.com/Erreur32
 [issue]: https://github.com/Erreur32/homeassistant-dozzle-addon/issues
-[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE.md
+[license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [release-shield]: https://img.shields.io/badge/version-v0.1.48-blue.svg
