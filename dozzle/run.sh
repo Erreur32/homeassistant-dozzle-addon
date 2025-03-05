@@ -19,6 +19,13 @@ REMOTE_ACCESS=$(bashio::config 'remote_access')
 DOZZLE_AGENT_ENABLED=$(bashio::config 'dozzle_agent_enabled')
 DOZZLE_AGENT_PORT=$(bashio::config 'dozzle_agent_port')
 
+# Debug information
+bashio::log.debug "Configuration loaded:"
+bashio::log.debug "Log level: ${LOG_LEVEL}"
+bashio::log.debug "Remote access: ${REMOTE_ACCESS}"
+bashio::log.debug "Agent enabled: ${DOZZLE_AGENT_ENABLED}"
+bashio::log.debug "Agent port: ${DOZZLE_AGENT_PORT}"
+
 # Internal Dozzle ports
 INTERNAL_PORT_INGRESS=8080
 INTERNAL_PORT_EXTERNAL=8081
@@ -57,17 +64,22 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-# Prepare Ingress instance command
-CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics"
+# Start Ingress instance with namespace and no analytics
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics --log-level ${LOG_LEVEL}"
 if [[ -n "${INGRESS_ENTRY}" ]]; then
     bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
     CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
 fi
 
+# Debug ingress setup
+bashio::log.debug "Ingress command: ${CMD_INGRESS}"
+bashio::log.debug "Testing ingress endpoint..."
+curl -I "http://localhost:${INTERNAL_PORT_INGRESS}${INGRESS_ENTRY}" || bashio::log.warning "Failed to reach ingress endpoint"
+
 # Prepare External instance command if enabled
 CMD_EXTERNAL=""
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
-    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --namespace dozzle_external --no-analytics"
+    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --namespace dozzle_external --no-analytics --log-level ${LOG_LEVEL}"
     if [[ -n "${EXTERNAL_PORT}" ]]; then
         bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT} (internal: ${INTERNAL_PORT_EXTERNAL})"
         if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then
