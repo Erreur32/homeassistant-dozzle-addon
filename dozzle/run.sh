@@ -65,7 +65,7 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
 # Start Ingress instance with namespace and no analytics
-CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics --log-level ${LOG_LEVEL}"
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics --level ${LOG_LEVEL}"
 if [[ -n "${INGRESS_ENTRY}" ]]; then
     bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
     CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
@@ -79,7 +79,7 @@ curl -I "http://localhost:${INTERNAL_PORT_INGRESS}${INGRESS_ENTRY}" || bashio::l
 # Prepare External instance command if enabled
 CMD_EXTERNAL=""
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
-    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --namespace dozzle_external --no-analytics --log-level ${LOG_LEVEL}"
+    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --namespace dozzle_external --no-analytics --level ${LOG_LEVEL}"
     if [[ -n "${EXTERNAL_PORT}" ]]; then
         bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT} (internal: ${INTERNAL_PORT_EXTERNAL})"
         if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then

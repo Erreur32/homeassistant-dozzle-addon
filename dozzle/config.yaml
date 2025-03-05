@@ -19,7 +19,10 @@ ingress_port: 8080
 ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
+panel_title: "Dozzle"
+panel_type: "iframe"
 webui: "http://[HOST]:[PORT:8099]"
+ingress_entry: "/"
 
 # External Port Configuration
 ports:
