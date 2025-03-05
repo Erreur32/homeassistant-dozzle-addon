@@ -14,18 +14,20 @@ touch "$LOCK_FILE"
 trap 'rm -f "$LOCK_FILE"' EXIT
 
 # Get config values
-LOG_LEVEL=$(bashio::config 'Log Level')
-REMOTE_ACCESS=$(bashio::config 'Remote Access (access external)')
-SSL=$(bashio::config 'SSL')
-SSL_CERT=$(bashio::config 'SSL Certificate')
-SSL_KEY=$(bashio::config 'SSL Key')
-AGENT_ENABLED=$(bashio::config 'Dozzle Agent')
-AGENT_PORT=$(bashio::config 'Dozzle Agent Port')
+LOG_LEVEL=$(bashio::config 'LogLevel')
+REMOTE_ACCESS=$(bashio::config 'ExternalAccess')
+EXTERNAL_PORT=$(bashio::config 'ExternalPort')
+SSL=$(bashio::config 'SSL_Enable')
+SSL_CERT=$(bashio::config 'SSL_Certificate')
+SSL_KEY=$(bashio::config 'SSL_Key')
+AGENT_ENABLED=$(bashio::config 'DozzleAgent')
+AGENT_PORT=$(bashio::config 'DozzleAgentPort')
 
 # Debug information
 bashio::log.debug "Configuration loaded:"
 bashio::log.debug "Log level: ${LOG_LEVEL}"
-bashio::log.debug "Remote access: ${REMOTE_ACCESS}"
+bashio::log.debug "External access: ${REMOTE_ACCESS}"
+bashio::log.debug "External port: ${EXTERNAL_PORT}"
 bashio::log.debug "SSL enabled: ${SSL}"
 bashio::log.debug "SSL cert: ${SSL_CERT}"
 bashio::log.debug "SSL key: ${SSL_KEY}"

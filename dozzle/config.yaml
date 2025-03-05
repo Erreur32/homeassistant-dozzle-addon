@@ -23,9 +23,42 @@ panel_title: "Dozzle"
 webui: "http://[HOST]:[PORT:8081]"
 ingress_entry: "/"
 
+# Configuration Options
+options:
+  "ExternalAccess": true
+  "ExternalPort": 8099
+  "SSL_Enable": false
+  "SSL_Certificate": "fullchain.pem"
+  "SSL_Key": "privkey.pem"
+  "DozzleAgent": false
+  "DozzleAgentPort": 7007
+  "LogLevel": "info"
+
+# Schema Configuration
+schema:
+  "ExternalAccess": bool
+  "ExternalPort": "int(1,65535)"
+  "SSL_Enable": bool
+  "SSL_Certificate": "str?"
+  "SSL_Key": "str?"
+  "DozzleAgent": bool
+  "DozzleAgentPort": int(1,65535)
+  "LogLevel": list(trace|debug|info|notice|warning|error|fatal)
+
+# Options Descriptions
+options_description:
+  ExternalAccess: "Enable external access"
+  ExternalPort: "External port (default: 8099)"
+  SSL_Enable: "Enable SSL for external access"
+  SSL_Certificate: "SSL certificate file (in /ssl/)"
+  SSL_Key: "SSL key file (in /ssl/)"
+  DozzleAgent: "⚙️ Enable Dozzle Agent"
+  DozzleAgentPort: "⚙️ Agent Port"
+  LogLevel: "Log level"
+
 # External Port Configuration
 ports:
-  8081/tcp: 8099
+  8081/tcp: "8099"
 ports_description:
   8081/tcp: "External Port redirection - (internal:8081 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
 
@@ -40,47 +73,6 @@ watchdog: "http://[HOST]:[PORT:8080]"
 usb: false
 udev: true
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
-
-# Configuration Options
-options:
-  "Remote Access (access external)": true
-  "SSL": false
-  "SSL Certificate": "fullchain.pem"
-  "SSL Key": "privkey.pem"
-  "───────────────": true
-  "Dozzle Agent": false
-  "Dozzle Agent Port": 7007
-  "───────────────": true
-  "Log Level": "info"
-
-# Schema Configuration
-schema:
-  "Remote Access (access external)": bool
-  "SSL": bool
-  "SSL Certificate": "str?"
-  "SSL Key": "str?"
-  "───────────────": bool
-  "Dozzle Agent": bool
-  "Dozzle Agent Port": int(1,65535)
-  "───────────────": bool
-  "Log Level": list(trace|debug|info|notice|warning|error|fatal)
-
-# Variables mapping (internal names for script)
-map_names:
-  "Remote Access (access external)": "remote_access"
-  "SSL": "ssl"
-  "SSL Certificate": "certfile"
-  "SSL Key": "keyfile"
-  "Dozzle Agent": "agent_enabled"
-  "Dozzle Agent Port": "agent_port"
-  "Log Level": "log_level"
-
-# Options Descriptions
-options_description:
-  log_level: "Log level (trace|debug|info|notice|warning|error|fatal)"
-  remote_access: "External Port - Enable access through port 8099"
-  agent_enabled: "⚙️ Dozzle Agent - Enable remote agent connections"
-  agent_port: "⚙️ Agent Port - Port used for remote agent (when agent is enabled)"
 
 # System Permissions
 privileged:
