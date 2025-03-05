@@ -3,3 +3,4 @@ keys/
 Aide
 dozzle/run.sh_back
 .gitignore
+.cursor/

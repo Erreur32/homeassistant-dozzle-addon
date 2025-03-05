@@ -1,4 +1,4 @@
-FROM ghcr.io/home-assistant/amd64-base:3.15
+FROM --platform=$BUILDPLATFORM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 # Définition de l'architecture
 ARG BUILD_ARCH=amd64
