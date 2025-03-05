@@ -1,4 +1,4 @@
-# Dozzle
+# Home Assistant Add-on: Dozzle
 
 [![Release][release-shield]][release]
 ![Project Stage][project-stage-shield]
@@ -7,11 +7,13 @@
 [![Issues][issues-shield]][issue]
 [![Stargazers][stars-shield]][stars]
 
-Real-time Docker log monitoring interface for Home Assistant.
+## ⚠️ Current Limitations
+
+**Important Notice**: The Ingress feature is currently not working in this version. Please use direct access via port 8099 to access Dozzle. We are actively working on fixing this issue.
 
 ## About
 
-Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version (0.1.46) is optimized to work as a Home Assistant add-on with improved ingress support.
+Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version (0.1.49) is optimized to work as a Home Assistant add-on with improved ingress support.
 
 ## Features
 
@@ -100,8 +102,8 @@ MIT License - see the [LICENSE.md][license] file for details
 [license]: https://github.com/Erreur32/homeassistant-dozzle-addon/blob/main/LICENSE.md
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
-[release-shield]: https://img.shields.io/badge/version-v0.1.48-blue.svg
-[release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases/tag/v0.1.48
+[release-shield]: https://img.shields.io/badge/version-v0.1.49-blue.svg
+[release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases/tag/v0.1.49
 [license-shield]: https://img.shields.io/badge/license-MIT-blue.svg
 [issues-shield]: https://img.shields.io/github/issues/Erreur32/homeassistant-dozzle-addon.svg
 [stars-shield]: https://img.shields.io/github/stars/Erreur32/homeassistant-dozzle-addon.svg
