@@ -8,8 +8,9 @@ REMOTE_ACCESS=$(bashio::config 'remote_access')
 DOZZLE_AGENT_ENABLED=$(bashio::config 'dozzle_agent_enabled')
 DOZZLE_AGENT_PORT=$(bashio::config 'dozzle_agent_port')
 
-# Internal Dozzle port (fixed)
-INTERNAL_PORT=8080
+# Internal Dozzle ports
+INTERNAL_PORT_INGRESS=8080
+INTERNAL_PORT_EXTERNAL=8081
 
 # Default external port (will be changed by HA if not available)
 DEFAULT_EXTERNAL_PORT=8099
@@ -23,9 +24,15 @@ fi
 
 # Handle graceful shutdown
 cleanup() {
-    bashio::log.info "Shutting down Dozzle gracefully..."
-    kill -TERM "$PID"
-    wait "$PID"
+    bashio::log.info "Shutting down Dozzle instances gracefully..."
+    if [[ -n "${PID_INGRESS}" ]]; then
+        kill -TERM "${PID_INGRESS}" || true
+        wait "${PID_INGRESS}" || true
+    fi
+    if [[ -n "${PID_EXTERNAL}" ]]; then
+        kill -TERM "${PID_EXTERNAL}" || true
+        wait "${PID_EXTERNAL}" || true
+    fi
     exit 0
 }
 
@@ -38,20 +45,16 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-# Base command with internal port binding
-CMD="dozzle --addr 0.0.0.0:${INTERNAL_PORT}"
-
-# Configure base path for ingress
-if [[ -z "${INGRESS_ENTRY}" ]]; then
-    bashio::log.warning "Ingress entry point is empty, starting without base path"
-else
-    bashio::log.info "Using base path: '${INGRESS_ENTRY}'"
-    # Always use base path for ingress functionality
-    CMD="${CMD} --base ${INGRESS_ENTRY}"
+# Start Ingress instance
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS}"
+if [[ -n "${INGRESS_ENTRY}" ]]; then
+    bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
+    CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
 fi
 
-# Configure external access if enabled
+# Start External instance if enabled
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
+    CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL}"
     if [[ -n "${EXTERNAL_PORT}" ]]; then
         bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT}"
         if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then
@@ -65,16 +68,23 @@ fi
 # Enable agent mode if configured
 if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
     bashio::log.info "Agent mode enabled on port ${DOZZLE_AGENT_PORT}"
-    CMD="${CMD} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
+    CMD_INGRESS="${CMD_INGRESS} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
+    [[ -n "${CMD_EXTERNAL}" ]] && CMD_EXTERNAL="${CMD_EXTERNAL} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
 fi
 
-# Start Dozzle with updated configuration
-bashio::log.info "Starting Dozzle on internal port ${INTERNAL_PORT}"
-bashio::log.debug "Command: ${CMD}"
+# Start Dozzle instances
+bashio::log.info "Starting Dozzle Ingress instance on port ${INTERNAL_PORT_INGRESS}"
+bashio::log.debug "Ingress Command: ${CMD_INGRESS}"
+${CMD_INGRESS} &
+PID_INGRESS=$!
 
-# Execute Dozzle in background and store PID
-${CMD} &
-PID=$!
+if [[ "${REMOTE_ACCESS}" = "true" ]]; then
+    bashio::log.info "Starting Dozzle External instance on port ${INTERNAL_PORT_EXTERNAL}"
+    bashio::log.debug "External Command: ${CMD_EXTERNAL}"
+    ${CMD_EXTERNAL} &
+    PID_EXTERNAL=$!
+fi
 
-# Wait for process to end
-wait "$PID"
+# Wait for processes to end
+wait $PID_INGRESS
+[[ -n "${PID_EXTERNAL}" ]] && wait $PID_EXTERNAL

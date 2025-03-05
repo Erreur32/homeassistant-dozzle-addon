@@ -18,9 +18,9 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 ports:
-  8080/tcp: 8099
+  8081/tcp: 8099
 ports_description:
-  8080/tcp: "External port mapping (internal:8080 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
+  8081/tcp: "External port mapping (internal:8081 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
 webui: "http://[HOST]:[PORT:8099]"
 host_network: false
 host_dbus: false
