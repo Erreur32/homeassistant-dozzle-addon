@@ -2,7 +2,7 @@ FROM --platform=$BUILDPLATFORM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 # Définition de l'architecture
 
-ARG BUILD_ARCH
+ARG BUILD_ARCH=amd64
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 LABEL maintainer="erreur32"
