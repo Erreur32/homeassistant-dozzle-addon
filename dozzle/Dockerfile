@@ -4,11 +4,12 @@ FROM ghcr.io/home-assistant/amd64-base:3.15
 ARG BUILD_ARCH=amd64
 
 LABEL maintainer="erreur32"
-LABEL io.hass.type="addon"
-LABEL io.hass.version="0.1.47"
-LABEL dozzle.version="8.11.7"
-LABEL io.hass.name="Dozzle"
-LABEL io.hass.description="Real-time log viewer for Docker containers"
+LABEL \
+    io.hass.name="Dozzle" \
+    io.hass.description="Real-time Docker log monitoring interface for Home Assistant" \
+    io.hass.type="addon" \
+    io.hass.version="0.1.49" \
+    dozzle.version="8.11.7"
 LABEL io.hass.arch="${BUILD_ARCH}"
 LABEL io.hass.url="https://github.com/Erreur32/homeassistant-dozzle-addon"
 
