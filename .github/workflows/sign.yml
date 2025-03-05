@@ -1,0 +1,43 @@
+name: Sign Docker Images with Codenotary
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Multi-arch Docker Images"]
+    types:
+      - completed
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: erreur32/homeassistant-dozzle-addon
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from config.yaml
+        id: version
+        run: |
+          VERSION=$(grep -m 1 "version:" dozzle/config.yaml | awk '{print $2}' | tr -d '"')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Extracted version: $VERSION"
+
+      - name: Download vcn
+        uses: Codenotary/vcn-github-action@v2
+        with:
+          standard_usage: false
+
+      - name: Sign Docker images
+        run: |
+          # Sign amd64 image
+          ./vcn sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
+          
+          # Sign aarch64 image
+          ./vcn sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
+          
+          # Sign armv7 image
+          ./vcn sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
