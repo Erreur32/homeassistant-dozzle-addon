@@ -14,17 +14,17 @@ touch "$LOCK_FILE"
 trap 'rm -f "$LOCK_FILE"' EXIT
 
 # Get config values
-LOG_LEVEL=$(bashio::config 'loglevel')
-REMOTE_ACCESS=$(bashio::config 'remoteaccess')
-DOZZLE_AGENT_ENABLED=$(bashio::config 'dozzleagent')
-DOZZLE_AGENT_PORT=$(bashio::config 'agentport')
+LOG_LEVEL=$(bashio::config 'Log Level')
+REMOTE_ACCESS=$(bashio::config 'Remote Access (access external)')
+AGENT_ENABLED=$(bashio::config 'Dozzle Agent')
+AGENT_PORT=$(bashio::config 'Dozzle Agent Port')
 
 # Debug information
 bashio::log.debug "Configuration loaded:"
 bashio::log.debug "Log level: ${LOG_LEVEL}"
 bashio::log.debug "Remote access: ${REMOTE_ACCESS}"
-bashio::log.debug "Agent enabled: ${DOZZLE_AGENT_ENABLED}"
-bashio::log.debug "Agent port: ${DOZZLE_AGENT_PORT}"
+bashio::log.debug "Agent enabled: ${AGENT_ENABLED}"
+bashio::log.debug "Agent port: ${AGENT_PORT}"
 
 # Internal Dozzle ports
 INTERNAL_PORT_INGRESS=8080
@@ -98,10 +98,10 @@ if [[ "${REMOTE_ACCESS}" = "true" ]]; then
 fi
 
 # Enable agent mode if configured
-if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
-    bashio::log.info "Agent mode enabled on port ${DOZZLE_AGENT_PORT}"
-    CMD_INGRESS="${CMD_INGRESS} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
-    [[ -n "${CMD_EXTERNAL}" ]] && CMD_EXTERNAL="${CMD_EXTERNAL} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
+if [[ "${AGENT_ENABLED}" = "true" ]]; then
+    bashio::log.info "Agent mode enabled on port ${AGENT_PORT}"
+    CMD_INGRESS="${CMD_INGRESS} --agent --agent-addr 0.0.0.0:${AGENT_PORT}"
+    [[ -n "${CMD_EXTERNAL}" ]] && CMD_EXTERNAL="${CMD_EXTERNAL} --agent --agent-addr 0.0.0.0:${AGENT_PORT}"
 fi
 
 # Start Dozzle instances

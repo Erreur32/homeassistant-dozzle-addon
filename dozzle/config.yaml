@@ -43,27 +43,35 @@ image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 
 # Configuration Options
 options:
-  # Main Options
-  loglevel: "info"
-  remoteaccess: true
-
-  # Dozzle Agent
-  dozzleagent: false
-  agentport: 7007
+  "Remote Access (access external)": true
+  "───────────────": true
+  "Dozzle Agent": false
+  "Dozzle Agent Port": 7007
+  "───────────────": true
+  "Log Level": "info"
 
 # Schema Configuration
 schema:
-  loglevel: list(trace|debug|info|notice|warning|error|fatal)
-  remoteaccess: bool
-  dozzleagent: bool
-  agentport: int(1,65535)
+  "Remote Access (access external)": bool
+  "───────────────": bool
+  "Dozzle Agent": bool
+  "Dozzle Agent Port": int(1,65535)
+  "───────────────": bool
+  "Log Level": list(trace|debug|info|notice|warning|error|fatal)
+
+# Variables mapping (internal names for script)
+map_names:
+  "Remote Access (access external)": "remote_access"
+  "Dozzle Agent": "agent_enabled"
+  "Dozzle Agent Port": "agent_port"
+  "Log Level": "log_level"
 
 # Options Descriptions
 options_description:
-  loglevel: "Log level (default: info)"
-  remoteaccess: "External Port - Enable external access (default: true)"
-  dozzleagent: "Dozzle Agent - Enable remote agent mode (default: false)"
-  agentport: "Agent Port - Port for remote agent connections (default: 7007)"
+  log_level: "Log level (trace|debug|info|notice|warning|error|fatal)"
+  remote_access: "External Port - Enable access through port 8099"
+  agent_enabled: "⚙️ Dozzle Agent - Enable remote agent connections"
+  agent_port: "⚙️ Agent Port - Port used for remote agent (when agent is enabled)"
 
 # System Permissions
 privileged:
