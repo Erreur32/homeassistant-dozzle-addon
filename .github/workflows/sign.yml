@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 name: Sign Docker Images with Codenotary
 
 on:
@@ -42,6 +41,3 @@ jobs:
           
           # Sign armv7 image
           ./vcn sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
-=======
- 
->>>>>>> 1260da1 (feat: Ajout de la signature Codenotary et support multi-architectures)
