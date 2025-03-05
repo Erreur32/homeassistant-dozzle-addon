@@ -18,6 +18,10 @@ jobs:
       packages: write
       id-token: write
 
+    strategy:
+      matrix:
+        arch: [amd64, aarch64, armv7]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,9 +48,6 @@ jobs:
 
       - name: Build and push Docker images
         uses: docker/build-push-action@v5
-        strategy:
-          matrix:
-            arch: [amd64, aarch64, armv7]
         with:
           context: ./dozzle
           push: true
