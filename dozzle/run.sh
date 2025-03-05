@@ -79,11 +79,11 @@ INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 # Start Ingress instance with namespace and no analytics
 CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics"
 
-# Get addon ID for base path (includes numeric prefix)
-ADDON_ID=$(bashio::addon.id)
-INGRESS_BASE="/hassio/ingress/${ADDON_ID}"
-bashio::log.info "Using Home Assistant ingress path: '${INGRESS_BASE}'"
-CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_BASE}"
+# Use the ingress entry point directly from Home Assistant
+if [ -n "${INGRESS_ENTRY}" ]; then
+    bashio::log.info "Using Home Assistant ingress path: '${INGRESS_ENTRY}'"
+    CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
+fi
 
 if [ -n "${LOG_LEVEL}" ]; then
     CMD_INGRESS="${CMD_INGRESS} --level ${LOG_LEVEL}"
