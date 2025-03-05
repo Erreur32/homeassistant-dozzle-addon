@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: Build and Push Multi-arch Docker Images
 
 on:
   push:
@@ -47,13 +47,21 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
-          platforms: linux/amd64
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:latest
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           build-args: |
-            BUILD_ARCH=amd64
+            BUILD_ARCH=${{ matrix.arch }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Verify image exists
+      - name: Verify images exist
         run: |
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
-          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }} 
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
+          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
+          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
+          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
