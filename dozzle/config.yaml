@@ -20,7 +20,7 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
-webui: "http://[HOST]:[PORT:8081/tcp]"
+webui: "http://[HOST]:[PORT:8099]"
 ingress_entry: "/"
 
 # External Port Configuration
