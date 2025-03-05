@@ -44,6 +44,9 @@ image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 # Configuration Options
 options:
   "Remote Access (access external)": true
+  "SSL": false
+  "SSL Certificate": "fullchain.pem"
+  "SSL Key": "privkey.pem"
   "───────────────": true
   "Dozzle Agent": false
   "Dozzle Agent Port": 7007
@@ -53,6 +56,9 @@ options:
 # Schema Configuration
 schema:
   "Remote Access (access external)": bool
+  "SSL": bool
+  "SSL Certificate": "str?"
+  "SSL Key": "str?"
   "───────────────": bool
   "Dozzle Agent": bool
   "Dozzle Agent Port": int(1,65535)
@@ -62,6 +68,9 @@ schema:
 # Variables mapping (internal names for script)
 map_names:
   "Remote Access (access external)": "remote_access"
+  "SSL": "ssl"
+  "SSL Certificate": "certfile"
+  "SSL Key": "keyfile"
   "Dozzle Agent": "agent_enabled"
   "Dozzle Agent Port": "agent_port"
   "Log Level": "log_level"

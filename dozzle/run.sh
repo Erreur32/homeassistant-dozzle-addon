@@ -16,6 +16,9 @@ trap 'rm -f "$LOCK_FILE"' EXIT
 # Get config values
 LOG_LEVEL=$(bashio::config 'Log Level')
 REMOTE_ACCESS=$(bashio::config 'Remote Access (access external)')
+SSL=$(bashio::config 'SSL')
+SSL_CERT=$(bashio::config 'SSL Certificate')
+SSL_KEY=$(bashio::config 'SSL Key')
 AGENT_ENABLED=$(bashio::config 'Dozzle Agent')
 AGENT_PORT=$(bashio::config 'Dozzle Agent Port')
 
@@ -23,6 +26,9 @@ AGENT_PORT=$(bashio::config 'Dozzle Agent Port')
 bashio::log.debug "Configuration loaded:"
 bashio::log.debug "Log level: ${LOG_LEVEL}"
 bashio::log.debug "Remote access: ${REMOTE_ACCESS}"
+bashio::log.debug "SSL enabled: ${SSL}"
+bashio::log.debug "SSL cert: ${SSL_CERT}"
+bashio::log.debug "SSL key: ${SSL_KEY}"
 bashio::log.debug "Agent enabled: ${AGENT_ENABLED}"
 bashio::log.debug "Agent port: ${AGENT_PORT}"
 
@@ -84,6 +90,16 @@ curl -I "http://localhost:${INTERNAL_PORT_INGRESS}${INGRESS_ENTRY}" || bashio::l
 CMD_EXTERNAL=""
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
     CMD_EXTERNAL="dozzle --addr 0.0.0.0:${INTERNAL_PORT_EXTERNAL} --namespace dozzle_external --no-analytics"
+    
+    # Add SSL if enabled
+    if [[ "${SSL}" = "true" ]]; then
+        if [[ -f "/ssl/${SSL_CERT}" ]] && [[ -f "/ssl/${SSL_KEY}" ]]; then
+            CMD_EXTERNAL="${CMD_EXTERNAL} --ssl --ssl-cert /ssl/${SSL_CERT} --ssl-key /ssl/${SSL_KEY}"
+            bashio::log.info "SSL enabled for external access"
+        else
+            bashio::log.warning "SSL certificates not found, starting without SSL"
+        fi
+    fi
     if [ -n "${LOG_LEVEL}" ]; then
         CMD_EXTERNAL="${CMD_EXTERNAL} --level ${LOG_LEVEL}"
     fi
