@@ -5,6 +5,9 @@
 ARG BUILD_ARCH=amd64
 ARG BUILDPLATFORM
 
+# Utiliser la bonne image de base selon l'architecture
+FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
+
 LABEL maintainer="erreur32"
 LABEL \
     io.hass.name="Dozzle" \

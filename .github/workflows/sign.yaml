@@ -1,0 +1,48 @@
+name: Sign Docker Images
+
+on:
+  workflow_run:
+    workflows: ["Builder"]  # Nom de votre workflow de build
+    types:
+      - completed
+
+jobs:
+  sign-images:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write  # Nécessaire pour OIDC
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.0'
+
+      - name: Generate Key Pair
+        id: generate_key
+        run: |
+          cosign generate-key-pair github://${{ github.repository }}
+          echo "PUBLIC_KEY=$(cat cosign.pub)" >> $GITHUB_OUTPUT
+
+      - name: Sign Images
+        uses: sigstore/cosign-installer@v3
+        env:
+          COSIGN_PASSWORD: ${{ steps.generate_key.outputs.key-password }}
+        with:
+          cosign-release: 'v2.2.0'
+        run: |
+          # Signer toutes les images
+          cosign sign --key cosign.key \
+            ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-amd64:$GITHUB_SHA
+
+          cosign sign --key cosign.key \
+            ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-aarch64:$GITHUB_SHA
+
+          cosign sign --key cosign.key \
+            ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-armv7:$GITHUB_SHA 

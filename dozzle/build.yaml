@@ -1,11 +1,32 @@
 build_from:
-  aarch64: "ghcr.io/home-assistant/aarch64-base:latest"
-  amd64: "ghcr.io/home-assistant/amd64-base:latest"
-  armhf: "ghcr.io/home-assistant/armhf-base:latest"
-  armv7: "ghcr.io/home-assistant/armv7-base:latest"
-  i386: "ghcr.io/home-assistant/i386-base:latest"
+  aarch64: "ghcr.io/home-assistant/aarch64-base:3.15"
+  amd64: "ghcr.io/home-assistant/amd64-base:3.15"
+  armv7: "ghcr.io/home-assistant/armv7-base:3.15"
 
 # Configuration de la signature des images
 cosign:
-  key: "ghcr.io/home-assistant/amd64-base:latest"
+  key: "ghcr.io/home-assistant/amd64-base:3.15"
   repository: "ghcr.io/erreur32/homeassistant-dozzle-addon"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            base: ghcr.io/home-assistant/amd64-base:3.15
+          - arch: aarch64
+            platform: linux/arm64
+            base: ghcr.io/home-assistant/aarch64-base:3.15
+          - arch: armv7
+            platform: linux/arm/v7
+            base: ghcr.io/home-assistant/armv7-base:3.15
+
+    steps:
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            BUILD_ARCH=${{ matrix.arch }}
+          platforms: ${{ matrix.platform }}
