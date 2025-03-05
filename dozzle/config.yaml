@@ -18,7 +18,7 @@ ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 ports:
-  8080/tcp: null
+  8080/tcp: 8099
 ports_description:
   8080/tcp: "External port for direct web access to Dozzle (internal port 8080). Home Assistant will automatically assign an available port if the default port (8099) is already in use. Ingress access remains always available."
 webui: "http://[HOST]:[PORT:8099]"

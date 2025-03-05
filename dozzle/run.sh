@@ -15,7 +15,12 @@ INTERNAL_PORT=8080
 DEFAULT_EXTERNAL_PORT=8099
 
 # Get external port from Home Assistant (checking default port 8099 first)
-EXTERNAL_PORT=$(bashio::addon.port ${DEFAULT_EXTERNAL_PORT})
+if bashio::addon.port_in_use "${DEFAULT_EXTERNAL_PORT}"; then
+    bashio::log.warning "Default port ${DEFAULT_EXTERNAL_PORT} is in use, letting Home Assistant assign a port"
+    EXTERNAL_PORT=$(bashio::addon.port 8080)
+else
+    EXTERNAL_PORT=${DEFAULT_EXTERNAL_PORT}
+fi
 
 # Handle graceful shutdown
 cleanup() {
@@ -48,13 +53,12 @@ fi
 # Configure external access if enabled
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
     if [[ -n "${EXTERNAL_PORT}" ]]; then
-        if [[ "${EXTERNAL_PORT}" == "${DEFAULT_EXTERNAL_PORT}" ]]; then
-            bashio::log.info "Remote access enabled on default port ${DEFAULT_EXTERNAL_PORT}"
-        else
-            bashio::log.info "Remote access enabled - Port ${DEFAULT_EXTERNAL_PORT} was busy, using port ${EXTERNAL_PORT}"
+        bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT}"
+        if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then
+            bashio::log.info "Note: Using alternative port as ${DEFAULT_EXTERNAL_PORT} was not available"
         fi
     else
-        bashio::log.warning "Remote access enabled but no external port was assigned by Home Assistant"
+        bashio::log.warning "Remote access enabled but no external port could be assigned"
     fi
 fi
 
