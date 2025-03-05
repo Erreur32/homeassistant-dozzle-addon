@@ -102,7 +102,7 @@ MIT License - see the [LICENSE.md][license] file for details
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [release-shield]: https://img.shields.io/badge/version-v0.1.48-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon/releases/tag/v0.1.48
-[license-shield]: https://img.shields.io/github/license/Erreur32/homeassistant-dozzle-addon.svg
+[license-shield]: https://img.shields.io/badge/license-MIT-blue.svg
 [issues-shield]: https://img.shields.io/github/issues/Erreur32/homeassistant-dozzle-addon.svg
 [stars-shield]: https://img.shields.io/github/stars/Erreur32/homeassistant-dozzle-addon.svg
 [stars]: https://github.com/Erreur32/homeassistant-dozzle-addon/stargazers
