@@ -14,12 +14,11 @@ INTERNAL_PORT=8080
 # Default external port (will be changed by HA if not available)
 DEFAULT_EXTERNAL_PORT=8099
 
-# Get external port from Home Assistant (checking default port 8099 first)
-if bashio::addon.port_in_use "${DEFAULT_EXTERNAL_PORT}"; then
-    bashio::log.warning "Default port ${DEFAULT_EXTERNAL_PORT} is in use, letting Home Assistant assign a port"
-    EXTERNAL_PORT=$(bashio::addon.port 8080)
-else
+# Get external port from Home Assistant
+EXTERNAL_PORT=$(bashio::addon.port 8080)
+if [[ -z "${EXTERNAL_PORT}" ]]; then
     EXTERNAL_PORT=${DEFAULT_EXTERNAL_PORT}
+    bashio::log.info "Using default external port ${DEFAULT_EXTERNAL_PORT}"
 fi
 
 # Handle graceful shutdown
@@ -47,7 +46,12 @@ if [[ -z "${INGRESS_ENTRY}" ]]; then
     bashio::log.warning "Ingress entry point is empty, starting without base path"
 else
     bashio::log.info "Using base path: '${INGRESS_ENTRY}'"
-    CMD="${CMD} --base ${INGRESS_ENTRY}"
+    if [[ "${REMOTE_ACCESS}" = "true" ]]; then
+        # For external access, we don't want the ingress base path
+        bashio::log.info "Remote access enabled - Not using base path for external port"
+    else
+        CMD="${CMD} --base ${INGRESS_ENTRY}"
+    fi
 fi
 
 # Configure external access if enabled
@@ -55,7 +59,7 @@ if [[ "${REMOTE_ACCESS}" = "true" ]]; then
     if [[ -n "${EXTERNAL_PORT}" ]]; then
         bashio::log.info "Remote access enabled - External port: ${EXTERNAL_PORT}"
         if [[ "${EXTERNAL_PORT}" != "${DEFAULT_EXTERNAL_PORT}" ]]; then
-            bashio::log.info "Note: Using alternative port as ${DEFAULT_EXTERNAL_PORT} was not available"
+            bashio::log.info "Note: Using alternative port ${EXTERNAL_PORT} instead of default ${DEFAULT_EXTERNAL_PORT}"
         fi
     else
         bashio::log.warning "Remote access enabled but no external port could be assigned"
