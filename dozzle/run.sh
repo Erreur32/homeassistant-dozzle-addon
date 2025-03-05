@@ -41,11 +41,15 @@ INTERNAL_PORT_EXTERNAL=8081
 # Default external port (will be changed by HA if not available)
 DEFAULT_EXTERNAL_PORT=8099
 
-# Get external port from Home Assistant
-EXTERNAL_PORT=$(bashio::addon.port ${DEFAULT_EXTERNAL_PORT})
-if [[ -z "${EXTERNAL_PORT}" ]]; then
-    EXTERNAL_PORT=${DEFAULT_EXTERNAL_PORT}
-    bashio::log.info "Using default external port ${DEFAULT_EXTERNAL_PORT}"
+# Get external port from Home Assistant only if remote access is enabled
+if [[ "${REMOTE_ACCESS}" = "true" ]]; then
+    EXTERNAL_PORT=$(bashio::addon.port ${DEFAULT_EXTERNAL_PORT})
+    if [[ -z "${EXTERNAL_PORT}" ]]; then
+        EXTERNAL_PORT=${DEFAULT_EXTERNAL_PORT}
+        bashio::log.info "Using default external port ${DEFAULT_EXTERNAL_PORT}"
+    fi
+else
+    bashio::log.info "External access is disabled"
 fi
 
 # Handle graceful shutdown
@@ -73,18 +77,13 @@ bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
 # Start Ingress instance with namespace and no analytics
-CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS}"
+CMD_INGRESS="dozzle --addr 0.0.0.0:${INTERNAL_PORT_INGRESS} --namespace dozzle_ingress --no-analytics"
 
-# Add base path first if available
 if [[ -n "${INGRESS_ENTRY}" ]]; then
-    bashio::log.info "Using base path for Ingress: '${INGRESS_ENTRY}'"
-    # Remove leading slash if present
-    INGRESS_ENTRY="${INGRESS_ENTRY#/}"
-    CMD_INGRESS="${CMD_INGRESS} --base /${INGRESS_ENTRY}"
+    bashio::log.info "Using ingress entry point as base: '${INGRESS_ENTRY}'"
+    CMD_INGRESS="${CMD_INGRESS} --base ${INGRESS_ENTRY}"
 fi
 
-# Add other parameters
-CMD_INGRESS="${CMD_INGRESS} --namespace dozzle_ingress --no-analytics"
 if [ -n "${LOG_LEVEL}" ]; then
     CMD_INGRESS="${CMD_INGRESS} --level ${LOG_LEVEL}"
 fi
@@ -100,7 +99,11 @@ sleep 2
 
 # Debug ingress setup
 bashio::log.debug "Testing ingress endpoint..."
-curl -I "http://localhost:${INTERNAL_PORT_INGRESS}${INGRESS_ENTRY}" || bashio::log.warning "Failed to reach ingress endpoint"
+if curl -s -I "http://localhost:${INTERNAL_PORT_INGRESS}/health" > /dev/null 2>&1; then
+    bashio::log.info "Ingress endpoint is responding"
+else
+    bashio::log.warning "Failed to reach ingress endpoint"
+fi
 
 # Prepare External instance command if enabled
 CMD_EXTERNAL=""
