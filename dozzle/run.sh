@@ -5,27 +5,23 @@ set -e
 # Get config values
 LOG_LEVEL=$(bashio::config 'log_level')
 REMOTE_ACCESS=$(bashio::config 'remote_access')
-PORT=$(bashio::config 'port')
 DOZZLE_AGENT_ENABLED=$(bashio::config 'dozzle_agent_enabled')
 DOZZLE_AGENT_PORT=$(bashio::config 'dozzle_agent_port')
 
-# Set default values if not provided
-if [[ -z "${DOZZLE_AGENT_PORT}" ]]; then
-    DOZZLE_AGENT_PORT=7007
-fi
+# Internal Dozzle port (fixed)
+INTERNAL_PORT=8080
 
 # Get ingress entry point from Home Assistant
 INGRESS_ENTRY=$(bashio::addon.ingress_entry)
 bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
 
-# Build command - Use port from config
 # Trim whitespace from INGRESS_ENTRY
 INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
-# Base command with address binding for external access
-CMD="dozzle --addr 0.0.0.0:${PORT}"
+# Base command with internal port binding
+CMD="dozzle --addr 0.0.0.0:${INTERNAL_PORT}"
 
-# Vérifier si l'ingress est correctement configuré
+# Check if ingress is properly configured
 if [[ -z "${INGRESS_ENTRY}" ]]; then
     bashio::log.warning "Ingress entry point is empty, starting without base path"
 else
@@ -33,7 +29,7 @@ else
     CMD="${CMD} --base ${INGRESS_ENTRY}"
 fi
 
-# Assurez-vous que le port est correctement configuré pour l'accès externe
+# Configure external access if enabled
 if [[ "${REMOTE_ACCESS}" = "true" ]]; then
     bashio::log.info "Remote access enabled via port binding to 0.0.0.0"
 fi
@@ -44,9 +40,9 @@ if [[ "${DOZZLE_AGENT_ENABLED}" = "true" ]]; then
     CMD="${CMD} --agent --agent-addr 0.0.0.0:${DOZZLE_AGENT_PORT}"
 fi
 
-# Démarrer Dozzle avec la configuration mise à jour
-bashio::log.info "Starting Dozzle on port ${PORT}"
+# Start Dozzle with updated configuration
+bashio::log.info "Starting Dozzle on internal port ${INTERNAL_PORT}"
 bashio::log.debug "Command: ${CMD}"
 
-# Exécuter Dozzle directement
+# Execute Dozzle
 exec ${CMD}

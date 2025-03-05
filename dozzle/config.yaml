@@ -13,14 +13,14 @@ init: false
 startup: application
 boot: auto
 ingress: true
-ingress_port: 8099
+ingress_port: 8080
 ingress_stream: true
 panel_icon: mdi:docker
 panel_admin: false
 ports:
-  8099/tcp: 8099
+  8080/tcp: null
 ports_description:
-  8099/tcp: "Web interface for direct access (not needed for Home Assistant Ingress)"
+  8080/tcp: "External port for direct web access to Dozzle (internal port 8080). Home Assistant will automatically assign an available port if the default port (8099) is already in use. Ingress access remains always available."
 webui: "http://[HOST]:[PORT:8099]"
 host_network: false
 host_dbus: false
@@ -29,19 +29,16 @@ usb: false
 udev: true
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 options:
-  port: 8099
   log_level: "info"
   remote_access: true
   dozzle_agent_enabled: false
   dozzle_agent_port: 7007
 schema:
-  port: int(1,65535)
   log_level: list(trace|debug|info|notice|warning|error|fatal)
   remote_access: bool
   dozzle_agent_enabled: bool
   dozzle_agent_port: int(1,65535)
 options_description:
-  port: "Port for Dozzle web interface (default: 8099)"
   log_level: "Log level (default: info)"
   remote_access: "Enable remote access through the configured port (default: true)"
   dozzle_agent_enabled: "Enable Dozzle Agent mode for remote connections (default: false)"
