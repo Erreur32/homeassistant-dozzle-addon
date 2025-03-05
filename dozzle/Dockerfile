@@ -1,8 +1,5 @@
 # Set the architecture
-ARG BUILD_ARCH
-ARG BUILDPLATFORM
-
-# Use the correct base image according to the architecture
+ARG BUILD_ARCH=amd64
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 LABEL maintainer="erreur32"
