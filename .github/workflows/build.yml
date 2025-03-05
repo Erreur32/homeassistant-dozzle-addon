@@ -18,6 +18,10 @@ jobs:
       packages: write
       id-token: write
 
+    strategy:
+      matrix:
+        arch: [amd64, aarch64, armv7]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,12 +52,8 @@ jobs:
           context: ./dozzle
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:latest
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           build-args: |
             BUILD_ARCH=${{ matrix.arch }}
