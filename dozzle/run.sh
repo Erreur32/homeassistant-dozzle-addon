@@ -41,17 +41,13 @@ INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 # Base command with internal port binding
 CMD="dozzle --addr 0.0.0.0:${INTERNAL_PORT}"
 
-# Check if ingress is properly configured
+# Configure base path for ingress
 if [[ -z "${INGRESS_ENTRY}" ]]; then
     bashio::log.warning "Ingress entry point is empty, starting without base path"
 else
     bashio::log.info "Using base path: '${INGRESS_ENTRY}'"
-    if [[ "${REMOTE_ACCESS}" = "true" ]]; then
-        # For external access, we don't want the ingress base path
-        bashio::log.info "Remote access enabled - Not using base path for external port"
-    else
-        CMD="${CMD} --base ${INGRESS_ENTRY}"
-    fi
+    # Always use base path for ingress functionality
+    CMD="${CMD} --base ${INGRESS_ENTRY}"
 fi
 
 # Configure external access if enabled
