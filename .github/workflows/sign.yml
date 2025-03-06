@@ -27,8 +27,10 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Extracted version: $VERSION"
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.3.0
+      - name: Install Cosign and Skopeo
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sh
+          sudo apt-get update && sudo apt-get install -y skopeo
 
       - name: Generate key pair
         id: keys
@@ -36,16 +38,37 @@ jobs:
           cosign generate-key-pair
           echo "key_generated=true" >> $GITHUB_ENV
 
+      - name: List available images
+        run: |
+          echo "Checking available images for version ${{ env.VERSION }}"
+          for arch in amd64 aarch64 armv7; do
+            echo "Checking $arch..."
+            skopeo list-tags docker://ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch || true
+          done
+
       - name: Get image digest
         run: |
           for arch in amd64 aarch64 armv7; do
-            DIGEST=$(skopeo inspect docker://ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }} --format '{{.Digest}}')
+            echo "Processing architecture: $arch"
+            IMAGE="ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }}"
+            echo "Checking image: $IMAGE"
+            
+            # Try to get manifest first
+            skopeo inspect docker://$IMAGE --raw || true
+            
+            # Then try to get digest
+            DIGEST=$(skopeo inspect docker://$IMAGE --format '{{.Digest}}' || true)
+            
             if [ -z "$DIGEST" ]; then
-              echo "Error: No image found for architecture $arch."
+              echo "Error: No image found for architecture $arch"
+              echo "Full image details:"
+              skopeo inspect docker://$IMAGE || true
               exit 1
             fi
+            
             arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
             echo "DOZZLE_${arch_upper}_DIGEST=$DIGEST" >> $GITHUB_ENV
+            echo "Found digest for $arch: $DIGEST"
           done
 
       - name: Sign images
@@ -54,6 +77,7 @@ jobs:
           for arch in amd64 aarch64 armv7; do
             arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
             digest_var="DOZZLE_${arch_upper}_DIGEST"
+            echo "Signing image for $arch with digest ${!digest_var}"
             cosign sign --key cosign.key \
               ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch@${!digest_var}
           done
