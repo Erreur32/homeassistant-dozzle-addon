@@ -40,6 +40,10 @@ jobs:
         run: |
           for arch in amd64 aarch64 armv7; do
             DIGEST=$(skopeo inspect docker://ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }} --format '{{.Digest}}')
+            if [ -z "$DIGEST" ]; then
+              echo "Error: No image found for architecture $arch."
+              exit 1
+            fi
             arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
             echo "DOZZLE_${arch_upper}_DIGEST=$DIGEST" >> $GITHUB_ENV
           done
