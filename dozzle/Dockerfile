@@ -1,10 +1,5 @@
-#FROM --platform=$BUILDPLATFORM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
-
-# Définition de l'architecture
+# Set the architecture
 ARG BUILD_ARCH
-ARG BUILDPLATFORM
-
-# Utiliser la bonne image de base selon l'architecture
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 LABEL maintainer="erreur32"
@@ -17,15 +12,15 @@ LABEL \
 LABEL io.hass.arch="${BUILD_ARCH}"
 LABEL io.hass.url="https://github.com/Erreur32/homeassistant-dozzle-addon"
 
-# ✅ Configuration du mode "host" pour Docker
+# Configuration of Docker host mode
 ENV DOCKER_HOST=unix:///var/run/docker.sock
 
-# Mettre à jour les dépôts et installer libc6-compat
+# Update repositories and install libc6-compat
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
     && apk update && apk add --no-cache libc6-compat
 
-# Installation de glibc
+# Install glibc
 RUN apk del --purge gcompat \
     && apk add --no-cache --force-overwrite libc6-compat \
     && wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub \
@@ -33,27 +28,26 @@ RUN apk del --purge gcompat \
     && apk add --allow-untrusted --force-overwrite glibc-2.35-r1.apk \
     && rm -f glibc-2.35-r1.apk
 
-# Vérification de glibc
+# Verify glibc
 RUN ldd --version || true
 
-# Configuration de Dozzle
+# Configure Dozzle
 COPY bin/dozzle /usr/local/bin/dozzle
 RUN chmod +x /usr/local/bin/dozzle
 
-# Script de démarrage
+# Startup script
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
 
-# Copier le répertoire rootfs
+# Copy the rootfs directory
 COPY rootfs /
 
-# S'assurer que tous les scripts sont exécutables
+# Ensure all scripts are executable
 RUN chmod +x /etc/cont-init.d/* /etc/services.d/*/run /etc/services.d/*/finish
 
-# Configuration S6
+# S6 configuration
 RUN mkdir -p /run/s6/container_environment
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 
-# Point d'entrée
+# Entry point
 ENTRYPOINT ["/init"]
-
