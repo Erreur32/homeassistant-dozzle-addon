@@ -20,7 +20,7 @@ panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
 webui: "http://[HOST]:[PORT:8081]"
-ingress_entry: "/"
+ingress_entry: ""
 
 # Configuration Options
 options:
