@@ -1,6 +1,13 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.50
+
+### 🔧 Changes
+- Fixed service startup issues
+- Restored working configuration
+- Improved stability
+
 ## 0.1.49
 
 - ⚠️ Known Issue: Ingress is currently not working. Please use direct access via port 8099

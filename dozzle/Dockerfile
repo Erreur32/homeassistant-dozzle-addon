@@ -7,7 +7,7 @@ LABEL \
     io.hass.name="Dozzle" \
     io.hass.description="Real-time Docker log monitoring interface for Home Assistant" \
     io.hass.type="addon" \
-    io.hass.version="0.1.49" \
+    io.hass.version="0.1.50" \
     dozzle.version="8.11.7"
 LABEL io.hass.arch="${BUILD_ARCH}"
 LABEL io.hass.url="https://github.com/Erreur32/homeassistant-dozzle-addon"
