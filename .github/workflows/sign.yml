@@ -56,16 +56,29 @@ jobs:
             IMAGE="ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }}"
             echo "Checking image: $IMAGE"
             
-            # Try to get manifest first
-            skopeo inspect docker://$IMAGE --raw || true
+            # Map architecture names
+            case $arch in
+              "aarch64")
+                SKOPEO_ARCH="arm64"
+                ;;
+              "armv7")
+                SKOPEO_ARCH="arm/v7"
+                ;;
+              *)
+                SKOPEO_ARCH=$arch
+                ;;
+            esac
             
-            # Then try to get digest
-            DIGEST=$(skopeo inspect docker://$IMAGE --format '{{.Digest}}' || true)
+            # Try to get manifest first
+            skopeo inspect --raw docker://$IMAGE || true
+            
+            # Then try to get digest with correct architecture
+            DIGEST=$(skopeo inspect --format '{{.Digest}}' --override-arch $SKOPEO_ARCH docker://$IMAGE || true)
             
             if [ -z "$DIGEST" ]; then
-              echo "Error: No image found for architecture $arch"
+              echo "Error: No image found for architecture $arch (skopeo arch: $SKOPEO_ARCH)"
               echo "Full image details:"
-              skopeo inspect docker://$IMAGE || true
+              skopeo inspect --override-arch $SKOPEO_ARCH docker://$IMAGE || true
               exit 1
             fi
             
