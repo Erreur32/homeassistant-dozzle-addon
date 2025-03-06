@@ -56,29 +56,37 @@ jobs:
             IMAGE="ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }}"
             echo "Checking image: $IMAGE"
             
-            # Map architecture names
             case $arch in
               "aarch64")
                 SKOPEO_ARCH="arm64"
+                SKOPEO_VARIANT=""
                 ;;
               "armv7")
-                SKOPEO_ARCH="arm/v7"
+                SKOPEO_ARCH="arm"
+                SKOPEO_VARIANT="v7"
                 ;;
               *)
                 SKOPEO_ARCH=$arch
+                SKOPEO_VARIANT=""
                 ;;
             esac
             
-            # Try to get manifest first
             skopeo inspect --raw docker://$IMAGE || true
             
-            # Then try to get digest with correct architecture
-            DIGEST=$(skopeo inspect --format '{{.Digest}}' --override-arch $SKOPEO_ARCH docker://$IMAGE || true)
+            if [ -n "$SKOPEO_VARIANT" ]; then
+              DIGEST=$(skopeo inspect --format '{{.Digest}}' --override-arch $SKOPEO_ARCH --override-variant $SKOPEO_VARIANT docker://$IMAGE || true)
+            else
+              DIGEST=$(skopeo inspect --format '{{.Digest}}' --override-arch $SKOPEO_ARCH docker://$IMAGE || true)
+            fi
             
             if [ -z "$DIGEST" ]; then
-              echo "Error: No image found for architecture $arch (skopeo arch: $SKOPEO_ARCH)"
+              echo "Error: No image found for architecture $arch (skopeo arch: $SKOPEO_ARCH${SKOPEO_VARIANT:+ variant: $SKOPEO_VARIANT})"
               echo "Full image details:"
-              skopeo inspect --override-arch $SKOPEO_ARCH docker://$IMAGE || true
+              if [ -n "$SKOPEO_VARIANT" ]; then
+                skopeo inspect --override-arch $SKOPEO_ARCH --override-variant $SKOPEO_VARIANT docker://$IMAGE || true
+              else
+                skopeo inspect --override-arch $SKOPEO_ARCH docker://$IMAGE || true
+              fi
               exit 1
             fi
             
