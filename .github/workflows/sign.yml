@@ -102,7 +102,7 @@ jobs:
             arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
             digest_var="DOZZLE_${arch_upper}_DIGEST"
             echo "Signing image for $arch with digest ${!digest_var}"
-            cosign sign --key cosign.key \
+            cosign sign --yes --key cosign.key \
               ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch@${!digest_var}
           done
 
