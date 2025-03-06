@@ -33,7 +33,8 @@ jobs:
       - name: Generate key pair
         run: |
           cosign generate-key-pair
-          echo "PUBLIC_KEY=$(cat cosign.pub)" >> $GITHUB_OUTPUT
+          PUBLIC_KEY=$(cat cosign.pub)
+          echo "PUBLIC_KEY=${PUBLIC_KEY}" >> $GITHUB_OUTPUT
 
       - name: Sign images
         run: |
