@@ -61,11 +61,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Verify images exist
+      - name: Verify image exists
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
-          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-amd64:${{ env.VERSION }}
-          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-aarch64:${{ env.VERSION }}
-          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-armv7:${{ env.VERSION }}
+          docker pull --platform linux/${{ matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armv7' && 'arm/v7' || matrix.arch }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
+          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
