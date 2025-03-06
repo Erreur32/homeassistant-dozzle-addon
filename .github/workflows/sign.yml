@@ -1,26 +1,20 @@
-name: Build and Push Multi-arch Docker Images
+name: Sign Docker Images
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: erreur32/homeassistant-dozzle-addon
+  workflow_run:
+    workflows: ["Build and Push Multi-arch Docker Images"]
+    types:
+      - completed
 
 jobs:
-  build:
+  sign:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
     permissions:
       contents: read
       packages: write
       id-token: write
-
-    strategy:
-      matrix:
-        arch: [amd64, aarch64, armv7]
 
     steps:
       - name: Checkout repository
@@ -33,40 +27,6 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Extracted version: $VERSION"
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: ./dozzle
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:latest
-          platforms: |
-            linux/${{ matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armv7' && 'arm/v7' || matrix.arch }}
-          build-args: |
-            BUILD_ARCH=${{ matrix.arch }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Verify image exists
-        run: |
-          docker pull --platform linux/${{ matrix.arch == 'aarch64' && 'arm64' || matrix.arch == 'armv7' && 'arm/v7' || matrix.arch }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
-          docker inspect ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
-
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
 
@@ -77,10 +37,12 @@ jobs:
 
       - name: Sign images
         run: |
-          cosign sign --key cosign.key \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:${{ env.VERSION }}
-          cosign sign --key cosign.key \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/dozzle-${{ matrix.arch }}:latest
+          for arch in amd64 aarch64 armv7; do
+            cosign sign --key cosign.key \
+              ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }}
+            cosign sign --key cosign.key \
+              ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:latest
+          done
 
       - name: Upload public key
         uses: actions/upload-artifact@v4
