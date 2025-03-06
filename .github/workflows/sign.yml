@@ -98,6 +98,7 @@ jobs:
       - name: Sign images
         if: env.key_generated == 'true'
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           for arch in amd64 aarch64 armv7; do
             arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
             digest_var="DOZZLE_${arch_upper}_DIGEST"
