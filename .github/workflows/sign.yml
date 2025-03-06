@@ -34,18 +34,24 @@ jobs:
         id: keys
         run: |
           cosign generate-key-pair
-          PUBLIC_KEY=$(cat cosign.pub | base64 | tr -d '\n')
-          echo "PUBLIC_KEY=${PUBLIC_KEY}" >> $GITHUB_OUTPUT
           echo "key_generated=true" >> $GITHUB_ENV
+
+      - name: Get image digest
+        run: |
+          for arch in amd64 aarch64 armv7; do
+            DIGEST=$(skopeo inspect docker://ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }} --format '{{.Digest}}')
+            arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
+            echo "DOZZLE_${arch_upper}_DIGEST=$DIGEST" >> $GITHUB_ENV
+          done
 
       - name: Sign images
         if: env.key_generated == 'true'
         run: |
           for arch in amd64 aarch64 armv7; do
+            arch_upper=$(echo $arch | tr '[:lower:]' '[:upper:]')
+            digest_var="DOZZLE_${arch_upper}_DIGEST"
             cosign sign --key cosign.key \
-              ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:${{ env.VERSION }}
-            cosign sign --key cosign.key \
-              ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch:latest
+              ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-$arch@${!digest_var}
           done
 
       - name: Upload public key
