@@ -31,12 +31,15 @@ jobs:
         uses: sigstore/cosign-installer@v3.3.0
 
       - name: Generate key pair
+        id: keys
         run: |
           cosign generate-key-pair
-          PUBLIC_KEY=$(cat cosign.pub)
+          PUBLIC_KEY=$(cat cosign.pub | base64 | tr -d '\n')
           echo "PUBLIC_KEY=${PUBLIC_KEY}" >> $GITHUB_OUTPUT
+          echo "key_generated=true" >> $GITHUB_ENV
 
       - name: Sign images
+        if: env.key_generated == 'true'
         run: |
           for arch in amd64 aarch64 armv7; do
             cosign sign --key cosign.key \
@@ -46,6 +49,7 @@ jobs:
           done
 
       - name: Upload public key
+        if: env.key_generated == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: cosign-public-key
