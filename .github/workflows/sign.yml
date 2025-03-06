@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Cosign and Skopeo
         run: |
-          curl -sSfL https://raw.githubusercontent.com/sigstore/cosign/main/install.sh | sh
+          curl -sSfL https://artifacts.sigstore.dev/cosign/main/install.sh | sh
           sudo apt-get update && sudo apt-get install -y skopeo
 
       - name: Generate key pair
