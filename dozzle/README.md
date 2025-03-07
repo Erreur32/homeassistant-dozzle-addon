@@ -7,32 +7,32 @@
 [![Issues][issues-shield]][issue]
 [![Stargazers][stars-shield]][stars]
 
-## ⚠️ Current Limitations
-
-**Important Notice**: The Ingress feature is currently not working in this version. Please use direct access via port 8099 to access Dozzle. We are actively working on fixing this issue.
+> [!WARNING]
+> Current Limitations 
+> **Important Notice**: The Ingress feature is currently not working in this version. 
+>
+> Please use direct access via port 8099 to access Dozzle. We are actively working on fixing this issue.
+>
+>
 
 ## About
 
 Dozzle is a lightweight real-time Docker log monitoring tool with a web interface. This version is optimized to work as a Home Assistant add-on with improved ingress support.
 
-## Features
+## Features of Dozzle
 
 - Intuitive web interface for Docker log visualization
 - Real-time log updates
+- Agent mode for distributed logging
+
+## Features for home Assistant 
 - SSL support with automatic certificate generation
 - Password protection
 - Ingress support for direct Home Assistant integration
-- Agent mode for distributed logging
-- Automatic log cleaning option
-- Configurable log level
 
 ## Installation
 
-1. Add the repository to your Home Assistant instance:
-   ```yaml
-   repositories:
-     - https://github.com/Erreur32/homeassistant-dozzle-addon
-   ```
+1. Go to [Home Assistant Store](https://my.home-assistant.io/redirect/supervisor_store/)
 
 2. Search for "Dozzle" in the Home Assistant Add-on Store
 
@@ -47,24 +47,14 @@ Dozzle is a lightweight real-time Docker log monitoring tool with a web interfac
 ```yaml
 # Port for external access (optional)
 port: 8099
-
-# Log level (debug, info, warn, error)
-log_level: info
-
-# Automatic log cleaning at startup
-auto_clean_logs: false
-
 # Agent mode (for Docker Swarm installations)
 agent: false
+# Log level (debug, info, error)
+log_level: info
+
 ```
 
 ## Usage
-
-### Access via Ingress
-
-1. Access the interface through the Home Assistant add-on panel
-2. Click "Open Web UI"
-3. The Dozzle interface will open in a new tab
 
 ### External Access
 
@@ -76,7 +66,7 @@ agent: false
 
 Got questions?
 
-You can open an issue here: [Dozzle issue tracker][issue]
+You can open an issue here: [issue tracker][issue]
 
 ## Contributing
 

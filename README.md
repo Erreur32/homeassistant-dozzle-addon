@@ -8,10 +8,10 @@ Real-time Docker logs viewer for Home Assistant. Monitor all your container logs
 
 ## Quick Start
 
-[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FErreur32%2Fhomeassistant-dozzle-addon)
+[Go to Home Assistant Store](https://my.home-assistant.io/redirect/supervisor_store/)
 
-1. Click the button above to add the repository to your Home Assistant
-2. Install the "Dozzle" add-on
+1. Click ADD and close windows
+2. go to  the "Dozzle" add-on
 3. Start the add-on
 4. Click "OPEN WEB UI" to access Dozzle
 
