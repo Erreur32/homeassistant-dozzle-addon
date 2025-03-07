@@ -18,14 +18,46 @@ LOG_LEVEL=$(bashio::config 'LogLevel')
 AGENT_ENABLED=$(bashio::config 'DozzleAgent')
 EXTERNAL_ACCESS=$(bashio::config 'ExternalAccess')
 
-# Get ingress port and entry point from Home Assistant
-INGRESS_PORT=$(bashio::addon.ingress_port)
-INGRESS_ENTRY=$(bashio::addon.ingress_entry)
-bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
+# Get ingress port from configuration
+INGRESS_PORT=$(bashio::addon.config ingress_port)
 bashio::log.info "Ingress port: ${INGRESS_PORT}"
 
-# Always listen on all interfaces for both ingress and external access
-CMD="dozzle --addr 0.0.0.0:${INGRESS_PORT} --base ${INGRESS_ENTRY} --no-analytics"
+# Get the port assigned by Home Assistant for external access
+ASSIGNED_PORT=$(bashio::addon.port ${INGRESS_PORT})
+if [ -z "${ASSIGNED_PORT}" ]; then
+    ASSIGNED_PORT="${INGRESS_PORT}"
+fi
+
+# Debug information
+bashio::log.debug "Configuration loaded:"
+bashio::log.debug "Log level: ${LOG_LEVEL}"
+bashio::log.debug "Agent enabled: ${AGENT_ENABLED}"
+bashio::log.debug "External access: ${EXTERNAL_ACCESS}"
+bashio::log.debug "Assigned port: ${ASSIGNED_PORT}"
+
+# Debug Docker socket access
+bashio::log.debug "Checking Docker socket access..."
+if [ -S /var/run/docker.sock ]; then
+    bashio::log.debug "Docker socket exists"
+else
+    bashio::log.warning "Docker socket not found at /var/run/docker.sock"
+fi
+
+# Get ingress entry point from Home Assistant
+INGRESS_ENTRY=$(bashio::addon.ingress_entry)
+bashio::log.info "Ingress entry point: '${INGRESS_ENTRY}'"
+
+# Trim whitespace from INGRESS_ENTRY
+INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
+
+# Build Dozzle command
+if [[ "${EXTERNAL_ACCESS}" = "true" ]]; then
+    CMD="dozzle --addr 0.0.0.0:${ASSIGNED_PORT} --no-analytics"
+    bashio::log.info "External access enabled on port ${ASSIGNED_PORT}"
+else
+    CMD="dozzle --addr 127.0.0.1:${INGRESS_PORT} --base ${INGRESS_ENTRY} --no-analytics"
+    bashio::log.info "Only ingress access enabled"
+fi
 
 # Add log level if specified
 if [ -n "${LOG_LEVEL}" ]; then
@@ -35,20 +67,14 @@ fi
 # Enable agent mode if configured
 if [[ "${AGENT_ENABLED}" = "true" ]]; then
     bashio::log.info "Agent mode enabled on port 7007"
-    CMD="${CMD} --agent --agent-addr 0.0.0.0:7007"
-fi
-
-# Log access mode
-if [[ "${EXTERNAL_ACCESS}" = "true" ]]; then
-    bashio::log.info "External access enabled"
-else
-    bashio::log.info "Only ingress access enabled"
+    CMD="${CMD} --agent-addr 0.0.0.0:7007"
 fi
 
 # Debug final configuration
 bashio::log.debug "Dozzle Configuration:"
 bashio::log.debug "  - Ingress Port: ${INGRESS_PORT}"
-bashio::log.debug "  - Base Path: ${INGRESS_ENTRY}"
+[[ "${EXTERNAL_ACCESS}" = "true" ]] && bashio::log.debug "  - External Port: ${ASSIGNED_PORT}"
+bashio::log.debug "  - Entry point: ${INGRESS_ENTRY}"
 bashio::log.debug "  - Command: ${CMD}"
 
 # Start Dozzle

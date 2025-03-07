@@ -44,7 +44,7 @@ options_description:
 
 # Port Configuration
 ports:
-  "8080/tcp": null
+  "8080/tcp": 8080
   "7007/tcp": null
 ports_description:
   "8080/tcp": "Web interface (Home Assistant will auto-assign a port)"
