@@ -1,6 +1,107 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+.directory
+.Trash-*
+
+# Fichiers temporaires et sauvegardes
+*.bak
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+*.orig
+*.rej
+*.diff
+
+# Fichiers de logs
+*.log
+logs/
+log/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de build et dépendances
+__pycache__/
+*.py[cod]
+*$py.class
+node_modules/
+dist/
+build/
+*.egg-info/
+*.egg
+.env
+.env.*
+!.env.example
+
+# Fichiers Docker
+.docker/
+docker-compose.override.yml
+*.env
+.dockerignore
+
+# Fichiers de cache
+.cache/
+.npm/
+.yarn/
+.pnp/
+.pnp.js
+.coverage
+coverage/
+.nyc_output/
+.npm
+.eslintcache
+.stylelintcache
+
+# Fichiers de sauvegarde Home Assistant
+backup/
+backups/
+*.tar
+*.tar.gz
+*.zip
+*.7z
+*.rar
+*.tgz
+
+# Scripts et configurations
+*.sh
+!run.sh
+
+# Fichiers de configuration locaux
+.gitignore.local
+*.local
+*.local.yml
+*.local.yaml
+*.local.json
+
+# Fichiers de développement
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.code-workspace
+
+# Fichiers de test
+test/
+tests/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+
+# Fichiers de documentation
+docs/_build/
+site/
+
+# Fichiers spécifiques au projet
 bin_orig/
 keys/
 Aide
-dozzle/run.sh_back
-.gitignore
 .cursor/
+update_version.sh
