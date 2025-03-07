@@ -48,10 +48,12 @@ INGRESS_ENTRY=$(echo "${INGRESS_ENTRY}" | xargs)
 
 # Build Dozzle command
 if [[ "${EXTERNAL_ACCESS}" = "true" ]]; then
-    CMD="dozzle --addr 0.0.0.0:${ASSIGNED_PORT} --no-analytics"
+    # When external access is enabled, we listen on all interfaces
+    CMD="dozzle --addr 0.0.0.0:${ASSIGNED_PORT} --base ${INGRESS_ENTRY} --no-analytics"
     bashio::log.info "External access enabled on port ${ASSIGNED_PORT}"
 else
-    CMD="dozzle --addr 127.0.0.1:8080 --base ${INGRESS_ENTRY} --no-analytics"
+    # When only ingress is enabled, we still need to listen on all interfaces for Home Assistant
+    CMD="dozzle --addr 0.0.0.0:8080 --base ${INGRESS_ENTRY} --no-analytics"
     bashio::log.info "Only ingress access enabled"
 fi
 
