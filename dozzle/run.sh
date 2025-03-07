@@ -34,6 +34,14 @@ bashio::log.debug "SSL key: ${SSL_KEY}"
 bashio::log.debug "Agent enabled: ${AGENT_ENABLED}"
 bashio::log.debug "Agent port: ${AGENT_PORT}"
 
+# Debug Docker socket access
+bashio::log.debug "Checking Docker socket access..."
+if [ -S /var/run/docker.sock ]; then
+    bashio::log.debug "Docker socket exists"
+else
+    bashio::log.warning "Docker socket not found at /var/run/docker.sock"
+fi
+
 # Internal Dozzle ports
 INTERNAL_PORT_INGRESS=8080
 INTERNAL_PORT_EXTERNAL=8081
@@ -115,15 +123,6 @@ else
     curl -v "http://localhost:${INTERNAL_PORT_INGRESS}/health" 2>&1 || true
     bashio::log.warning "⚠️ If you see 'Could not connect to any Docker Engine', please check:"
     bashio::log.warning "    Is the add-on in protected mode? If yes, disable it in the add-on settings"
-fi
-
-# Debug Docker socket access
-bashio::log.debug "Checking Docker socket access..."
-if [ -S /var/run/docker.sock ]; then
-    bashio::log.debug "Docker socket exists"
-    ls -l /var/run/docker.sock 2>&1 || true
-else
-    bashio::log.warning "Docker socket not found at /var/run/docker.sock"
 fi
 
 # Prepare External instance command if enabled

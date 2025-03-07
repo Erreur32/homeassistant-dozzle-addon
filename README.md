@@ -17,11 +17,9 @@ Real-time Docker logs viewer for Home Assistant. Monitor all your container logs
 
 ## Features
 
-- 🔍 Real-time log streaming
+- 🔍 Real-time Docker log streaming
 - 🏠 Native Home Assistant integration
-- 🔄 Auto-update capability
 - 🔒 Secure access
-- ⚙️ Configurable options
 
 ## Documentation
 
