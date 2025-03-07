@@ -34,7 +34,7 @@ Need help? Found a bug? Please [open an issue](https://github.com/Erreur32/homea
 
 MIT License - see the [LICENSE.md][license] file for details
 
-[release-shield]: https://img.shields.io/badge/version-v0.1.50-blue.svg
+[release-shield]: https://img.shields.io/badge/version-v0.1.51-blue.svg
 [release]: https://github.com/Erreur32/homeassistant-dozzle-addon
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-stable-green.svg
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg

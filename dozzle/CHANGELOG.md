@@ -1,6 +1,41 @@
 # Changelog
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 
+## 0.1.51
+
+### 🔨 Changes
+
+- Major port configuration simplification:
+  - Single port usage (8080) for web interface
+  - Removed redundant external port configuration
+  - Improved ingress handling
+
+- Run script optimization:
+  - Removed multi-instance management
+  - Simplified configuration
+  - Improved process management with `exec`
+  - Maintained agent mode support (port 7007)
+
+- Project cleanup:
+  - Removed redundant files (requirements.txt)
+  - Optimized project structure
+
+- Log improvements:
+  - Removed redundant messages
+  - Clarified debug messages
+  - Better startup log readability
+
+### 🐛 Bug Fixes
+
+- Fixed lock file management
+- Improved ingress path handling
+
+### 🏗 Technical Changes
+
+- Updated nginx configuration
+- Optimized Docker permissions handling
+- Improved environment variables management
+
 ## 0.1.50
 
 ### 🔧 Changes

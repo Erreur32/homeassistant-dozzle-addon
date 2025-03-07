@@ -1,5 +1,5 @@
 name: "Dozzle"
-version: "0.1.50"
+version: "0.1.51"
 slug: "dozzle"
 description: "Real-time log viewer for Docker containers"
 url: "https://github.com/Erreur32/homeassistant-dozzle-addon"
@@ -20,11 +20,12 @@ ingress_port: 8080
 ingress_stream: true
 ingress_entry: ""
 
+
 ###
 panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
-webui: "http://[HOST]:[PORT:8081]"
+webui: "http://[HOST]:[PORT:8080]"
 
 # Configuration Options
 options:
@@ -56,11 +57,11 @@ options_description:
 
 # External Port Configuration
 ports:
-  8081/tcp: "8099"
-  7007/tcp: "7007"
+  8080/tcp: 8080
+  7007/tcp: null
 ports_description:
-  8081/tcp: "External Access Port"
-  7007/tcp: "Dozzle Agent Port"
+  8080/tcp: "Web interface"
+  7007/tcp: "Dozzle Agent Port (optional)"
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
