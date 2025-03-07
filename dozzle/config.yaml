@@ -38,9 +38,9 @@ schema:
 
 # Options Descriptions
 options_description:
+  "ExternalAccess": "Enable direct access"
   "DozzleAgent": "⚙️ Enable Dozzle Agent"
   "LogLevel": "Log level"
-  "ExternalAccess": "Enable direct access from your network"
 
 # Port Configuration
 ports:
@@ -52,7 +52,7 @@ ports_description:
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
-watchdog: "http://[HOST]:[PORT:8080]"
+watchdog: "http://[HOST]:[PORT:8080]/healthz"
 host_network: false
 host_dbus: false
 usb: false
