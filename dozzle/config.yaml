@@ -8,6 +8,8 @@ arch:
   - armv7
   - aarch64
   - amd64
+###
+
 init: false
 startup: application
 boot: auto
@@ -16,71 +18,72 @@ boot: auto
 ingress: true
 ingress_port: 8080
 ingress_stream: true
+ingress_entry: ""
+
+###
 panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
 webui: "http://[HOST]:[PORT:8081]"
-ingress_entry: ""
 
 # Configuration Options
 options:
   "ExternalAccess": true
-  "ExternalPort": 8099
   "SSL_Enable": false
   "SSL_Certificate": "fullchain.pem"
   "SSL_Key": "privkey.pem"
   "DozzleAgent": false
-  "DozzleAgentPort": 7007
   "LogLevel": "info"
 
 # Schema Configuration
 schema:
   "ExternalAccess": bool
-  "ExternalPort": "int(1,65535)"
   "SSL_Enable": bool
   "SSL_Certificate": "str?"
   "SSL_Key": "str?"
   "DozzleAgent": bool
-  "DozzleAgentPort": int(1,65535)
-  "LogLevel": list(trace|debug|info|notice|warning|error|fatal)
+  "LogLevel": list(debug|info|notice|warning|error)
 
 # Options Descriptions
 options_description:
   ExternalAccess: "Enable external access"
-  ExternalPort: "External port (default: 8099)"
+  ExternalPort: "External Access Port (default: 8099)"
   SSL_Enable: "Enable SSL for external access"
   SSL_Certificate: "SSL certificate file (in /ssl/)"
   SSL_Key: "SSL key file (in /ssl/)"
   DozzleAgent: "⚙️ Enable Dozzle Agent"
-  DozzleAgentPort: "⚙️ Agent Port"
   LogLevel: "Log level"
 
 # External Port Configuration
 ports:
   8081/tcp: "8099"
+  7007/tcp: "7007"
 ports_description:
-  8081/tcp: "External Port redirection - (internal:8081 -> external:8099). If port 8099 is busy, Home Assistant will automatically assign another available port. Access via Ingress remains available regardless of external port."
+  8081/tcp: "External Access Port"
+  7007/tcp: "Dozzle Agent Port"
 
 # System Configuration
+image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
+watchdog: "http://[HOST]:[PORT:8080]"
 host_network: false
 host_dbus: false
+usb: false
+udev: true
 devices:
   - /dev/log
   - /dev/kmsg
   - /var/run/docker.sock
-watchdog: "http://[HOST]:[PORT:8080]"
-usb: false
-udev: true
-image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
 
 # System Permissions
-privileged:
-  - SYS_ADMIN
-  - DAC_READ_SEARCH
 hassio_api: true
 hassio_role: default
 docker_api: true
 auth_api: true
+
+privileged:
+  - SYS_ADMIN
+  - DAC_READ_SEARCH
+
 map:
   - config:rw
   - ssl:rw

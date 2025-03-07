@@ -1,2 +1,4 @@
 .gitignore linguist-vendored
-.gitignore linguist-generated 
+.gitignore linguist-generated
+.gitignore linguist-detectable=false
+.gitignore linguist-language=Text 
