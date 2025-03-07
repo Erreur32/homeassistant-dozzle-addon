@@ -8,7 +8,6 @@ arch:
   - armv7
   - aarch64
   - amd64
-###
 
 init: false
 startup: application
@@ -18,10 +17,8 @@ boot: auto
 ingress: true
 ingress_port: 8080
 ingress_stream: true
-ingress_entry: ""
 
-
-###
+# Panel Configuration
 panel_icon: mdi:docker
 panel_admin: false
 panel_title: "Dozzle"
@@ -30,38 +27,28 @@ webui: "http://[HOST]:[PORT:8080]"
 # Configuration Options
 options:
   "ExternalAccess": true
-  "SSL_Enable": false
-  "SSL_Certificate": "fullchain.pem"
-  "SSL_Key": "privkey.pem"
   "DozzleAgent": false
   "LogLevel": "info"
 
 # Schema Configuration
 schema:
   "ExternalAccess": bool
-  "SSL_Enable": bool
-  "SSL_Certificate": "str?"
-  "SSL_Key": "str?"
   "DozzleAgent": bool
   "LogLevel": list(debug|info|error)
 
 # Options Descriptions
 options_description:
-  ExternalAccess: "Enable external access"
-  ExternalPort: "External Access Port (default: 8099)"
-  SSL_Enable: "Enable SSL for external access"
-  SSL_Certificate: "SSL certificate file (in /ssl/)"
-  SSL_Key: "SSL key file (in /ssl/)"
-  DozzleAgent: "⚙️ Enable Dozzle Agent"
-  LogLevel: "Log level"
+  "DozzleAgent": "⚙️ Enable Dozzle Agent"
+  "LogLevel": "Log level"
+  "ExternalAccess": "Enable direct access from your network"
 
-# External Port Configuration
+# Port Configuration
 ports:
-  8080/tcp: 8080
-  7007/tcp: null
+  "8080/tcp": 8080
+  "7007/tcp": null
 ports_description:
-  8080/tcp: "Web interface"
-  7007/tcp: "Dozzle Agent Port (optional)"
+  "8080/tcp": "Web interface (Home Assistant will auto-assign if port is in use)"
+  "7007/tcp": "Dozzle Agent Port (optional)"
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
