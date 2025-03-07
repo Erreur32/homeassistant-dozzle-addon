@@ -44,15 +44,15 @@ options_description:
 
 # Port Configuration
 ports:
-  "8080/tcp": 8080
+  "8080/tcp": null
   "7007/tcp": null
 ports_description:
-  "8080/tcp": "Web interface (Home Assistant will auto-assign if port is in use)"
+  "8080/tcp": "Web interface (Home Assistant will auto-assign a port)"
   "7007/tcp": "Dozzle Agent Port (optional)"
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
-watchdog: "http://[HOST]:[PORT:8080]/healthz"
+watchdog: "http://[HOST]:[PORT:8080]"
 host_network: false
 host_dbus: false
 usb: false
