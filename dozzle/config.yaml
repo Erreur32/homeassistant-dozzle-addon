@@ -42,7 +42,7 @@ schema:
   "SSL_Certificate": "str?"
   "SSL_Key": "str?"
   "DozzleAgent": bool
-  "LogLevel": list(debug|info|notice|warning|error)
+  "LogLevel": list(debug|info|error)
 
 # Options Descriptions
 options_description:

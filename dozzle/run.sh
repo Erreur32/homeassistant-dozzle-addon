@@ -89,9 +89,15 @@ if [ -n "${LOG_LEVEL}" ]; then
     CMD_INGRESS="${CMD_INGRESS} --level ${LOG_LEVEL}"
 fi
 
+# Debug ingress configuration
+bashio::log.debug "Ingress Configuration:"
+bashio::log.debug "  - Port: ${INTERNAL_PORT_INGRESS}"
+bashio::log.debug "  - Entry point: ${INGRESS_ENTRY}"
+bashio::log.debug "  - Log level: ${LOG_LEVEL}"
+bashio::log.debug "  - Command: ${CMD_INGRESS}"
+
 # Start Dozzle instances
 bashio::log.info "Starting Dozzle Ingress instance on port ${INTERNAL_PORT_INGRESS}"
-bashio::log.debug "Ingress Command: ${CMD_INGRESS}"
 ${CMD_INGRESS} &
 PID_INGRESS=$!
 
@@ -102,8 +108,22 @@ sleep 2
 bashio::log.debug "Testing ingress endpoint..."
 if curl -s -I "http://localhost:${INTERNAL_PORT_INGRESS}/health" > /dev/null 2>&1; then
     bashio::log.info "Ingress endpoint is responding"
+    bashio::log.debug "Ingress health check successful"
 else
     bashio::log.warning "Failed to reach ingress endpoint"
+    bashio::log.debug "Ingress health check failed - trying to get more details..."
+    curl -v "http://localhost:${INTERNAL_PORT_INGRESS}/health" 2>&1 || true
+    bashio::log.warning "⚠️ If you see 'Could not connect to any Docker Engine', please check:"
+    bashio::log.warning "    Is the add-on in protected mode? If yes, disable it in the add-on settings"
+fi
+
+# Debug Docker socket access
+bashio::log.debug "Checking Docker socket access..."
+if [ -S /var/run/docker.sock ]; then
+    bashio::log.debug "Docker socket exists"
+    ls -l /var/run/docker.sock 2>&1 || true
+else
+    bashio::log.warning "Docker socket not found at /var/run/docker.sock"
 fi
 
 # Prepare External instance command if enabled
