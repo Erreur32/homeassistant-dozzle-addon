@@ -1,5 +1,4 @@
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash
+#!/bin/sh
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
 # Take down the S6 supervision tree when Nginx fails
@@ -15,7 +14,7 @@ readonly exit_code_signal="${2}"
 
 log_info "Service nginx exited with code ${exit_code_service} (by signal ${exit_code_signal})"
 
-if [[ "${exit_code_service}" -eq 0 ]] || [[ "${exit_code_container}" -gt 0 ]]; then
+if [ "${exit_code_service}" -eq 0 ] || [ "${exit_code_container}" -gt 0 ]; then
   log_info "Service restart not needed"
   exit "${exit_code_container}"
 fi

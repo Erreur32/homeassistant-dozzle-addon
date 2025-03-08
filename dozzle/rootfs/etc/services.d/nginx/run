@@ -1,5 +1,4 @@
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash
+#!/bin/sh
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
 # Runs the Nginx daemon for ingress support
@@ -7,7 +6,6 @@
 
 # Use simple echo for logging
 log_info() { echo "[INFO] $1"; }
-log_warning() { echo "[WARNING] $1"; }
 
 log_info "Starting NGinx for ingress support..."
 

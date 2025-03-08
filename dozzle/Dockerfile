@@ -20,6 +20,9 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/re
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
     && apk update && apk add --no-cache libc6-compat jq curl bash nginx
 
+# Create symlinks for bash
+RUN ln -sf /bin/bash /usr/bin/bash || true
+
 # Install glibc
 RUN apk del --purge gcompat \
     && apk add --no-cache --force-overwrite libc6-compat \
@@ -43,7 +46,14 @@ RUN chmod +x /run.sh
 COPY rootfs /
 
 # Ensure all scripts are executable
-RUN chmod +x /etc/cont-init.d/* /etc/services.d/*/run /etc/services.d/*/finish
+RUN find /etc/cont-init.d -type f -exec chmod +x {} \; || true
+RUN find /etc/services.d -type f -name run -exec chmod +x {} \; || true
+RUN find /etc/services.d -type f -name finish -exec chmod +x {} \; || true
+
+# Fix line endings in scripts
+RUN find /etc/cont-init.d -type f -exec sed -i 's/\r$//' {} \; || true
+RUN find /etc/services.d -type f -exec sed -i 's/\r$//' {} \; || true
+RUN sed -i 's/\r$//' /run.sh || true
 
 # S6 configuration
 RUN mkdir -p /run/s6/container_environment

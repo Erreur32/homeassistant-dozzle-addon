@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/bin/sh
 # shellcheck shell=bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle

@@ -1,5 +1,8 @@
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash
+#!/bin/sh
+# ==============================================================================
+# Home Assistant Add-on: Dozzle
+# Main script to run Dozzle
+# ==============================================================================
 set -e
 
 # Define paths
@@ -19,7 +22,7 @@ INGRESS_PORT="8080"
 INGRESS_ENTRY="/"
 
 # Try to load configuration from Home Assistant if possible
-if command -v ha &> /dev/null; then
+if command -v ha >/dev/null 2>&1; then
     # Use ha command if available
     LOG_LEVEL=$(ha addon options --raw-json | jq -r '.LogLevel // "info"')
     AGENT_ENABLED=$(ha addon options --raw-json | jq -r '.DozzleAgent // false')
@@ -76,7 +79,7 @@ fi
 log_info "Ingress entry point: '${INGRESS_ENTRY}'"
 
 # Build Dozzle command
-if [[ "${EXTERNAL_ACCESS}" = "true" ]]; then
+if [ "${EXTERNAL_ACCESS}" = "true" ]; then
     CMD="${DOZZLE_BIN} --addr 0.0.0.0:${INGRESS_PORT} --no-analytics"
     log_info "External access enabled on port ${INGRESS_PORT}"
 else
@@ -90,8 +93,8 @@ if [ -n "${LOG_LEVEL}" ]; then
 fi
 
 # Enable agent mode if configured and supported
-if [[ "${AGENT_ENABLED}" = "true" ]]; then
-    if [[ "${AGENT_SUPPORTED}" = "true" ]]; then
+if [ "${AGENT_ENABLED}" = "true" ]; then
+    if [ "${AGENT_SUPPORTED}" = "true" ]; then
         log_info "Agent mode enabled on port 7007"
         CMD="${CMD} --agent --agent-addr 0.0.0.0:7007"
     else
@@ -102,7 +105,7 @@ fi
 # Debug final configuration
 log_debug "Dozzle Configuration:"
 log_debug "  - Ingress Port: ${INGRESS_PORT}"
-[[ "${EXTERNAL_ACCESS}" = "true" ]] && log_debug "  - External Port: ${INGRESS_PORT}"
+[ "${EXTERNAL_ACCESS}" = "true" ] && log_debug "  - External Port: ${INGRESS_PORT}"
 log_debug "  - Entry point: ${INGRESS_ENTRY}"
 log_debug "  - Command: ${CMD}"
 
