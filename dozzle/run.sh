@@ -423,49 +423,15 @@ main() {
         fi
     done
     
-    # Attendre que S6 démarre les services (5 secondes maximum)
-    log_info "Attente du démarrage des services..."
-    sleep 5
-    
-    # Display system information with configuration values
-    get_system_info
-    
-    # Check nginx status for ingress
-    check_nginx_status
-    
-    # Check if agent mode is supported
-    AGENT_SUPPORTED=false
-    if /usr/local/bin/dozzle --help 2>&1 | sed -n '/--agent/p' | wc -l > /dev/null 2>&1; then
-        AGENT_SUPPORTED=true
-        log_info "Agent mode is supported in this version of Dozzle"
-    else
-        log_warning "Agent mode is NOT supported in this version of Dozzle (${DOZZLE_VERSION})"
-    fi
-    
-    # Set Dozzle options
+    # Set Dozzle options avant le démarrage des services
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
     # Configure address based on external access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         log_info "External access is enabled (port 8080 will be exposed)"
-        # Listen on all interfaces for external access
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
-        
-        # Check if port 8080 is already in use
-        if netstat -tuln 2>/dev/null | grep -q ":8080 "; then
-            log_warning "Port 8080 is already in use, external access may not work"
-            # Try to identify which process is using the port
-            if command -v lsof >/dev/null 2>&1; then
-                log_info "Process using port 8080:"
-                lsof -i :8080 || true
-            elif command -v fuser >/dev/null 2>&1; then
-                log_info "Process using port 8080:"
-                fuser -n tcp 8080 || true
-            fi
-        fi
     else
         log_info "External access is disabled (port 8080 will not be accessible from outside)"
-        # Listen only on localhost for ingress
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
     
@@ -474,26 +440,53 @@ main() {
     
     # Add agent mode if enabled and supported
     if [ "${AGENT_MODE}" = "true" ]; then
-        if [ "${AGENT_SUPPORTED}" = "true" ]; then
+        if check_command_option "/usr/local/bin/dozzle" "--agent"; then
             log_info "Agent mode enabled on port 7007"
             DOZZLE_OPTS="${DOZZLE_OPTS} --agent --agent-addr 0.0.0.0:7007"
-            
-            # Check if port 7007 is already in use
-            if netstat -tuln 2>/dev/null | grep -q ":7007 "; then
-                log_warning "Port 7007 is already in use, agent mode may not work"
-            fi
         else
-            log_warning "Agent mode is requested but not supported in this version of Dozzle (${DOZZLE_VERSION}). Ignoring agent configuration."
+            log_warning "Agent mode is requested but not supported in this version"
         fi
     fi
     
+    # Démarrer Dozzle en arrière-plan
     log_info "Starting Dozzle with options: ${DOZZLE_OPTS}"
+    /usr/local/bin/dozzle ${DOZZLE_OPTS} &
+    DOZZLE_PID=$!
+    
+    # Attendre que Dozzle soit prêt (max 10 secondes)
+    log_info "Waiting for Dozzle to be ready..."
+    max_wait=10
+    wait_count=0
+    while [ $wait_count -lt $max_wait ]; do
+        if curl -s http://127.0.0.1:8080 >/dev/null 2>&1; then
+            log_info "✅ Dozzle is ready"
+            break
+        fi
+        wait_count=$((wait_count + 1))
+        sleep 1
+    done
+    
+    if [ $wait_count -eq $max_wait ]; then
+        log_error "❌ Dozzle failed to start within ${max_wait} seconds"
+        kill $DOZZLE_PID
+        exit 1
+    fi
+    
+    # Attendre que S6 démarre les services (5 secondes)
+    log_info "Waiting for S6 services..."
+    sleep 5
+    
+    # Display system information
+    get_system_info
+    
+    # Check nginx status
+    check_nginx_status
     
     # Remove lock file
     rm -f "${LOCK_FILE}"
-
-# Start Dozzle
-    exec /usr/local/bin/dozzle ${DOZZLE_OPTS}
+    
+    # Attendre que Dozzle se termine
+    wait $DOZZLE_PID
 }
 
 # Run main function

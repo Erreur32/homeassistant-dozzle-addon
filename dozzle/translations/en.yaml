@@ -1,4 +1,0 @@
-configuration:
-  DOZZLE_LEVEL:
-    name: Log Level
-    description: Set the log level for Dozzle.

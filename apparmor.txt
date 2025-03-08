@@ -1,0 +1,28 @@
+#include <tunables/global>
+
+profile hassio-addon-dozzle flags=(attach_disconnected,mediate_deleted) {
+    # Inclure les abstractions de base
+    #include <abstractions/base>
+
+    # Autoriser l'exécution de Dozzle
+    /usr/bin/dozzle ix,
+
+    # Autoriser l'accès en lecture/écriture aux journaux Docker
+    /var/log/docker/** rw,
+    /var/run/docker.sock rw,
+
+    # Autoriser l'accès aux répertoires de configuration et de données de l'add-on
+    /config/** rw,
+    /data/** rw,
+
+    # Autoriser l'accès au réseau
+    network inet stream,
+    network inet dgram,
+
+    # Autoriser l'écoute sur les ports nécessaires
+    capability net_bind_service,
+
+    # Restreindre l'accès à des fichiers sensibles
+    deny /etc/shadow rw,
+    deny /root/** rw,
+} 
