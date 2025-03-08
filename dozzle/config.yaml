@@ -41,11 +41,11 @@ options_description:
   log_level: "Log level"
 # Port Configuration
 ports:
-  "8080/tcp": null
+  "8080/tcp": 8080
   "7007/tcp": null
 ports_description:
-  "8080/tcp": "Web interface (Home Assistant will auto-assign a port)"
-  "7007/tcp": "Dozzle Agent Port (only used if agent mode is supported)"
+  "8080/tcp": "Web interface (only used if external_access is enabled)"
+  "7007/tcp": "Dozzle Agent Port (only used if agent_mode is enabled)"
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"

@@ -151,7 +151,7 @@ check_command_option() {
 read_config() {
     # Set default values first
     LOG_LEVEL="info"
-    EXTERNAL_ACCESS="true"  # Default to true for external access
+    EXTERNAL_ACCESS="false"  # Default to false for external access
     AGENT_MODE="false"
     
     # Check if config file exists
@@ -164,103 +164,39 @@ read_config() {
     log_info "Reading configuration from ${CONFIG_PATH}"
     cat "${CONFIG_PATH}" || log_warning "Failed to read configuration file"
     
-    # Simple approach to read configuration without using jq -e which causes segmentation faults
-    # Read log_level
-    LOG_LEVEL_TMP=$(jq -r '.log_level' "${CONFIG_PATH}" 2>/dev/null)
-    if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
-        # Normalize log level values
-        case "${LOG_LEVEL_TMP}" in
-            debug|DEBUG|Debug)
-                LOG_LEVEL="debug"
-                ;;
-            info|INFO|Info)
-                LOG_LEVEL="info"
-                ;;
-            warning|WARNING|Warning|warn|WARN|Warn)
-                LOG_LEVEL="warning"
-                ;;
-            error|ERROR|Error)
-                LOG_LEVEL="error"
-                ;;
-            *)
-                log_warning "Unknown log level '${LOG_LEVEL_TMP}', using default: info"
-                LOG_LEVEL="info"
-                ;;
-        esac
+    # Read log_level using grep and sed to avoid jq segmentation faults
+    LOG_LEVEL_TMP=$(grep -o '"log_level"[[:space:]]*:[[:space:]]*"[^"]*"' "${CONFIG_PATH}" 2>/dev/null | sed 's/"log_level"[[:space:]]*:[[:space:]]*"\([^"]*\)"/\1/')
+    if [ -n "${LOG_LEVEL_TMP}" ]; then
+        LOG_LEVEL="${LOG_LEVEL_TMP}"
         log_info "Read log_level from config: ${LOG_LEVEL}"
-    else
-        # Try legacy option name
-        LOG_LEVEL_TMP=$(jq -r '.LogLevel' "${CONFIG_PATH}" 2>/dev/null)
-        if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
-            # Normalize log level values
-            case "${LOG_LEVEL_TMP}" in
-                debug|DEBUG|Debug)
-                    LOG_LEVEL="debug"
-                    ;;
-                info|INFO|Info)
-                    LOG_LEVEL="info"
-                    ;;
-                warning|WARNING|Warning|warn|WARN|Warn)
-                    LOG_LEVEL="warning"
-                    ;;
-                error|ERROR|Error)
-                    LOG_LEVEL="error"
-                    ;;
-                *)
-                    log_warning "Unknown log level '${LOG_LEVEL_TMP}', using default: info"
-                    LOG_LEVEL="info"
-                    ;;
-            esac
-            log_info "Read LogLevel from config (legacy): ${LOG_LEVEL}"
-        fi
     fi
     
-    # Read external_access
-    EXTERNAL_ACCESS_TMP=$(jq -r '.external_access' "${CONFIG_PATH}" 2>/dev/null)
-    if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
-        # Normalize boolean values
-        if [ "${EXTERNAL_ACCESS_TMP}" = "true" ] || [ "${EXTERNAL_ACCESS_TMP}" = "True" ] || [ "${EXTERNAL_ACCESS_TMP}" = "TRUE" ]; then
+    # Read external_access using grep and sed
+    EXTERNAL_ACCESS_TMP=$(grep -o '"external_access"[[:space:]]*:[[:space:]]*[a-zA-Z]*' "${CONFIG_PATH}" 2>/dev/null | sed 's/"external_access"[[:space:]]*:[[:space:]]*\([a-zA-Z]*\)/\1/')
+    if [ -n "${EXTERNAL_ACCESS_TMP}" ]; then
+        # Convert to lowercase for comparison
+        EXTERNAL_ACCESS_LOWER=$(echo "${EXTERNAL_ACCESS_TMP}" | tr '[:upper:]' '[:lower:]')
+        
+        if [ "${EXTERNAL_ACCESS_LOWER}" = "true" ]; then
             EXTERNAL_ACCESS="true"
         else
             EXTERNAL_ACCESS="false"
         fi
         log_info "Read external_access from config: ${EXTERNAL_ACCESS}"
-    else
-        # Try legacy option name
-        EXTERNAL_ACCESS_TMP=$(jq -r '.ExternalAccess' "${CONFIG_PATH}" 2>/dev/null)
-        if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
-            # Normalize boolean values
-            if [ "${EXTERNAL_ACCESS_TMP}" = "true" ] || [ "${EXTERNAL_ACCESS_TMP}" = "True" ] || [ "${EXTERNAL_ACCESS_TMP}" = "TRUE" ]; then
-                EXTERNAL_ACCESS="true"
-            else
-                EXTERNAL_ACCESS="false"
-            fi
-            log_info "Read ExternalAccess from config (legacy): ${EXTERNAL_ACCESS}"
-        fi
     fi
     
-    # Read agent_mode
-    AGENT_MODE_TMP=$(jq -r '.agent_mode' "${CONFIG_PATH}" 2>/dev/null)
-    if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
-        # Normalize boolean values
-        if [ "${AGENT_MODE_TMP}" = "true" ] || [ "${AGENT_MODE_TMP}" = "True" ] || [ "${AGENT_MODE_TMP}" = "TRUE" ]; then
+    # Read agent_mode using grep and sed
+    AGENT_MODE_TMP=$(grep -o '"agent_mode"[[:space:]]*:[[:space:]]*[a-zA-Z]*' "${CONFIG_PATH}" 2>/dev/null | sed 's/"agent_mode"[[:space:]]*:[[:space:]]*\([a-zA-Z]*\)/\1/')
+    if [ -n "${AGENT_MODE_TMP}" ]; then
+        # Convert to lowercase for comparison
+        AGENT_MODE_LOWER=$(echo "${AGENT_MODE_TMP}" | tr '[:upper:]' '[:lower:]')
+        
+        if [ "${AGENT_MODE_LOWER}" = "true" ]; then
             AGENT_MODE="true"
         else
             AGENT_MODE="false"
         fi
         log_info "Read agent_mode from config: ${AGENT_MODE}"
-    else
-        # Try legacy option name
-        AGENT_MODE_TMP=$(jq -r '.DozzleAgent' "${CONFIG_PATH}" 2>/dev/null)
-        if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
-            # Normalize boolean values
-            if [ "${AGENT_MODE_TMP}" = "true" ] || [ "${AGENT_MODE_TMP}" = "True" ] || [ "${AGENT_MODE_TMP}" = "TRUE" ]; then
-                AGENT_MODE="true"
-            else
-                AGENT_MODE="false"
-            fi
-            log_info "Read DozzleAgent from config (legacy): ${AGENT_MODE}"
-        fi
     fi
     
     # Final log of configuration
@@ -304,27 +240,6 @@ upstream dozzle {
 EOF
     
     log_info "Nginx configuration for ingress completed"
-}
-
-# Function to manage port exposure
-manage_port_exposure() {
-    # Check if socat is available
-    if ! command -v socat >/dev/null 2>&1; then
-        log_warning "socat not found, cannot manage port exposure"
-        return
-    fi
-    
-    # Kill any existing socat processes
-    pkill -f "socat TCP-LISTEN:8080" >/dev/null 2>&1
-    
-    # If external access is enabled, expose port 8080
-    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        log_info "Setting up port forwarding for external access"
-        socat TCP-LISTEN:8080,fork,reuseaddr TCP:127.0.0.1:8080 &
-        log_info "Port 8080 is now exposed for external access"
-    else
-        log_info "External access is disabled, port 8080 is not exposed"
-    fi
 }
 
 # Main function
@@ -384,22 +299,14 @@ main() {
     # Set Dozzle options
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
-    # Debug log for EXTERNAL_ACCESS value
-    log_info "EXTERNAL_ACCESS value before condition check: '${EXTERNAL_ACCESS}'"
-    
-    # Always listen on localhost for security
-    log_info "Configuring Dozzle to listen on 127.0.0.1:8080"
-    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
-    
-    # Manage port exposure based on external_access setting
+    # Configure address based on external access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        log_info "External access is enabled, port 8080 will be exposed"
+        log_info "External access enabled, listening on all interfaces (0.0.0.0:8080)"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
     else
-        log_info "External access is disabled, port 8080 will not be exposed"
+        log_info "External access disabled, listening on localhost only (127.0.0.1:8080)"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
-    
-    # Manage port exposure based on external_access setting
-    manage_port_exposure
     
     # Add base path
     DOZZLE_OPTS="${DOZZLE_OPTS} --base /"
