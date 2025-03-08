@@ -128,7 +128,16 @@ else
     exit 1
 fi
 
+# Vérifier si d'autres processus écoutent sur le port 8099 une dernière fois
+if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Port 8099 is still in use, attempting to force free it..."
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k 8099/tcp || true
+    fi
+    sleep 2
+fi
+
 echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
 
-# Start nginx with explicit configuration file
+# Start nginx with explicit configuration file and make sure it stays in foreground
 exec nginx -c /etc/nginx/nginx.conf 

@@ -68,18 +68,52 @@ get_system_info() {
     # Get Dozzle version
     DOZZLE_VERSION=$(/usr/local/bin/dozzle --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
     
-    # Check if nginx is running and get more details
-    if pgrep -x "nginx" > /dev/null; then
-        NGINX_STATUS="${GREEN}Running${RESET}"
-        # Check if nginx is listening on port 8099
-        if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
-            NGINX_PORT="${GREEN}Listening on 8099${RESET}"
+    # Attendre un peu que nginx démarre complètement (max 5 secondes)
+    local nginx_wait=0
+    while [ $nginx_wait -lt 5 ]; do
+        if pgrep -x "nginx" > /dev/null; then
+            log_debug "Nginx process found, checking if it's listening on port 8099..."
+            # Check if nginx is listening on port 8099
+            if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+                NGINX_STATUS="${GREEN}Running${RESET}"
+                NGINX_PORT="${GREEN}Listening on 8099${RESET}"
+                break
+            else
+                log_debug "Nginx is running but not yet listening on port 8099, waiting..."
+                NGINX_STATUS="${YELLOW}Starting${RESET}"
+                NGINX_PORT="${YELLOW}Port 8099 not ready${RESET}"
+            fi
         else
-            NGINX_PORT="${RED}Not listening on 8099${RESET}"
+            log_debug "Nginx process not found yet, waiting..."
+            NGINX_STATUS="${RED}Not Running${RESET}"
+            NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
         fi
-    else
-        NGINX_STATUS="${RED}Not Running${RESET}"
-        NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
+        
+        # Attendre 1 seconde avant de vérifier à nouveau
+        sleep 1
+        nginx_wait=$((nginx_wait + 1))
+    done
+    
+    # Vérification finale après la boucle d'attente
+    if [ $nginx_wait -eq 5 ]; then
+        log_warning "Timeout waiting for nginx to start and listen on port 8099"
+        # Vérifier une dernière fois
+        if pgrep -x "nginx" > /dev/null; then
+            NGINX_STATUS="${YELLOW}Running${RESET}"
+            if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+                NGINX_PORT="${GREEN}Listening on 8099${RESET}"
+            else
+                NGINX_PORT="${RED}Not listening on 8099${RESET}"
+                # Essayer de déterminer quel port nginx écoute
+                local nginx_ports=$(netstat -tuln 2>/dev/null | grep "nginx" | awk '{print $4}' | cut -d':' -f2 || echo "unknown")
+                if [ -n "$nginx_ports" ] && [ "$nginx_ports" != "unknown" ]; then
+                    NGINX_PORT="${YELLOW}Listening on other ports: $nginx_ports${RESET}"
+                fi
+            fi
+        else
+            NGINX_STATUS="${RED}Not Running${RESET}"
+            NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
+        fi
     fi
     
     # Set colored status for External Access with symbols
@@ -181,6 +215,28 @@ check_docker_connectivity() {
 
 # Function to check if nginx is running
 check_nginx_status() {
+    # Attendre un peu que nginx démarre complètement (max 5 secondes)
+    local nginx_wait=0
+    while [ $nginx_wait -lt 5 ]; do
+        if pgrep -x "nginx" > /dev/null; then
+            log_debug "Nginx process found, checking if it's listening on port 8099..."
+            # Check if nginx is listening on port 8099
+            if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+                log_info "Nginx is running and listening on port 8099 (ingress enabled)"
+                return 0
+            else
+                log_debug "Nginx is running but not yet listening on port 8099, waiting..."
+            fi
+        else
+            log_debug "Nginx process not found yet, waiting..."
+        fi
+        
+        # Attendre 1 seconde avant de vérifier à nouveau
+        sleep 1
+        nginx_wait=$((nginx_wait + 1))
+    done
+    
+    # Vérification finale après la boucle d'attente
     if pgrep -x "nginx" > /dev/null; then
         log_info "Nginx is running"
         # Check if nginx is listening on port 8099
@@ -189,6 +245,11 @@ check_nginx_status() {
             return 0
         else
             log_warning "Nginx is running but not listening on port 8099"
+            # Essayer de déterminer quel port nginx écoute
+            local nginx_ports=$(netstat -tuln 2>/dev/null | grep "nginx" | awk '{print $4}' | cut -d':' -f2 || echo "unknown")
+            if [ -n "$nginx_ports" ] && [ "$nginx_ports" != "unknown" ]; then
+                log_warning "Nginx is listening on other ports: $nginx_ports"
+            fi
             return 1
         fi
     else
@@ -273,30 +334,13 @@ read_config() {
 
 # Function to setup nginx for ingress
 setup_nginx() {
-    # Create nginx config directory if it doesn't exist
+    # Cette fonction est maintenant simplifiée pour éviter les conflits
+    # avec le script de démarrage de nginx géré par S6
+    
+    # Créer le répertoire includes si nécessaire
     mkdir -p /etc/nginx/includes
     
-    # Create server_params.conf if it doesn't exist
-    if [ ! -f "/etc/nginx/includes/server_params.conf" ]; then
-        log_info "Creating nginx server parameters configuration"
-        cat > /etc/nginx/includes/server_params.conf << 'EOF'
-# Basic server parameters
-server_name _;
-root /dev/null;
-
-add_header X-Content-Type-Options nosniff;
-add_header X-XSS-Protection "1; mode=block";
-add_header X-Robots-Tag none;
-
-client_max_body_size 64M;
-
-# Disable logging for privacy
-access_log off;
-error_log /dev/null;
-EOF
-    fi
-    
-    # Create upstream.conf for Dozzle
+    # Créer upstream.conf pour Dozzle (sera inclus par nginx.conf)
     log_info "Creating nginx upstream configuration for Dozzle"
     cat > /etc/nginx/includes/upstream.conf << EOF
 upstream dozzle {
