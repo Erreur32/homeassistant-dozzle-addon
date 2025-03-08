@@ -8,11 +8,14 @@ set -e
 # Define paths
 DOZZLE_BIN="/usr/local/bin/dozzle"
 
-# Use simple echo for logging
-log_info() { echo "[INFO] $1"; }
-log_warning() { echo "[WARNING] $1"; }
-log_error() { echo "[ERROR] $1"; }
-log_debug() { echo "[DEBUG] $1"; }
+# Define colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
 
 # Default configuration values
 LOG_LEVEL="info"
@@ -32,6 +35,100 @@ if command -v ha >/dev/null 2>&1; then
     INGRESS_ENTRY=$(ha addon info --raw-json | jq -r '.ingress_url // "/"')
 fi
 
+# Define log level values
+LOG_LEVEL_DEBUG=3
+LOG_LEVEL_INFO=2
+LOG_LEVEL_WARNING=1
+LOG_LEVEL_ERROR=0
+
+# Set current log level based on configuration
+CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
+case "${LOG_LEVEL}" in
+    "debug")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_DEBUG
+        ;;
+    "info")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
+        ;;
+    "error")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_ERROR
+        ;;
+esac
+
+# Use colored echo for logging with timestamp and level filtering
+log_debug() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_info() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_INFO ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${GREEN}[INFO]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_warning() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_WARNING ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${YELLOW}[WARNING]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_error() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_ERROR ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${RED}[ERROR]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+# Function to print a line of dashes
+print_line() {
+    echo -e "${CYAN}-----------------------------------------------------------${NC}"
+}
+
+# Get Dozzle version
+DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
+
+# Get system information if possible
+SYSTEM_INFO="Unknown"
+ARCH="Unknown"
+HA_VERSION="Unknown"
+SUPERVISOR_VERSION="Unknown"
+ADDON_VERSION="0.1.51"
+
+if command -v ha >/dev/null 2>&1; then
+    SYSTEM_INFO=$(ha info --raw-json | jq -r '.operating_system // "Unknown"')
+    ARCH=$(ha info --raw-json | jq -r '.arch // "Unknown"')
+    HA_VERSION=$(ha core info --raw-json | jq -r '.version // "Unknown"')
+    SUPERVISOR_VERSION=$(ha supervisor info --raw-json | jq -r '.version // "Unknown"')
+    ADDON_VERSION=$(ha addon info dozzle --raw-json | jq -r '.version // "0.1.51"')
+fi
+
+# Print header (always shown regardless of log level)
+print_line
+echo -e "${WHITE} Add-on: Dozzle - Docker Log Viewer${NC}"
+echo -e "${WHITE} Real-time log viewer for Docker containers in Home Assistant${NC}"
+print_line
+echo -e "${WHITE} Add-on version: ${ADDON_VERSION}${NC}"
+echo -e "${WHITE} Dozzle version: ${DOZZLE_VERSION}${NC}"
+echo -e "${WHITE} System: ${SYSTEM_INFO} (${ARCH})${NC}"
+echo -e "${WHITE} Home Assistant Core: ${HA_VERSION}${NC}"
+echo -e "${WHITE} Home Assistant Supervisor: ${SUPERVISOR_VERSION}${NC}"
+print_line
+echo -e "${WHITE} Configuration:${NC}"
+echo -e "${WHITE} - Log Level: ${LOG_LEVEL}${NC}"
+echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${NC}"
+echo -e "${WHITE} - Agent Mode: ${AGENT_ENABLED}${NC}"
+echo -e "${WHITE} - Ingress Port: ${INGRESS_PORT}${NC}"
+print_line
+echo -e "${WHITE} Please share the above information when looking for help${NC}"
+echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${NC}"
+print_line
+echo ""
+
 # Check if script is already running
 LOCK_FILE="/tmp/dozzle.lock"
 if [ -f "$LOCK_FILE" ]; then
@@ -49,8 +146,6 @@ if [ ! -x "${DOZZLE_BIN}" ]; then
     exit 1
 fi
 
-# Get Dozzle version
-DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
 log_info "Dozzle version: ${DOZZLE_VERSION}"
 
 # Check if agent mode is supported
@@ -64,7 +159,7 @@ fi
 
 # Debug information
 log_debug "Configuration loaded:"
-log_debug "Log level: ${LOG_LEVEL}"
+log_debug "Log level: ${LOG_LEVEL} (${CURRENT_LOG_LEVEL})"
 log_debug "Agent enabled: ${AGENT_ENABLED}"
 log_debug "External access: ${EXTERNAL_ACCESS}"
 

@@ -7,11 +7,66 @@
 # Define paths
 DOZZLE_BIN="/usr/local/bin/dozzle"
 
-# Use simple echo for logging
-log_info() { echo "[INFO] $1"; }
-log_warning() { echo "[WARNING] $1"; }
-log_error() { echo "[ERROR] $1"; }
+# Define colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
+# Default log level (can be overridden by environment variable)
+LOG_LEVEL="${LOG_LEVEL:-info}"
+
+# Define log level values
+LOG_LEVEL_DEBUG=3
+LOG_LEVEL_INFO=2
+LOG_LEVEL_WARNING=1
+LOG_LEVEL_ERROR=0
+
+# Set current log level based on configuration
+CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
+case "${LOG_LEVEL}" in
+    "debug")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_DEBUG
+        ;;
+    "info")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
+        ;;
+    "error")
+        CURRENT_LOG_LEVEL=$LOG_LEVEL_ERROR
+        ;;
+esac
+
+# Use colored echo for logging with timestamp and level filtering
+log_debug() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_info() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_INFO ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${GREEN}[INFO]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_warning() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_WARNING ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${YELLOW}[WARNING]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_error() { 
+    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_ERROR ]; then
+        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+        echo -e "${RED}[ERROR]${NC} ${BLUE}${timestamp}${NC} $1"
+    fi
+}
+
+log_debug "Log level set to: ${LOG_LEVEL} (${CURRENT_LOG_LEVEL})"
 log_info "Initializing Dozzle..."
 
 # Check Docker socket access
