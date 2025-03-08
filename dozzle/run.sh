@@ -84,6 +84,7 @@ get_system_info() {
     echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${RESET}"
     echo -e "${WHITE} - Agent Mode: ${AGENT_MODE}${RESET}"
     echo -e "${WHITE} - Ingress Port: 8080${RESET}"
+    echo -e "${WHITE} - External Port: ${EXTERNAL_PORT}${RESET}"
     print_line
     echo -e "${WHITE} Please share the above information when looking for help${RESET}"
     echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
@@ -164,60 +165,47 @@ read_config() {
     log_info "Reading configuration from ${CONFIG_PATH}"
     cat "${CONFIG_PATH}" || log_warning "Failed to read configuration file"
     
-    # Try to read configuration using different methods
-    
-    # Method 1: Using jq with direct keys
-    if jq -e '.log_level' "${CONFIG_PATH}" >/dev/null 2>&1; then
-        LOG_LEVEL=$(jq -r '.log_level' "${CONFIG_PATH}")
+    # Simple approach to read configuration without using jq -e which causes segmentation faults
+    # Read log_level
+    LOG_LEVEL_TMP=$(jq -r '.log_level' "${CONFIG_PATH}" 2>/dev/null)
+    if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
+        LOG_LEVEL="${LOG_LEVEL_TMP}"
         log_info "Read log_level from config: ${LOG_LEVEL}"
-    fi
-    
-    if jq -e '.external_access' "${CONFIG_PATH}" >/dev/null 2>&1; then
-        EXTERNAL_ACCESS=$(jq -r '.external_access' "${CONFIG_PATH}")
-        log_info "Read external_access from config: ${EXTERNAL_ACCESS}"
-    fi
-    
-    if jq -e '.agent_mode' "${CONFIG_PATH}" >/dev/null 2>&1; then
-        AGENT_MODE=$(jq -r '.agent_mode' "${CONFIG_PATH}")
-        log_info "Read agent_mode from config: ${AGENT_MODE}"
-    fi
-    
-    # Method 2: Try legacy option names
-    if [ -z "${LOG_LEVEL}" ] || [ "${LOG_LEVEL}" = "null" ]; then
-        if jq -e '.LogLevel' "${CONFIG_PATH}" >/dev/null 2>&1; then
-            LOG_LEVEL=$(jq -r '.LogLevel' "${CONFIG_PATH}")
+    else
+        # Try legacy option name
+        LOG_LEVEL_TMP=$(jq -r '.LogLevel' "${CONFIG_PATH}" 2>/dev/null)
+        if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
+            LOG_LEVEL="${LOG_LEVEL_TMP}"
             log_info "Read LogLevel from config (legacy): ${LOG_LEVEL}"
         fi
     fi
     
-    if [ -z "${EXTERNAL_ACCESS}" ] || [ "${EXTERNAL_ACCESS}" = "null" ]; then
-        if jq -e '.ExternalAccess' "${CONFIG_PATH}" >/dev/null 2>&1; then
-            EXTERNAL_ACCESS=$(jq -r '.ExternalAccess' "${CONFIG_PATH}")
+    # Read external_access
+    EXTERNAL_ACCESS_TMP=$(jq -r '.external_access' "${CONFIG_PATH}" 2>/dev/null)
+    if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
+        EXTERNAL_ACCESS="${EXTERNAL_ACCESS_TMP}"
+        log_info "Read external_access from config: ${EXTERNAL_ACCESS}"
+    else
+        # Try legacy option name
+        EXTERNAL_ACCESS_TMP=$(jq -r '.ExternalAccess' "${CONFIG_PATH}" 2>/dev/null)
+        if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
+            EXTERNAL_ACCESS="${EXTERNAL_ACCESS_TMP}"
             log_info "Read ExternalAccess from config (legacy): ${EXTERNAL_ACCESS}"
         fi
     fi
     
-    if [ -z "${AGENT_MODE}" ] || [ "${AGENT_MODE}" = "null" ]; then
-        if jq -e '.DozzleAgent' "${CONFIG_PATH}" >/dev/null 2>&1; then
-            AGENT_MODE=$(jq -r '.DozzleAgent' "${CONFIG_PATH}")
+    # Read agent_mode
+    AGENT_MODE_TMP=$(jq -r '.agent_mode' "${CONFIG_PATH}" 2>/dev/null)
+    if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
+        AGENT_MODE="${AGENT_MODE_TMP}"
+        log_info "Read agent_mode from config: ${AGENT_MODE}"
+    else
+        # Try legacy option name
+        AGENT_MODE_TMP=$(jq -r '.DozzleAgent' "${CONFIG_PATH}" 2>/dev/null)
+        if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
+            AGENT_MODE="${AGENT_MODE_TMP}"
             log_info "Read DozzleAgent from config (legacy): ${AGENT_MODE}"
         fi
-    fi
-    
-    # Validate and set defaults if needed
-    if [ -z "${LOG_LEVEL}" ] || [ "${LOG_LEVEL}" = "null" ]; then
-        LOG_LEVEL="info"
-        log_warning "Log level not set or invalid, using default: info"
-    fi
-    
-    if [ -z "${EXTERNAL_ACCESS}" ] || [ "${EXTERNAL_ACCESS}" = "null" ]; then
-        EXTERNAL_ACCESS="true"
-        log_warning "External access not set or invalid, using default: true"
-    fi
-    
-    if [ -z "${AGENT_MODE}" ] || [ "${AGENT_MODE}" = "null" ]; then
-        AGENT_MODE="false"
-        log_warning "Agent mode not set or invalid, using default: false"
     fi
     
     # Final log of configuration
@@ -225,12 +213,52 @@ read_config() {
     log_info "- Log level: ${LOG_LEVEL}"
     log_info "- External access: ${EXTERNAL_ACCESS}"
     log_info "- Agent mode: ${AGENT_MODE}"
+    log_info "- External port: ${EXTERNAL_PORT}"
+}
+
+# Function to setup nginx for ingress
+setup_nginx() {
+    # Create nginx config directory if it doesn't exist
+    mkdir -p /etc/nginx/includes
+    
+    # Create server_params.conf if it doesn't exist
+    if [ ! -f "/etc/nginx/includes/server_params.conf" ]; then
+        log_info "Creating nginx server parameters configuration"
+        cat > /etc/nginx/includes/server_params.conf << 'EOF'
+# Basic server parameters
+server_name _;
+root /dev/null;
+
+add_header X-Content-Type-Options nosniff;
+add_header X-XSS-Protection "1; mode=block";
+add_header X-Robots-Tag none;
+
+client_max_body_size 64M;
+
+# Disable logging for privacy
+access_log off;
+error_log /dev/null;
+EOF
+    fi
+    
+    # Create upstream.conf for Dozzle
+    log_info "Creating nginx upstream configuration for Dozzle"
+    cat > /etc/nginx/includes/upstream.conf << EOF
+upstream dozzle {
+    server 127.0.0.1:8080;
+}
+EOF
+    
+    log_info "Nginx configuration for ingress completed"
 }
 
 # Main function
 main() {
     # Read configuration
     read_config
+    
+    # Setup nginx for ingress
+    setup_nginx
     
     # Display system information with configuration values at the beginning
     get_system_info
@@ -281,10 +309,16 @@ main() {
     # Set Dozzle options
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
-    # ALWAYS enable external access on 0.0.0.0 for both ingress and external access
-    # This is required for proper functioning with Home Assistant
-    log_info "Enabling access on all interfaces (0.0.0.0)"
-    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+    # Configure address based on external access setting
+    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
+        # Use 0.0.0.0 to allow external access
+        log_info "External access enabled on port 8080"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+    else
+        # For ingress only, use 127.0.0.1
+        log_info "External access disabled, using ingress only"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
+    fi
     
     # Add base path
     DOZZLE_OPTS="${DOZZLE_OPTS} --base /"
