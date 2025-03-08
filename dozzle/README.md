@@ -11,7 +11,7 @@
 
 ## About
 
-![Dozzle Screenshot](https://github.com/user-attachments/assets/b184931c-03d4-4e8a-b716-a9b17055892d)
+<img src="https://raw.githubusercontent.com/Erreur32/homeassistant-dozzle-addon/refs/heads/main/dozzle/icon.png" alt="Dozzle Icon" width="78" height="78">
 
 [Dozzle](https://github.com/amir20/dozzle) is a lightweight real-time Docker log monitoring tool with a web interface.
 

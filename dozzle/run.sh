@@ -84,7 +84,6 @@ get_system_info() {
     echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${RESET}"
     echo -e "${WHITE} - Agent Mode: ${AGENT_MODE}${RESET}"
     echo -e "${WHITE} - Ingress Port: 8080${RESET}"
-    echo -e "${WHITE} - External Port: ${EXTERNAL_PORT}${RESET}"
     print_line
     echo -e "${WHITE} Please share the above information when looking for help${RESET}"
     echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
@@ -169,13 +168,49 @@ read_config() {
     # Read log_level
     LOG_LEVEL_TMP=$(jq -r '.log_level' "${CONFIG_PATH}" 2>/dev/null)
     if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
-        LOG_LEVEL="${LOG_LEVEL_TMP}"
+        # Normalize log level values
+        case "${LOG_LEVEL_TMP}" in
+            debug|DEBUG|Debug)
+                LOG_LEVEL="debug"
+                ;;
+            info|INFO|Info)
+                LOG_LEVEL="info"
+                ;;
+            warning|WARNING|Warning|warn|WARN|Warn)
+                LOG_LEVEL="warning"
+                ;;
+            error|ERROR|Error)
+                LOG_LEVEL="error"
+                ;;
+            *)
+                log_warning "Unknown log level '${LOG_LEVEL_TMP}', using default: info"
+                LOG_LEVEL="info"
+                ;;
+        esac
         log_info "Read log_level from config: ${LOG_LEVEL}"
     else
         # Try legacy option name
         LOG_LEVEL_TMP=$(jq -r '.LogLevel' "${CONFIG_PATH}" 2>/dev/null)
         if [ $? -eq 0 ] && [ -n "${LOG_LEVEL_TMP}" ] && [ "${LOG_LEVEL_TMP}" != "null" ]; then
-            LOG_LEVEL="${LOG_LEVEL_TMP}"
+            # Normalize log level values
+            case "${LOG_LEVEL_TMP}" in
+                debug|DEBUG|Debug)
+                    LOG_LEVEL="debug"
+                    ;;
+                info|INFO|Info)
+                    LOG_LEVEL="info"
+                    ;;
+                warning|WARNING|Warning|warn|WARN|Warn)
+                    LOG_LEVEL="warning"
+                    ;;
+                error|ERROR|Error)
+                    LOG_LEVEL="error"
+                    ;;
+                *)
+                    log_warning "Unknown log level '${LOG_LEVEL_TMP}', using default: info"
+                    LOG_LEVEL="info"
+                    ;;
+            esac
             log_info "Read LogLevel from config (legacy): ${LOG_LEVEL}"
         fi
     fi
@@ -183,13 +218,23 @@ read_config() {
     # Read external_access
     EXTERNAL_ACCESS_TMP=$(jq -r '.external_access' "${CONFIG_PATH}" 2>/dev/null)
     if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
-        EXTERNAL_ACCESS="${EXTERNAL_ACCESS_TMP}"
+        # Normalize boolean values
+        if [ "${EXTERNAL_ACCESS_TMP}" = "true" ] || [ "${EXTERNAL_ACCESS_TMP}" = "True" ] || [ "${EXTERNAL_ACCESS_TMP}" = "TRUE" ]; then
+            EXTERNAL_ACCESS="true"
+        else
+            EXTERNAL_ACCESS="false"
+        fi
         log_info "Read external_access from config: ${EXTERNAL_ACCESS}"
     else
         # Try legacy option name
         EXTERNAL_ACCESS_TMP=$(jq -r '.ExternalAccess' "${CONFIG_PATH}" 2>/dev/null)
         if [ $? -eq 0 ] && [ -n "${EXTERNAL_ACCESS_TMP}" ] && [ "${EXTERNAL_ACCESS_TMP}" != "null" ]; then
-            EXTERNAL_ACCESS="${EXTERNAL_ACCESS_TMP}"
+            # Normalize boolean values
+            if [ "${EXTERNAL_ACCESS_TMP}" = "true" ] || [ "${EXTERNAL_ACCESS_TMP}" = "True" ] || [ "${EXTERNAL_ACCESS_TMP}" = "TRUE" ]; then
+                EXTERNAL_ACCESS="true"
+            else
+                EXTERNAL_ACCESS="false"
+            fi
             log_info "Read ExternalAccess from config (legacy): ${EXTERNAL_ACCESS}"
         fi
     fi
@@ -197,13 +242,23 @@ read_config() {
     # Read agent_mode
     AGENT_MODE_TMP=$(jq -r '.agent_mode' "${CONFIG_PATH}" 2>/dev/null)
     if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
-        AGENT_MODE="${AGENT_MODE_TMP}"
+        # Normalize boolean values
+        if [ "${AGENT_MODE_TMP}" = "true" ] || [ "${AGENT_MODE_TMP}" = "True" ] || [ "${AGENT_MODE_TMP}" = "TRUE" ]; then
+            AGENT_MODE="true"
+        else
+            AGENT_MODE="false"
+        fi
         log_info "Read agent_mode from config: ${AGENT_MODE}"
     else
         # Try legacy option name
         AGENT_MODE_TMP=$(jq -r '.DozzleAgent' "${CONFIG_PATH}" 2>/dev/null)
         if [ $? -eq 0 ] && [ -n "${AGENT_MODE_TMP}" ] && [ "${AGENT_MODE_TMP}" != "null" ]; then
-            AGENT_MODE="${AGENT_MODE_TMP}"
+            # Normalize boolean values
+            if [ "${AGENT_MODE_TMP}" = "true" ] || [ "${AGENT_MODE_TMP}" = "True" ] || [ "${AGENT_MODE_TMP}" = "TRUE" ]; then
+                AGENT_MODE="true"
+            else
+                AGENT_MODE="false"
+            fi
             log_info "Read DozzleAgent from config (legacy): ${AGENT_MODE}"
         fi
     fi
@@ -213,7 +268,6 @@ read_config() {
     log_info "- Log level: ${LOG_LEVEL}"
     log_info "- External access: ${EXTERNAL_ACCESS}"
     log_info "- Agent mode: ${AGENT_MODE}"
-    log_info "- External port: ${EXTERNAL_PORT}"
 }
 
 # Function to setup nginx for ingress
@@ -310,7 +364,7 @@ main() {
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
     # Configure address based on external access setting
-    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
+    if [ "${EXTERNAL_ACCESS}" = "true" ] || [ "${EXTERNAL_ACCESS}" = "True" ] || [ "${EXTERNAL_ACCESS}" = "TRUE" ]; then
         # Use 0.0.0.0 to allow external access
         log_info "External access enabled on port 8080"
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
