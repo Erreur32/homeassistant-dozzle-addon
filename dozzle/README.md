@@ -60,10 +60,6 @@ This version is optimized to work as a **Home Assistant add-on** with improved *
 
 ---
 
-🛠 **Optimized text** with direct links for a smoother installation! 🚀
-
-
-
 ## Configuration
 
 ### Basic Options
