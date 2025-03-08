@@ -39,7 +39,7 @@ schema:
 # Options Descriptions
 options_description:
   "ExternalAccess": "Enable direct access"
-  "DozzleAgent": "⚙️ Enable Dozzle Agent"
+  "DozzleAgent": "⚙️ Enable Dozzle Agent (automatically disabled if not supported by installed version)"
   "LogLevel": "Log level"
 
 # Port Configuration
@@ -48,7 +48,7 @@ ports:
   "7007/tcp": null
 ports_description:
   "8080/tcp": "Web interface (Home Assistant will auto-assign a port)"
-  "7007/tcp": "Dozzle Agent Port (optional)"
+  "7007/tcp": "Dozzle Agent Port (only used if agent mode is supported)"
 
 # System Configuration
 image: "ghcr.io/erreur32/homeassistant-dozzle-addon/dozzle-{arch}"
