@@ -129,12 +129,8 @@ check_docker_socket() {
 
 # Function to check if Docker is responding
 check_docker_connectivity() {
-    if ! curl -s --unix-socket "${DOCKER_SOCKET}" http://localhost/info >/dev/null 2>&1; then
-        log_error "Docker is not responding"
-        return 1
-    fi
-    
-    log_info "Docker is responding correctly"
+    # Skip Docker connectivity check to avoid curl segmentation fault
+    log_info "Skipping Docker connectivity check (to avoid curl segmentation fault)"
     return 0
 }
 
@@ -151,8 +147,54 @@ check_command_option() {
     fi
 }
 
+# Function to read configuration from options.json
+read_config() {
+    # Check if config file exists
+    if [ ! -f "${CONFIG_PATH}" ]; then
+        log_warning "Configuration file not found at ${CONFIG_PATH}, using defaults"
+        LOG_LEVEL="info"
+        EXTERNAL_ACCESS="false"
+        AGENT_MODE="false"
+        return
+    fi
+    
+    # Dump config file content for debugging
+    log_debug "Configuration file content:"
+    cat "${CONFIG_PATH}" | log_debug
+    
+    # Read log level with fallback to "info"
+    LOG_LEVEL=$(jq -r '.log_level // "info"' ${CONFIG_PATH} 2>/dev/null)
+    if [ -z "${LOG_LEVEL}" ] || [ "${LOG_LEVEL}" = "null" ]; then
+        LOG_LEVEL="info"
+        log_warning "Log level not set or invalid, using default: info"
+    fi
+    log_debug "Log level: ${LOG_LEVEL}"
+    
+    # Read external access with fallback to "false"
+    EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' ${CONFIG_PATH} 2>/dev/null)
+    if [ -z "${EXTERNAL_ACCESS}" ] || [ "${EXTERNAL_ACCESS}" = "null" ]; then
+        EXTERNAL_ACCESS="false"
+        log_warning "External access not set or invalid, using default: false"
+    fi
+    log_debug "External access: ${EXTERNAL_ACCESS}"
+    
+    # Read agent mode with fallback to "false"
+    AGENT_MODE=$(jq -r '.agent_mode // "false"' ${CONFIG_PATH} 2>/dev/null)
+    if [ -z "${AGENT_MODE}" ] || [ "${AGENT_MODE}" = "null" ]; then
+        AGENT_MODE="false"
+        log_warning "Agent mode not set or invalid, using default: false"
+    fi
+    log_debug "Agent mode: ${AGENT_MODE}"
+}
+
 # Main function
 main() {
+    # Read configuration
+    read_config
+    
+    # Display system information with configuration values at the beginning
+    get_system_info
+    
     # Check for lock file to prevent multiple instances
     if [ -f "${LOCK_FILE}" ]; then
         log_warning "Lock file exists, another instance may be running"
@@ -170,8 +212,8 @@ main() {
     while [ ${retry_count} -lt ${max_retries} ]; do
         log_info "Checking Docker socket (attempt $((retry_count + 1))/${max_retries})"
         
-        if check_docker_socket && check_docker_connectivity; then
-            log_info "Docker socket is available and responding"
+        if check_docker_socket; then
+            log_info "Docker socket is available"
             break
         fi
         
@@ -187,23 +229,6 @@ main() {
         fi
     done
     
-    # Get configuration values
-    LOG_LEVEL=$(jq -r '.log_level // "info"' ${CONFIG_PATH})
-    # Ensure LOG_LEVEL has a valid value
-    if [ -z "$LOG_LEVEL" ] || [ "$LOG_LEVEL" = "null" ]; then
-        LOG_LEVEL="info"
-        log_warning "Log level not set or invalid, using default: info"
-    fi
-    
-    EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' ${CONFIG_PATH})
-    # Debug: Show the extracted value
-    log_debug "Extracted external_access: ${EXTERNAL_ACCESS}"
-    
-    AGENT_MODE=$(jq -r '.agent_mode // "false"' ${CONFIG_PATH})
-    
-    # Display system information with configuration values
-    get_system_info
-    
     # Check if agent mode is supported
     AGENT_SUPPORTED=false
     if /usr/local/bin/dozzle --help 2>&1 | sed -n '/--agent/p' | wc -l > /dev/null 2>&1; then
@@ -214,15 +239,21 @@ main() {
     fi
     
     # Set Dozzle options
+    DOZZLE_OPTS="--level ${LOG_LEVEL}"
+    
+    # Configure address based on external access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         # Use 0.0.0.0 to allow external access
         log_info "External access enabled on port 8080"
-        DOZZLE_OPTS="--addr 0.0.0.0:8080 --base / --level ${LOG_LEVEL}"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
     else
         # Use 127.0.0.1 for internal access only (ingress)
         log_info "Only ingress access enabled"
-        DOZZLE_OPTS="--addr 127.0.0.1:8080 --base / --level ${LOG_LEVEL}"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
+    
+    # Add base path
+    DOZZLE_OPTS="${DOZZLE_OPTS} --base /"
     
     # Add agent mode if enabled and supported
     if [ "${AGENT_MODE}" = "true" ]; then

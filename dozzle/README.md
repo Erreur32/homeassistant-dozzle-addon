@@ -46,11 +46,13 @@ This version is optimized to work as a **Home Assistant add-on** with improved *
 3. **Install the add-on** and wait for the process to complete  
 4. **Start Dozzle**  
 
+## TIPS
+
   🔗 **Access Dozzle once installed**:  
-      [📌 Open Dozzle](https://my.home-assistant.io/redirect/supervisor_addon/?addon=dozzle)  
+      📌 [Open Dozzle](https://my.home-assistant.io/redirect/supervisor_addon/?addon=dozzle)  
 
   🏗 **Add an external repository containing Dozzle** (if necessary):  
-      [📌 Add Repository](https://my.home-assistant.io/redirect/supervisor_addon_store/?repository_url=https://github.com/Erreur32/homeassistant-dozzle-addon)  
+      📌 [Add Repository](https://my.home-assistant.io/redirect/supervisor_addon_store/?repository_url=https://github.com/Erreur32/homeassistant-dozzle-addon)  
 
 ---
 
