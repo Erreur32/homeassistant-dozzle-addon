@@ -44,7 +44,7 @@ This version is optimized to work as a **Home Assistant add-on** with improved *
 
 2. **Search for "Dozzle"** in the Add-on Store  
 3. **Install the add-on** and wait for the process to complete  
-4. **Start Dozzle**  
+4. **Start Dozzle**
 
 ## TIPS
 
@@ -92,8 +92,6 @@ You can open an issue here: [issue tracker][issue]
 
 This is an active open-source project. We are always open to people who want to use
 the code or contribute back to it.
-
-Thank you for being involved! :heart_eyes:
 
 ## Authors & contributors
 
