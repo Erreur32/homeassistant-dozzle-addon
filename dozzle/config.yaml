@@ -26,22 +26,19 @@ webui: "http://[HOST]:[PORT:8080]"
 
 # Configuration Options
 options:
-  log_level: "info"
   external_access: true
   agent_mode: false
-
+  log_level: "info"
 # Schema Configuration
 schema:
-  log_level: list(debug|info|error)
   external_access: bool
   agent_mode: bool
-
+  log_level: list(debug|info|error)  
 # Options Descriptions
 options_description:
-  log_level: "Log level"
   external_access: "Enable direct access"
   agent_mode: "⚙️ Enable Dozzle Agent (automatically disabled if not supported by installed version)"
-
+  log_level: "Log level"
 # Port Configuration
 ports:
   "8080/tcp": 8080

@@ -40,7 +40,7 @@ This version is optimized to work as a **Home Assistant add-on** with improved *
 ## 🛠 **Installation**  
 
 1. **Open the Home Assistant Add-on Store**:  
-   [📌 Access the Store](https://my.home-assistant.io/redirect/supervisor_store/)  
+   📌 [Access the Store](https://my.home-assistant.io/redirect/supervisor_store/)  
 
 2. **Search for "Dozzle"** in the Add-on Store  
 3. **Install the add-on** and wait for the process to complete  

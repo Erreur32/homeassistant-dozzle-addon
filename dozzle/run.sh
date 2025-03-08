@@ -149,42 +149,82 @@ check_command_option() {
 
 # Function to read configuration from options.json
 read_config() {
+    # Set default values first
+    LOG_LEVEL="info"
+    EXTERNAL_ACCESS="true"  # Default to true for external access
+    AGENT_MODE="false"
+    
     # Check if config file exists
     if [ ! -f "${CONFIG_PATH}" ]; then
         log_warning "Configuration file not found at ${CONFIG_PATH}, using defaults"
-        LOG_LEVEL="info"
-        EXTERNAL_ACCESS="false"
-        AGENT_MODE="false"
         return
     fi
     
     # Dump config file content for debugging
-    log_debug "Configuration file content:"
-    cat "${CONFIG_PATH}" | log_debug
+    log_info "Reading configuration from ${CONFIG_PATH}"
+    cat "${CONFIG_PATH}" || log_warning "Failed to read configuration file"
     
-    # Read log level with fallback to "info"
-    LOG_LEVEL=$(jq -r '.log_level // "info"' ${CONFIG_PATH} 2>/dev/null)
+    # Try to read configuration using different methods
+    
+    # Method 1: Using jq with direct keys
+    if jq -e '.log_level' "${CONFIG_PATH}" >/dev/null 2>&1; then
+        LOG_LEVEL=$(jq -r '.log_level' "${CONFIG_PATH}")
+        log_info "Read log_level from config: ${LOG_LEVEL}"
+    fi
+    
+    if jq -e '.external_access' "${CONFIG_PATH}" >/dev/null 2>&1; then
+        EXTERNAL_ACCESS=$(jq -r '.external_access' "${CONFIG_PATH}")
+        log_info "Read external_access from config: ${EXTERNAL_ACCESS}"
+    fi
+    
+    if jq -e '.agent_mode' "${CONFIG_PATH}" >/dev/null 2>&1; then
+        AGENT_MODE=$(jq -r '.agent_mode' "${CONFIG_PATH}")
+        log_info "Read agent_mode from config: ${AGENT_MODE}"
+    fi
+    
+    # Method 2: Try legacy option names
+    if [ -z "${LOG_LEVEL}" ] || [ "${LOG_LEVEL}" = "null" ]; then
+        if jq -e '.LogLevel' "${CONFIG_PATH}" >/dev/null 2>&1; then
+            LOG_LEVEL=$(jq -r '.LogLevel' "${CONFIG_PATH}")
+            log_info "Read LogLevel from config (legacy): ${LOG_LEVEL}"
+        fi
+    fi
+    
+    if [ -z "${EXTERNAL_ACCESS}" ] || [ "${EXTERNAL_ACCESS}" = "null" ]; then
+        if jq -e '.ExternalAccess' "${CONFIG_PATH}" >/dev/null 2>&1; then
+            EXTERNAL_ACCESS=$(jq -r '.ExternalAccess' "${CONFIG_PATH}")
+            log_info "Read ExternalAccess from config (legacy): ${EXTERNAL_ACCESS}"
+        fi
+    fi
+    
+    if [ -z "${AGENT_MODE}" ] || [ "${AGENT_MODE}" = "null" ]; then
+        if jq -e '.DozzleAgent' "${CONFIG_PATH}" >/dev/null 2>&1; then
+            AGENT_MODE=$(jq -r '.DozzleAgent' "${CONFIG_PATH}")
+            log_info "Read DozzleAgent from config (legacy): ${AGENT_MODE}"
+        fi
+    fi
+    
+    # Validate and set defaults if needed
     if [ -z "${LOG_LEVEL}" ] || [ "${LOG_LEVEL}" = "null" ]; then
         LOG_LEVEL="info"
         log_warning "Log level not set or invalid, using default: info"
     fi
-    log_debug "Log level: ${LOG_LEVEL}"
     
-    # Read external access with fallback to "false"
-    EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' ${CONFIG_PATH} 2>/dev/null)
     if [ -z "${EXTERNAL_ACCESS}" ] || [ "${EXTERNAL_ACCESS}" = "null" ]; then
-        EXTERNAL_ACCESS="false"
-        log_warning "External access not set or invalid, using default: false"
+        EXTERNAL_ACCESS="true"
+        log_warning "External access not set or invalid, using default: true"
     fi
-    log_debug "External access: ${EXTERNAL_ACCESS}"
     
-    # Read agent mode with fallback to "false"
-    AGENT_MODE=$(jq -r '.agent_mode // "false"' ${CONFIG_PATH} 2>/dev/null)
     if [ -z "${AGENT_MODE}" ] || [ "${AGENT_MODE}" = "null" ]; then
         AGENT_MODE="false"
         log_warning "Agent mode not set or invalid, using default: false"
     fi
-    log_debug "Agent mode: ${AGENT_MODE}"
+    
+    # Final log of configuration
+    log_info "Final configuration:"
+    log_info "- Log level: ${LOG_LEVEL}"
+    log_info "- External access: ${EXTERNAL_ACCESS}"
+    log_info "- Agent mode: ${AGENT_MODE}"
 }
 
 # Main function
@@ -241,16 +281,10 @@ main() {
     # Set Dozzle options
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
-    # Configure address based on external access setting
-    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        # Use 0.0.0.0 to allow external access
-        log_info "External access enabled on port 8080"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
-    else
-        # Use 127.0.0.1 for internal access only (ingress)
-        log_info "Only ingress access enabled"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
-    fi
+    # ALWAYS enable external access on 0.0.0.0 for both ingress and external access
+    # This is required for proper functioning with Home Assistant
+    log_info "Enabling access on all interfaces (0.0.0.0)"
+    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
     
     # Add base path
     DOZZLE_OPTS="${DOZZLE_OPTS} --base /"
