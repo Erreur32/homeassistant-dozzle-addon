@@ -70,7 +70,7 @@ This version is optimized to work as a **Home Assistant add-on** with improved *
 
 ```yaml
 # Port for external access (optional)
-port: 8099
+port: 8080
 # Agent mode (for Docker Swarm installations)
 agent: false
 # Log level (debug, info, error)
@@ -84,7 +84,7 @@ log_level: info
 
 1. Configure the port in the add-on options
 2. Access the interface via `http://[HA-IP]:[PORT]`
-3. Example: `http://192.168.1.100:8099`
+3. Example: `http://192.168.1.100:8080`
 
 ## Support
 

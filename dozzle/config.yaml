@@ -26,7 +26,7 @@ webui: "http://[HOST]:[PORT:8080]"
 
 # Configuration Options
 options:
-  external_access: true
+  external_access: false
   agent_mode: false
   log_level: "info"
 # Schema Configuration

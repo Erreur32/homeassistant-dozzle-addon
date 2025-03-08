@@ -363,8 +363,11 @@ main() {
     # Set Dozzle options
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
+    # Debug log for EXTERNAL_ACCESS value
+    log_info "EXTERNAL_ACCESS value before condition check: '${EXTERNAL_ACCESS}'"
+    
     # Configure address based on external access setting
-    if [ "${EXTERNAL_ACCESS}" = "true" ] || [ "${EXTERNAL_ACCESS}" = "True" ] || [ "${EXTERNAL_ACCESS}" = "TRUE" ]; then
+    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         # Use 0.0.0.0 to allow external access
         log_info "External access enabled on port 8080"
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
