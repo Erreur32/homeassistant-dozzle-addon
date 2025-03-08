@@ -306,6 +306,27 @@ EOF
     log_info "Nginx configuration for ingress completed"
 }
 
+# Function to manage port exposure
+manage_port_exposure() {
+    # Check if socat is available
+    if ! command -v socat >/dev/null 2>&1; then
+        log_warning "socat not found, cannot manage port exposure"
+        return
+    fi
+    
+    # Kill any existing socat processes
+    pkill -f "socat TCP-LISTEN:8080" >/dev/null 2>&1
+    
+    # If external access is enabled, expose port 8080
+    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
+        log_info "Setting up port forwarding for external access"
+        socat TCP-LISTEN:8080,fork,reuseaddr TCP:127.0.0.1:8080 &
+        log_info "Port 8080 is now exposed for external access"
+    else
+        log_info "External access is disabled, port 8080 is not exposed"
+    fi
+}
+
 # Main function
 main() {
     # Read configuration
@@ -366,16 +387,19 @@ main() {
     # Debug log for EXTERNAL_ACCESS value
     log_info "EXTERNAL_ACCESS value before condition check: '${EXTERNAL_ACCESS}'"
     
-    # Configure address based on external access setting
+    # Always listen on localhost for security
+    log_info "Configuring Dozzle to listen on 127.0.0.1:8080"
+    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
+    
+    # Manage port exposure based on external_access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        # Use 0.0.0.0 to allow external access
-        log_info "External access enabled on port 8080"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+        log_info "External access is enabled, port 8080 will be exposed"
     else
-        # For ingress only, use 127.0.0.1
-        log_info "External access disabled, using ingress only"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
+        log_info "External access is disabled, port 8080 will not be exposed"
     fi
+    
+    # Manage port exposure based on external_access setting
+    manage_port_exposure
     
     # Add base path
     DOZZLE_OPTS="${DOZZLE_OPTS} --base /"

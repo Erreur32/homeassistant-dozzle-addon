@@ -41,7 +41,7 @@ options_description:
   log_level: "Log level"
 # Port Configuration
 ports:
-  "8080/tcp": 8080
+  "8080/tcp": null
   "7007/tcp": null
 ports_description:
   "8080/tcp": "Web interface (Home Assistant will auto-assign a port)"
