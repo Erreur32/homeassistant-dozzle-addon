@@ -26,6 +26,10 @@ LOG_LEVEL_ERROR=3
 
 # Simple logging functions
 log_debug() {
+    # Ne pas afficher les messages DEBUG si le niveau de log est supérieur à DEBUG
+    if [ "${LOG_LEVEL}" != "debug" ]; then
+        return
+    fi
     echo -e "${CYAN}[DEBUG] $(date '+%Y-%m-%d %H:%M:%S') $1${RESET}"
 }
 
@@ -181,26 +185,42 @@ check_docker_connectivity() {
 
 # Function to check if nginx is running and responding
 is_nginx_working() {
-    # 1. Vérifier si le master process nginx existe
-    if ! pgrep -f "nginx: master process" > /dev/null; then
-        log_warning "❌ Nginx master process non trouvé"
+    local max_wait=10  # Attendre maximum 10 secondes
+    local wait_count=0
+    
+    # 1. Attendre et vérifier le master process nginx
+    while [ $wait_count -lt $max_wait ]; do
+        if pgrep -f "nginx: master process" > /dev/null; then
+            log_debug "✅ Master process nginx trouvé"
+            break
+        fi
+        wait_count=$((wait_count + 1))
+        if [ $wait_count -eq 1 ]; then
+            log_debug "⏳ Attente du démarrage du master process nginx..."
+        fi
+        sleep 1
+    done
+    
+    if [ $wait_count -eq $max_wait ]; then
+        log_warning "❌ Master process nginx non trouvé après ${max_wait} secondes"
+        # Afficher les processus pour le debug
+        log_debug "🔍 Processus actuels :"
+        ps aux | grep -E "(nginx|s6-supervise)" | grep -v grep || true
         return 1
     fi
-    log_debug "✅ Master process nginx trouvé"
     
     # Récupérer le PID du master process
     NGINX_PID=$(pgrep -f "nginx: master process")
+    log_debug "✅ Master process nginx trouvé (PID: ${NGINX_PID})"
     
-    # 2. Vérifier les ports utilisés par nginx
-    NGINX_PORTS=$(netstat -tulnp | awk -v pid="$NGINX_PID" '$0 ~ pid {print $4}' | sed 's/.*://')
-    
-    if echo "$NGINX_PORTS" | grep -q "8099"; then
-        log_debug "✅ Port 8099 en écoute par nginx (PID: $NGINX_PID)"
-    else
-        log_warning "❌ Port 8099 non trouvé dans les ports nginx"
-        log_debug "🔍 Ports utilisés par nginx: $NGINX_PORTS"
+    # 2. Vérifier si le port 8099 est en écoute
+    if ! netstat -tuln | grep -q ":8099 "; then
+        log_warning "❌ Port 8099 non trouvé dans netstat"
+        log_debug "🔍 Ports en écoute :"
+        netstat -tuln | grep "LISTEN" | grep -v "127.0.0.11" || true
         return 1
     fi
+    log_debug "✅ Port 8099 en écoute"
     
     # 3. Vérifier la configuration nginx
     if [ -f "/etc/nginx/nginx.conf" ]; then
@@ -249,7 +269,7 @@ check_nginx_status() {
     
     if is_nginx_working; then
         log_info "✅ Nginx fonctionne parfaitement :"
-        log_info "  ✓ Master process en cours d'exécution"
+        log_info "  ✓ Master process en cours d'exécution (PID: $(pgrep -f 'nginx: master process'))"
         log_info "  ✓ Port 8099 en écoute"
         log_info "  ✓ Configuration valide"
         log_info "  ✓ Upstream configuré"
@@ -260,11 +280,11 @@ check_nginx_status() {
         
         # Afficher les processus nginx en cours
         log_debug "🔍 Processus nginx :"
-        ps aux | grep "[n]ginx" || true
+        ps aux | grep -E "(nginx|s6-supervise)" | grep -v grep || true
         
-        # Afficher tous les ports en écoute
-        log_debug "🔍 Tous les ports en écoute :"
-        netstat -tuln | grep "LISTEN" || true
+        # Afficher les ports en écoute
+        log_debug "🔍 Ports en écoute :"
+        netstat -tuln | grep "LISTEN" | grep -v "127.0.0.11" || true
         
         return 1
     fi
@@ -369,9 +389,6 @@ main() {
     # Setup nginx for ingress
     setup_nginx
     
-    # Display system information with configuration values at the beginning
-    get_system_info
-    
     # Check for lock file to prevent multiple instances
     if [ -f "${LOCK_FILE}" ]; then
         log_warning "Lock file exists, another instance may be running"
@@ -406,7 +423,14 @@ main() {
         fi
     done
     
-    # Check nginx status for ingress, mais ne pas essayer de le démarrer
+    # Attendre que S6 démarre les services (5 secondes maximum)
+    log_info "Attente du démarrage des services..."
+    sleep 5
+    
+    # Display system information with configuration values
+    get_system_info
+    
+    # Check nginx status for ingress
     check_nginx_status
     
     # Check if agent mode is supported
