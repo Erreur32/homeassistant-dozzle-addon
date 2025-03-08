@@ -300,12 +300,15 @@ main() {
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
     # Configure address based on external access setting
+    # Always listen on all interfaces (0.0.0.0) for ingress to work
+    # External access is controlled by Home Assistant port mapping
+    log_info "Configuring Dozzle to listen on all interfaces (0.0.0.0:8080)"
+    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+    
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        log_info "External access enabled, listening on all interfaces (0.0.0.0:8080)"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+        log_info "External access is enabled"
     else
-        log_info "External access disabled, listening on localhost only (127.0.0.1:8080)"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
+        log_info "External access is disabled (only accessible via ingress)"
     fi
     
     # Add base path

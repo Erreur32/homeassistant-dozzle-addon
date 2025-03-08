@@ -15,7 +15,7 @@ boot: auto
 
 # Web Interface Configuration
 ingress: true
-ingress_port: 8080
+ingress_port: 8099
 ingress_stream: true
 
 # Panel Configuration

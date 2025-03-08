@@ -1,117 +1,76 @@
 #!/bin/bash
 # ==============================================================================
-# Home Assistant Add-on: Dozzle
-# Runs the Nginx daemon for ingress support
+# Start nginx service for ingress support
 # ==============================================================================
 
-# Simple logging function
-log_message() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
-}
+echo "$(date '+%Y-%m-%d %H:%M:%S') Starting Nginx for ingress support..."
 
-log_message "Starting Nginx for ingress support..."
+# Create required directories
+mkdir -p /var/log/nginx
+mkdir -p /var/lib/nginx/body
+mkdir -p /etc/nginx/includes
 
-# Check if nginx configuration exists
+# Create nginx configuration if it doesn't exist
 if [ ! -f "/etc/nginx/nginx.conf" ]; then
-    log_message "Nginx configuration not found, creating default configuration"
-    
-    # Create default nginx configuration
     cat > /etc/nginx/nginx.conf << 'EOF'
-worker_processes auto;
+worker_processes  1;
 pid /var/run/nginx.pid;
-error_log /dev/stderr warn;
+error_log /dev/stdout info;
+daemon off;
 
 events {
     worker_connections 1024;
 }
 
 http {
-    include mime.types;
-    default_type application/octet-stream;
+    include             mime.types;
+    default_type        application/octet-stream;
+    sendfile            on;
+    keepalive_timeout   65;
+    proxy_read_timeout  1200;
+    gzip                on;
+    gzip_disable        "msie6";
     
-    # Logging
-    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for"';
-    access_log /dev/stdout main;
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        ''      close;
+    }
     
-    # Optimize
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    keepalive_timeout 65;
-    
-    # Gzip
-    gzip on;
-    gzip_disable "msie6";
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_buffers 16 8k;
-    gzip_http_version 1.1;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-    
-    # Virtual Host Configs
-    include /etc/nginx/conf.d/*.conf;
-    include /etc/nginx/servers/*.conf;
-}
-EOF
-fi
-
-# Check if includes directory exists
-if [ ! -d "/etc/nginx/includes" ]; then
-    log_message "Creating nginx includes directory"
-    mkdir -p /etc/nginx/includes
-fi
-
-# Check if servers directory exists
-if [ ! -d "/etc/nginx/servers" ]; then
-    log_message "Creating nginx servers directory"
-    mkdir -p /etc/nginx/servers
-fi
-
-# Check if dozzle.conf exists
-if [ ! -f "/etc/nginx/servers/dozzle.conf" ]; then
-    log_message "Creating nginx configuration for Dozzle"
-    
-    # Create dozzle.conf
-    cat > /etc/nginx/servers/dozzle.conf << 'EOF'
-server {
-    listen 8099 default_server;
-    
-    include /etc/nginx/includes/server_params.conf;
-    
-    # Allow larger uploads
-    client_max_body_size 64M;
-    
-    # Increase timeouts for long-running connections
-    proxy_connect_timeout 600;
-    proxy_send_timeout 600;
-    proxy_read_timeout 600;
-    send_timeout 600;
-    
-    location / {
-        # Proxy to Dozzle
-        proxy_pass http://127.0.0.1:8080;
+    # Ingress configuration
+    server {
+        listen 8099;
         
-        # Standard proxy headers
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        allow   172.30.32.2;
+        deny    all;
         
-        # WebSocket support
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
+        server_name _;
+        access_log /dev/stdout combined;
         
-        # Disable buffering for real-time logs
-        proxy_buffering off;
+        client_max_body_size 4G;
+        keepalive_timeout 5;
+        
+        root /dev/null;
+        
+        location / {
+            proxy_pass http://127.0.0.1:8080;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+            
+            proxy_redirect off;
+            proxy_buffering off;
+        }
     }
 }
 EOF
 fi
 
-# Run nginx
-log_message "Nginx configuration ready, starting nginx..."
+echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
+
+# Start nginx
 exec nginx -g "daemon off;" 
