@@ -1,17 +1,27 @@
 {
     "config": {
-      "external_access": {
+        "external_access": {
         "name": "🔗 Accès Externe",
         "description": "Permet un accès direct à Dozzle sans passer par Home Assistant."
-      },
-      "agent_mode": {
+        },
+        "agent_mode": {
         "name": "⚙️ Mode Agent Dozzle",
         "description": "Active le mode agent pour surveiller plusieurs containers Docker."
-      },
-      "log_level": {
+        },
+        "log_level": {
         "name": "📝 Niveau de Logs",
         "description": "Définit le niveau de logs affiché par Dozzle."
-      }
+        }
+    },
+    "ports": {
+        "8080/tcp": {
+        "name": "Interface Web",
+        "description": "Utilisé uniquement si l'accès externe est activé."
+        },
+        "7007/tcp": {
+        "name": "Port Agent Dozzle",
+        "description": "Utilisé uniquement si le mode agent est activé."
+        }
     }
-  }
+}
   
