@@ -67,6 +67,13 @@ get_system_info() {
 
     # Get Dozzle version
     DOZZLE_VERSION=$(/usr/local/bin/dozzle --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
+    
+    # Check if nginx is running
+    if pgrep -x "nginx" > /dev/null; then
+        NGINX_STATUS="${GREEN}Running${RESET}"
+    else
+        NGINX_STATUS="${RED}Not Running${RESET}"
+    fi
 
     # Print header (always shown regardless of log level)
     print_line
@@ -83,7 +90,8 @@ get_system_info() {
     echo -e "${WHITE} - Log Level: ${LOG_LEVEL}${RESET}"
     echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${RESET}"
     echo -e "${WHITE} - Agent Mode: ${AGENT_MODE}${RESET}"
-    echo -e "${WHITE} - Ingress Port: 8080${RESET}"
+    echo -e "${WHITE} - Ingress Port: 8099${RESET}"
+    echo -e "${WHITE} - Nginx Status: ${NGINX_STATUS}${RESET}"
     print_line
     echo -e "${WHITE} Please share the above information when looking for help${RESET}"
     echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
@@ -242,6 +250,24 @@ EOF
     log_info "Nginx configuration for ingress completed"
 }
 
+# Function to check nginx status periodically
+check_nginx_status() {
+    while true; do
+        if pgrep -x "nginx" > /dev/null; then
+            log_info "Nginx is running"
+        else
+            log_warning "Nginx is not running, attempting to restart..."
+            if [ -f "/etc/services.d/nginx/run" ]; then
+                /etc/services.d/nginx/run &
+                log_info "Nginx restart initiated"
+            else
+                log_error "Nginx run script not found"
+            fi
+        fi
+        sleep 60  # Check every minute
+    done
+}
+
 # Main function
 main() {
     # Read configuration
@@ -249,6 +275,9 @@ main() {
     
     # Setup nginx for ingress
     setup_nginx
+    
+    # Start nginx status check in background
+    check_nginx_status &
     
     # Display system information with configuration values at the beginning
     get_system_info
@@ -328,8 +357,8 @@ main() {
     
     # Remove lock file
     rm -f "${LOCK_FILE}"
-    
-    # Start Dozzle
+
+# Start Dozzle
     exec /usr/local/bin/dozzle ${DOZZLE_OPTS}
 }
 
