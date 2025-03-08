@@ -32,14 +32,12 @@ options:
   agent_mode: false
   log_level: "info"
 # Schema Configuration
+
 schema:
-  external_access: bool(name="🔗 Enable External Access", description="Allow direct access to Dozzle without Home Assistant ingress.")
-  agent_mode: bool(name="⚙️ Dozzle Agent Mode", description="Enable Dozzle Agent to monitor multiple Docker containers.")
-  log_level: list(debug|info|error, name="📝 Log Level", description="Define the logging level for Dozzle.")
-#schema:
-#  external_access: bool
-#  agent_mode: bool
-#  log_level: list(debug|info|error)  
+  external_access: bool
+  agent_mode: bool
+  log_level: list(debug|info|error)  
+
 # Options Descriptions
 options_description:
   external_access: "Enable direct access"
