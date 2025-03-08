@@ -82,30 +82,30 @@ get_system_info() {
         NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
     fi
     
-    # Set colored status for External Access
+    # Set colored status for External Access with symbols
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        EXTERNAL_ACCESS_STATUS="${GREEN}${EXTERNAL_ACCESS}${RESET}"
+        EXTERNAL_ACCESS_STATUS="${GREEN}✓ ${EXTERNAL_ACCESS}${RESET}"
     else
-        EXTERNAL_ACCESS_STATUS="${RED}${EXTERNAL_ACCESS}${RESET}"
+        EXTERNAL_ACCESS_STATUS="${RED}✗ ${EXTERNAL_ACCESS}${RESET}"
     fi
     
-    # Set colored status for Agent Mode
+    # Set colored status for Agent Mode with symbols
     if [ "${AGENT_MODE}" = "true" ]; then
-        AGENT_MODE_STATUS="${GREEN}${AGENT_MODE}${RESET}"
+        AGENT_MODE_STATUS="${GREEN}✓ ${AGENT_MODE}${RESET}"
     else
-        AGENT_MODE_STATUS="${RED}${AGENT_MODE}${RESET}"
+        AGENT_MODE_STATUS="${RED}✗ ${AGENT_MODE}${RESET}"
     fi
     
-    # Set colored status for Log Level
+    # Set colored status for Log Level with symbols
     case "${LOG_LEVEL}" in
         "debug")
-            LOG_LEVEL_STATUS="${YELLOW}${LOG_LEVEL}${RESET}"
+            LOG_LEVEL_STATUS="${YELLOW}⚠ ${LOG_LEVEL}${RESET}"
             ;;
         "info")
-            LOG_LEVEL_STATUS="${GREEN}${LOG_LEVEL}${RESET}"
+            LOG_LEVEL_STATUS="${GREEN}✓ ${LOG_LEVEL}${RESET}"
             ;;
         "error")
-            LOG_LEVEL_STATUS="${RED}${LOG_LEVEL}${RESET}"
+            LOG_LEVEL_STATUS="${RED}⚠ ${LOG_LEVEL}${RESET}"
             ;;
         *)
             LOG_LEVEL_STATUS="${WHITE}${LOG_LEVEL}${RESET}"
@@ -177,6 +177,39 @@ check_docker_connectivity() {
     # Skip Docker connectivity check to avoid curl segmentation fault
     log_info "Skipping Docker connectivity check (to avoid curl segmentation fault)"
     return 0
+}
+
+# Function to check if nginx is running
+check_nginx_status() {
+    if pgrep -x "nginx" > /dev/null; then
+        log_info "Nginx is running"
+        # Check if nginx is listening on port 8099
+        if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+            log_info "Nginx is listening on port 8099 (ingress enabled)"
+            return 0
+        else
+            log_warning "Nginx is running but not listening on port 8099"
+            return 1
+        fi
+    else
+        log_warning "Nginx is not running, ingress will not work"
+        # Try to start nginx if it's not running
+        if [ -f "/etc/services.d/nginx/run" ]; then
+            log_info "Attempting to start nginx..."
+            /etc/services.d/nginx/run &
+            sleep 2
+            if pgrep -x "nginx" > /dev/null; then
+                log_info "Successfully started nginx"
+                return 0
+            else
+                log_error "Failed to start nginx"
+                return 1
+            fi
+        else
+            log_error "Nginx startup script not found"
+            return 1
+        fi
+    fi
 }
 
 # Function to check if a command supports an option
@@ -332,6 +365,9 @@ main() {
         fi
     done
     
+    # Check nginx status for ingress
+    check_nginx_status
+    
     # Check if agent mode is supported
     AGENT_SUPPORTED=false
     if /usr/local/bin/dozzle --help 2>&1 | sed -n '/--agent/p' | wc -l > /dev/null 2>&1; then
@@ -345,15 +381,12 @@ main() {
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
     # Configure address based on external access setting
-    # Always listen on all interfaces (0.0.0.0) for ingress to work
-    # External access is controlled by Home Assistant port mapping
-    log_info "Configuring Dozzle to listen on all interfaces (0.0.0.0:8080)"
-    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
-    
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        log_info "External access is enabled"
+        log_info "External access is enabled on port 8080"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
     else
-        log_info "External access is disabled (only accessible via ingress)"
+        log_info "External access is disabled, listening only on localhost"
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
     
     # Add base path

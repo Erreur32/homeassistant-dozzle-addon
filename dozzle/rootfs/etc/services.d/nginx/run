@@ -10,8 +10,33 @@ mkdir -p /var/log/nginx
 mkdir -p /var/lib/nginx/body
 mkdir -p /etc/nginx/includes
 
+# Check if port 8099 is already in use
+if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Port 8099 is already in use by another process"
+    # Try to identify which process is using the port
+    if command -v lsof >/dev/null 2>&1; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
+        lsof -i :8099
+    elif command -v fuser >/dev/null 2>&1; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
+        fuser -n tcp 8099
+    else
+        echo "$(date '+%Y-%m-%d %H:%M:%S') Cannot determine which process is using port 8099"
+    fi
+    
+    # Try to kill the process using port 8099
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Attempting to free port 8099..."
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k -n tcp 8099 || true
+    fi
+    
+    # Wait a moment for the port to be released
+    sleep 2
+fi
+
 # Create nginx configuration if it doesn't exist
 if [ ! -f "/etc/nginx/nginx.conf" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Creating nginx configuration..."
     cat > /etc/nginx/nginx.conf << 'EOF'
 worker_processes 1;
 pid /var/run/nginx.pid;
@@ -65,6 +90,22 @@ http {
     }
 }
 EOF
+fi
+
+# Verify nginx configuration
+echo "$(date '+%Y-%m-%d %H:%M:%S') Verifying nginx configuration..."
+if nginx -t; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration is valid"
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Nginx configuration is invalid"
+    # Continue anyway, as we don't want to block the startup
+fi
+
+# Check if nginx is already running
+if pgrep -x "nginx" > /dev/null; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx is already running, restarting..."
+    nginx -s stop || true
+    sleep 2
 fi
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
