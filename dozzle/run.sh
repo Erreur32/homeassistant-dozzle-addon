@@ -383,9 +383,25 @@ main() {
     # Configure address based on external access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         log_info "External access is enabled on port 8080"
+        # Always listen on all interfaces for external access
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
+        
+        # Check if port 8080 is already in use
+        if netstat -tuln 2>/dev/null | grep -q ":8080 "; then
+            # Check if it's not our own process (we haven't started Dozzle yet)
+            log_warning "Port 8080 is already in use, external access may not work"
+            # Try to identify which process is using the port
+            if command -v lsof >/dev/null 2>&1; then
+                log_info "Process using port 8080:"
+                lsof -i :8080 || true
+            elif command -v fuser >/dev/null 2>&1; then
+                log_info "Process using port 8080:"
+                fuser -n tcp 8080 || true
+            fi
+        fi
     else
         log_info "External access is disabled, listening only on localhost"
+        # Listen only on localhost for ingress
         DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
     
@@ -397,6 +413,11 @@ main() {
         if [ "${AGENT_SUPPORTED}" = "true" ]; then
             log_info "Agent mode enabled on port 7007"
             DOZZLE_OPTS="${DOZZLE_OPTS} --agent --agent-addr 0.0.0.0:7007"
+            
+            # Check if port 7007 is already in use
+            if netstat -tuln 2>/dev/null | grep -q ":7007 "; then
+                log_warning "Port 7007 is already in use, agent mode may not work"
+            fi
         else
             log_warning "Agent mode is requested but not supported in this version of Dozzle (${DOZZLE_VERSION}). Ignoring agent configuration."
         fi
@@ -407,7 +428,7 @@ main() {
     # Remove lock file
     rm -f "${LOCK_FILE}"
 
-# Start Dozzle
+    # Start Dozzle
     exec /usr/local/bin/dozzle ${DOZZLE_OPTS}
 }
 
