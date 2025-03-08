@@ -193,22 +193,9 @@ check_nginx_status() {
         fi
     else
         log_warning "Nginx is not running, ingress will not work"
-        # Try to start nginx if it's not running
-        if [ -f "/etc/services.d/nginx/run" ]; then
-            log_info "Attempting to start nginx..."
-            /etc/services.d/nginx/run &
-            sleep 2
-            if pgrep -x "nginx" > /dev/null; then
-                log_info "Successfully started nginx"
-                return 0
-            else
-                log_error "Failed to start nginx"
-                return 1
-            fi
-        else
-            log_error "Nginx startup script not found"
-            return 1
-        fi
+        # Ne pas essayer de démarrer nginx manuellement, car il est géré par S6
+        log_error "Nginx n'est pas en cours d'exécution. Vérifiez les logs de S6 pour plus d'informations."
+        return 1
     fi
 }
 
@@ -365,7 +352,7 @@ main() {
         fi
     done
     
-    # Check nginx status for ingress
+    # Check nginx status for ingress, mais ne pas essayer de le démarrer
     check_nginx_status
     
     # Check if agent mode is supported

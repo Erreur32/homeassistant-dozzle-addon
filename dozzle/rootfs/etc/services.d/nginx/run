@@ -17,6 +17,13 @@ rm -f /etc/nginx/sites-available/default
 rm -f /etc/nginx/http.d/default.conf
 rm -f /etc/nginx/servers/ingress.conf
 
+# S'assurer qu'aucune instance de nginx n'est en cours d'exécution
+if pgrep -x "nginx" > /dev/null; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx is already running, stopping it..."
+    nginx -s stop || killall -9 nginx
+    sleep 2
+fi
+
 # Check if port 8099 is already in use
 if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Port 8099 is already in use by another process"
@@ -26,7 +33,7 @@ if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
         lsof -i :8099
     elif command -v fuser >/dev/null 2>&1; then
         echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
-        fuser -n tcp 8099
+        fuser 8099/tcp
     else
         echo "$(date '+%Y-%m-%d %H:%M:%S') Cannot determine which process is using port 8099"
     fi
@@ -34,11 +41,17 @@ if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
     # Try to kill the process using port 8099
     echo "$(date '+%Y-%m-%d %H:%M:%S') Attempting to free port 8099..."
     if command -v fuser >/dev/null 2>&1; then
-        fuser -k -n tcp 8099 || true
+        fuser -k 8099/tcp || true
     fi
     
     # Wait a moment for the port to be released
     sleep 2
+    
+    # Vérifier à nouveau si le port est libre
+    if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Port 8099 is still in use, cannot start nginx"
+        exit 1
+    fi
 fi
 
 # Create a minimal nginx configuration that only listens on port 8099
@@ -113,13 +126,6 @@ if nginx -t; then
 else
     echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Nginx configuration is invalid"
     exit 1
-fi
-
-# Check if nginx is already running
-if pgrep -x "nginx" > /dev/null; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx is already running, stopping it..."
-    nginx -s stop || killall -9 nginx || true
-    sleep 2
 fi
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
