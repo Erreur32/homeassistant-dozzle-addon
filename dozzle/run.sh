@@ -2,6 +2,12 @@
 # shellcheck shell=bash
 set -e
 
+# Check if bashio is available
+if ! command -v bashio >/dev/null 2>&1; then
+    echo "Error: bashio command not found. This addon requires bashio to function properly."
+    exit 1
+fi
+
 # Check if script is already running
 LOCK_FILE="/tmp/dozzle.lock"
 if [ -f "$LOCK_FILE" ]; then
@@ -18,8 +24,14 @@ LOG_LEVEL=$(bashio::config 'LogLevel')
 AGENT_ENABLED=$(bashio::config 'DozzleAgent')
 EXTERNAL_ACCESS=$(bashio::config 'ExternalAccess')
 
-# Get ingress port from configuration
-INGRESS_PORT=$(bashio::addon.config ingress_port)
+# Get ingress port from configuration with fallback
+INGRESS_PORT=$(bashio::addon.ingress_port)
+# Check if INGRESS_PORT is a valid number
+if ! [[ "$INGRESS_PORT" =~ ^[0-9]+$ ]]; then
+    # If not a valid number, use the default from config.yaml
+    bashio::log.warning "Invalid ingress port value: ${INGRESS_PORT}, using default 8080"
+    INGRESS_PORT=8080
+fi
 bashio::log.info "Ingress port: ${INGRESS_PORT}"
 
 # Get the port assigned by Home Assistant for external access
@@ -67,7 +79,7 @@ fi
 # Enable agent mode if configured
 if [[ "${AGENT_ENABLED}" = "true" ]]; then
     bashio::log.info "Agent mode enabled on port 7007"
-    CMD="${CMD} --agent-addr 0.0.0.0:7007"
+    CMD="${CMD} --agent --agent-addr 0.0.0.0:7007"
 fi
 
 # Debug final configuration

@@ -18,7 +18,7 @@ ENV DOCKER_HOST=unix:///var/run/docker.sock
 # Update repositories and install libc6-compat
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
-    && apk update && apk add --no-cache libc6-compat
+    && apk update && apk add --no-cache libc6-compat jq curl bash
 
 # Install glibc
 RUN apk del --purge gcompat \
@@ -30,6 +30,16 @@ RUN apk del --purge gcompat \
 
 # Verify glibc
 RUN ldd --version || true
+
+# Make sure bashio is available
+RUN if [ ! -f /usr/bin/bashio ]; then \
+    curl -J -L -o /tmp/bashio.tar.gz "https://github.com/hassio-addons/bashio/archive/v0.14.3.tar.gz" \
+    && mkdir -p /tmp/bashio \
+    && tar zxvf /tmp/bashio.tar.gz -C /tmp/bashio --strip 1 \
+    && mv /tmp/bashio/lib /usr/lib/bashio \
+    && ln -s /usr/lib/bashio/bashio /usr/bin/bashio \
+    && rm -rf /tmp/bashio.tar.gz /tmp/bashio \
+    ; fi
 
 # Configure Dozzle
 COPY bin/dozzle /usr/local/bin/dozzle

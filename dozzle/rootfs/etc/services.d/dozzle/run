@@ -7,6 +7,12 @@
 
 bashio::log.info "Starting Dozzle service via S6..."
 
+# Check if run.sh exists and is executable
+if [ ! -x /run.sh ]; then
+    bashio::log.error "run.sh script not found or not executable!"
+    exit 1
+fi
+
 # Execute main script with proper environment
 cd /
 exec /run.sh 
