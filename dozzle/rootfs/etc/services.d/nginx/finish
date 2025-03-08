@@ -5,19 +5,20 @@
 # Take down the S6 supervision tree when Nginx fails
 # ==============================================================================
 
+# Use simple echo for logging
+log_info() { echo "[INFO] $1"; }
+
 declare exit_code
 readonly exit_code_container=$(</run/s6-linux-init-container-results/exitcode)
 readonly exit_code_service="${1}"
 readonly exit_code_signal="${2}"
 
-bashio::log.info \
-  "Service nginx exited with code ${exit_code_service}" \
-  "(by signal ${exit_code_signal})"
+log_info "Service nginx exited with code ${exit_code_service} (by signal ${exit_code_signal})"
 
 if [[ "${exit_code_service}" -eq 0 ]] || [[ "${exit_code_container}" -gt 0 ]]; then
-  bashio::log.info "Service restart not needed"
+  log_info "Service restart not needed"
   exit "${exit_code_container}"
 fi
 
-bashio::log.info "Restarting service..."
+log_info "Restarting service..."
 exec /usr/bin/s6-svc -r /var/run/s6/services/nginx 

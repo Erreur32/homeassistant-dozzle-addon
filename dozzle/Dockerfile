@@ -31,18 +31,6 @@ RUN apk del --purge gcompat \
 # Verify glibc
 RUN ldd --version || true
 
-# Make sure bashio is available and properly linked
-RUN if [ ! -f /usr/bin/bashio ]; then \
-    curl -J -L -o /tmp/bashio.tar.gz "https://github.com/hassio-addons/bashio/archive/v0.14.3.tar.gz" \
-    && mkdir -p /tmp/bashio \
-    && tar zxvf /tmp/bashio.tar.gz -C /tmp/bashio --strip 1 \
-    && mkdir -p /usr/lib/bashio \
-    && cp -R /tmp/bashio/lib/* /usr/lib/bashio/ \
-    && ln -sf /usr/lib/bashio/bashio /usr/bin/bashio \
-    && rm -rf /tmp/bashio.tar.gz /tmp/bashio \
-    ; fi \
-    && chmod +x /usr/bin/bashio || true
-
 # Configure Dozzle
 COPY bin/dozzle /usr/local/bin/dozzle
 RUN chmod +x /usr/local/bin/dozzle
