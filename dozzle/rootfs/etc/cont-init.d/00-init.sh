@@ -79,20 +79,36 @@ if [ ! -S "${DOCKER_SOCKET}" ]; then
 else
     log_info "Docker socket found at ${DOCKER_SOCKET}"
     
-    # Try to fix permissions for Docker socket
-    if ! chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
-        log_warning "Failed to set permissions for Docker socket. This may cause issues."
-        log_warning "You may need to run the addon with additional privileges."
+    # Try multiple approaches to fix permissions for Docker socket
+    if [ -w "${DOCKER_SOCKET}" ]; then
+        log_info "Docker socket is already writable."
     else
-        log_info "Docker socket permissions set successfully."
+        # Try to fix permissions using chmod
+        if chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
+            log_info "Docker socket permissions set successfully with chmod."
+        else
+            # Try to fix permissions using setfacl if available
+            if command -v setfacl >/dev/null 2>&1; then
+                if setfacl -m u:$(id -u):rw "${DOCKER_SOCKET}" 2>/dev/null; then
+                    log_info "Docker socket permissions set successfully with setfacl."
+                else
+                    log_warning "Failed to set permissions for Docker socket with setfacl."
+                fi
+            else
+                log_warning "Failed to set permissions for Docker socket with chmod."
+                log_warning "You may need to run the addon with additional privileges."
+                log_warning "Consider adding 'docker' to the addon configuration."
+            fi
+        fi
     fi
     
     # Try to check Docker connectivity
     if command -v docker >/dev/null 2>&1; then
-        if ! docker info >/dev/null 2>&1; then
-            log_warning "Docker is installed but not responding. This may cause issues."
-        else
+        if docker info >/dev/null 2>&1; then
             log_info "Docker is responding correctly."
+        else
+            log_warning "Docker is installed but not responding. This may cause issues."
+            log_warning "Check if the Docker daemon is running and accessible."
         fi
     fi
 fi

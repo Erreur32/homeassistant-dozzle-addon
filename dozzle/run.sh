@@ -110,19 +110,58 @@ fi
 # Get Dozzle version
 DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
 
-# Get system information if possible
-SYSTEM_INFO="Unknown"
-ARCH="Unknown"
-HA_VERSION="Unknown"
-SUPERVISOR_VERSION="Unknown"
+# Get system information
+SYSTEM_INFO="Home Assistant"
+ARCH=$(uname -m || echo "Unknown")
+HA_VERSION="Latest"
+SUPERVISOR_VERSION="Latest"
 ADDON_VERSION="0.1.51"
 
+# Try to get more detailed system information if possible
+if [ -f /etc/os-release ]; then
+    SYSTEM_INFO=$(grep -oP '(?<=PRETTY_NAME=")[^"]+' /etc/os-release || echo "Home Assistant")
+fi
+
+# Try to get Home Assistant version from environment variables
+if [ -n "${SUPERVISOR_VERSION}" ]; then
+    SUPERVISOR_VERSION="${SUPERVISOR_VERSION}"
+fi
+if [ -n "${HASSIO_VERSION}" ]; then
+    HA_VERSION="${HASSIO_VERSION}"
+fi
+
+# Try to get addon version from environment or config
+if [ -f /data/options.json ]; then
+    ADDON_VERSION=$(jq -r '.version // "0.1.51"' /data/options.json 2>/dev/null || echo "0.1.51")
+fi
+
+# Try to get more detailed information using ha command if available
 if command -v ha >/dev/null 2>&1; then
-    SYSTEM_INFO=$(ha info --raw-json | jq -r '.operating_system // "Unknown"' 2>/dev/null || echo "Unknown")
-    ARCH=$(ha info --raw-json | jq -r '.arch // "Unknown"' 2>/dev/null || echo "Unknown")
-    HA_VERSION=$(ha core info --raw-json | jq -r '.version // "Unknown"' 2>/dev/null || echo "Unknown")
-    SUPERVISOR_VERSION=$(ha supervisor info --raw-json | jq -r '.version // "Unknown"' 2>/dev/null || echo "Unknown")
-    ADDON_VERSION=$(ha addon info dozzle --raw-json | jq -r '.version // "0.1.51"' 2>/dev/null || echo "0.1.51")
+    # Try multiple approaches to get system info
+    SYSTEM_INFO_TMP=$(ha supervisor info --raw-json 2>/dev/null | jq -r '.operating_system // ""' 2>/dev/null)
+    if [ -n "${SYSTEM_INFO_TMP}" ] && [ "${SYSTEM_INFO_TMP}" != "null" ]; then
+        SYSTEM_INFO="${SYSTEM_INFO_TMP}"
+    fi
+    
+    ARCH_TMP=$(ha supervisor info --raw-json 2>/dev/null | jq -r '.arch // ""' 2>/dev/null)
+    if [ -n "${ARCH_TMP}" ] && [ "${ARCH_TMP}" != "null" ]; then
+        ARCH="${ARCH_TMP}"
+    fi
+    
+    HA_VERSION_TMP=$(ha core info --raw-json 2>/dev/null | jq -r '.version // ""' 2>/dev/null)
+    if [ -n "${HA_VERSION_TMP}" ] && [ "${HA_VERSION_TMP}" != "null" ]; then
+        HA_VERSION="${HA_VERSION_TMP}"
+    fi
+    
+    SUPERVISOR_VERSION_TMP=$(ha supervisor info --raw-json 2>/dev/null | jq -r '.version // ""' 2>/dev/null)
+    if [ -n "${SUPERVISOR_VERSION_TMP}" ] && [ "${SUPERVISOR_VERSION_TMP}" != "null" ]; then
+        SUPERVISOR_VERSION="${SUPERVISOR_VERSION_TMP}"
+    fi
+    
+    ADDON_VERSION_TMP=$(ha addon info dozzle --raw-json 2>/dev/null | jq -r '.version // ""' 2>/dev/null)
+    if [ -n "${ADDON_VERSION_TMP}" ] && [ "${ADDON_VERSION_TMP}" != "null" ]; then
+        ADDON_VERSION="${ADDON_VERSION_TMP}"
+    fi
 fi
 
 # Print header (always shown regardless of log level)
@@ -167,9 +206,28 @@ if [ ! -S "${DOCKER_SOCKET}" ]; then
 else
     log_info "Docker socket found at ${DOCKER_SOCKET}"
     
-    # Fix permissions for Docker socket
-    if ! chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
-        log_warning "Failed to set permissions for Docker socket. This may cause issues."
+    # Try multiple approaches to fix permissions for Docker socket
+    if [ -w "${DOCKER_SOCKET}" ]; then
+        log_info "Docker socket is already writable."
+    else
+        # Try to fix permissions using chmod
+        if chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
+            log_info "Docker socket permissions set successfully with chmod."
+        else
+            # Try to fix permissions using setfacl if available
+            if command -v setfacl >/dev/null 2>&1; then
+                if setfacl -m u:$(id -u):rw "${DOCKER_SOCKET}" 2>/dev/null; then
+                    log_info "Docker socket permissions set successfully with setfacl."
+                else
+                    log_warning "Failed to set permissions for Docker socket with setfacl."
+                    log_warning "This may cause issues with Dozzle."
+                fi
+            else
+                log_warning "Failed to set permissions for Docker socket with chmod."
+                log_warning "This may cause issues with Dozzle."
+                log_warning "You may need to run the addon with additional privileges."
+            fi
+        fi
     fi
 fi
 

@@ -4,63 +4,10 @@
 # Take down the S6 supervision tree when Nginx fails
 # ==============================================================================
 
-# Define colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Default log level (can be overridden by environment variable)
-LOG_LEVEL="${LOG_LEVEL:-info}"
-
-# Define log level values
-LOG_LEVEL_DEBUG=3
-LOG_LEVEL_INFO=2
-LOG_LEVEL_WARNING=1
-LOG_LEVEL_ERROR=0
-
-# Set current log level based on configuration
-CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
-case "${LOG_LEVEL}" in
-    "debug")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_DEBUG
-        ;;
-    "info")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
-        ;;
-    "error")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_ERROR
-        ;;
-esac
-
-# Use colored echo for logging with timestamp and level filtering
-log_debug() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        printf "${BLUE}[DEBUG]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
-    fi
-}
-
-log_info() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_INFO ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        printf "${GREEN}[INFO]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
-    fi
-}
-
-log_warning() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_WARNING ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        printf "${YELLOW}[WARNING]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
-    fi
-}
-
-log_error() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_ERROR ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        printf "${RED}[ERROR]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
-    fi
+# Simple logging function
+log_info() {
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[INFO] ${timestamp} $1"
 }
 
 # Get exit codes
