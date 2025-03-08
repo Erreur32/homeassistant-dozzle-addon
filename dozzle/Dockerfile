@@ -1,5 +1,5 @@
 # Set the architecture
-ARG BUILD_ARCH
+ARG BUILD_ARCH=amd64
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base:3.15
 
 LABEL maintainer="erreur32"
@@ -18,16 +18,7 @@ ENV DOCKER_HOST=unix:///var/run/docker.sock
 # Update repositories and install dependencies
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
-    && apk update && apk add --no-cache \
-        libc6-compat \
-        jq \
-        curl \
-        bash \
-        nginx \
-        shadow \
-        coreutils \
-        findutils \
-        grep
+    && apk update && apk add --no-cache libc6-compat jq curl bash nginx
 
 # Create symlinks for bash
 RUN ln -sf /bin/bash /usr/bin/bash || true

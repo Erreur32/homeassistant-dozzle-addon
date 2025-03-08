@@ -28,12 +28,12 @@ INGRESS_ENTRY="/"
 # Try to load configuration from Home Assistant if possible
 if command -v ha >/dev/null 2>&1; then
     # Use ha command if available
-    LOG_LEVEL=$(ha addon options --raw-json | jq -r '.LogLevel // "info"')
-    AGENT_ENABLED=$(ha addon options --raw-json | jq -r '.DozzleAgent // false')
-    EXTERNAL_ACCESS=$(ha addon options --raw-json | jq -r '.ExternalAccess // true')
+    LOG_LEVEL=$(ha addon options --raw-json | jq -r '.LogLevel // "info"' 2>/dev/null || echo "info")
+    AGENT_ENABLED=$(ha addon options --raw-json | jq -r '.DozzleAgent // false' 2>/dev/null || echo "false")
+    EXTERNAL_ACCESS=$(ha addon options --raw-json | jq -r '.ExternalAccess // true' 2>/dev/null || echo "true")
     
     # Try to get ingress information
-    INGRESS_ENTRY=$(ha addon info --raw-json | jq -r '.ingress_url // "/"')
+    INGRESS_ENTRY=$(ha addon info --raw-json | jq -r '.ingress_url // "/"' 2>/dev/null || echo "/")
 fi
 
 # Define log level values
@@ -118,11 +118,11 @@ SUPERVISOR_VERSION="Unknown"
 ADDON_VERSION="0.1.51"
 
 if command -v ha >/dev/null 2>&1; then
-    SYSTEM_INFO=$(ha info --raw-json | jq -r '.operating_system // "Unknown"')
-    ARCH=$(ha info --raw-json | jq -r '.arch // "Unknown"')
-    HA_VERSION=$(ha core info --raw-json | jq -r '.version // "Unknown"')
-    SUPERVISOR_VERSION=$(ha supervisor info --raw-json | jq -r '.version // "Unknown"')
-    ADDON_VERSION=$(ha addon info dozzle --raw-json | jq -r '.version // "0.1.51"')
+    SYSTEM_INFO=$(ha info --raw-json | jq -r '.operating_system // "Unknown"' 2>/dev/null || echo "Unknown")
+    ARCH=$(ha info --raw-json | jq -r '.arch // "Unknown"' 2>/dev/null || echo "Unknown")
+    HA_VERSION=$(ha core info --raw-json | jq -r '.version // "Unknown"' 2>/dev/null || echo "Unknown")
+    SUPERVISOR_VERSION=$(ha supervisor info --raw-json | jq -r '.version // "Unknown"' 2>/dev/null || echo "Unknown")
+    ADDON_VERSION=$(ha addon info dozzle --raw-json | jq -r '.version // "0.1.51"' 2>/dev/null || echo "0.1.51")
 fi
 
 # Print header (always shown regardless of log level)
@@ -166,6 +166,11 @@ if [ ! -S "${DOCKER_SOCKET}" ]; then
     exit 1
 else
     log_info "Docker socket found at ${DOCKER_SOCKET}"
+    
+    # Fix permissions for Docker socket
+    if ! chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
+        log_warning "Failed to set permissions for Docker socket. This may cause issues."
+    fi
 fi
 
 # Check if agent mode is supported

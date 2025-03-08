@@ -76,24 +76,49 @@ if [ ! -S "${DOCKER_SOCKET}" ]; then
     log_warning "Dozzle will wait for it to become available at startup."
     log_warning "Make sure Docker is running and the socket is accessible."
     log_warning "You may need to add the Docker socket to the addon configuration."
+else
+    log_info "Docker socket found at ${DOCKER_SOCKET}"
+    
+    # Try to fix permissions for Docker socket
+    if ! chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
+        log_warning "Failed to set permissions for Docker socket. This may cause issues."
+        log_warning "You may need to run the addon with additional privileges."
+    else
+        log_info "Docker socket permissions set successfully."
+    fi
+    
+    # Try to check Docker connectivity
+    if command -v docker >/dev/null 2>&1; then
+        if ! docker info >/dev/null 2>&1; then
+            log_warning "Docker is installed but not responding. This may cause issues."
+        else
+            log_info "Docker is responding correctly."
+        fi
+    fi
 fi
 
 # Check Dozzle executable
 if [ ! -x "${DOZZLE_BIN}" ]; then
     log_error "Dozzle executable not found or not executable!"
     exit 1
+else
+    log_info "Dozzle executable found at ${DOZZLE_BIN}"
+    
+    # Try to get Dozzle version
+    DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
+    log_info "Dozzle version: ${DOZZLE_VERSION}"
 fi
 
 # Check run.sh script
 if [ ! -x /run.sh ]; then
     log_warning "run.sh script not found or not executable!"
-    chmod +x /run.sh 2>/dev/null || log_error "Failed to make run.sh executable"
-fi
-
-# Fix permissions for Docker socket if it exists
-if [ -S "${DOCKER_SOCKET}" ]; then
-    log_info "Setting permissions for Docker socket..."
-    chmod 666 "${DOCKER_SOCKET}" 2>/dev/null || log_warning "Failed to set permissions for Docker socket"
+    if ! chmod +x /run.sh 2>/dev/null; then
+        log_error "Failed to make run.sh executable"
+    else
+        log_info "run.sh script permissions set successfully."
+    fi
+else
+    log_info "run.sh script is executable."
 fi
 
 log_info "Initialization completed." 

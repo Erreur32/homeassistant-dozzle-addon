@@ -38,28 +38,28 @@ esac
 log_debug() { 
     if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
         timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo  -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
+        printf "${BLUE}[DEBUG]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
     fi
 }
 
 log_info() { 
     if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_INFO ]; then
         timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${GREEN}[INFO]${NC} ${BLUE}${timestamp}${NC} $1"
+        printf "${GREEN}[INFO]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
     fi
 }
 
 log_warning() { 
     if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_WARNING ]; then
         timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${YELLOW}[WARNING]${NC} ${BLUE}${timestamp}${NC} $1"
+        printf "${YELLOW}[WARNING]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
     fi
 }
 
 log_error() { 
     if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_ERROR ]; then
         timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${RED}[ERROR]${NC} ${BLUE}${timestamp}${NC} $1"
+        printf "${RED}[ERROR]${NC} ${BLUE}%s${NC} %s\n" "${timestamp}" "$1"
     fi
 }
 
@@ -75,8 +75,8 @@ log_info "Service nginx exited with code ${EXIT_CODE_SERVICE} (by signal ${EXIT_
 
 if [ "${EXIT_CODE_SERVICE}" -eq 0 ] || [ "${EXIT_CODE_CONTAINER}" -gt 0 ]; then
     log_info "Service restart not needed"
-    exit "${EXIT_CODE_CONTAINER}"
+    exit 0
 fi
 
 log_info "Restarting service..."
-exec /usr/bin/s6-svc -r /var/run/s6/services/nginx 
+s6-svc -r /var/run/s6/services/nginx 
