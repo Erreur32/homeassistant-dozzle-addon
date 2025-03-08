@@ -67,6 +67,9 @@ http {
         ''      close;
     }
     
+    # Include upstream configuration
+    include /etc/nginx/includes/upstream.conf;
+    
     # Ingress configuration - ONLY listen on port 8099
     server {
         listen 8099 default_server;
@@ -78,7 +81,7 @@ http {
         keepalive_timeout 65;
         
         location / {
-            proxy_pass http://127.0.0.1:8080;
+            proxy_pass http://dozzle;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -95,13 +98,21 @@ http {
 }
 EOF
 
+# Create upstream.conf for Dozzle
+echo "$(date '+%Y-%m-%d %H:%M:%S') Creating nginx upstream configuration for Dozzle"
+cat > /etc/nginx/includes/upstream.conf << EOF
+upstream dozzle {
+    server 127.0.0.1:8080;
+}
+EOF
+
 # Verify nginx configuration
 echo "$(date '+%Y-%m-%d %H:%M:%S') Verifying nginx configuration..."
 if nginx -t; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration is valid"
 else
     echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Nginx configuration is invalid"
-    # Continue anyway, as we don't want to block the startup
+    exit 1
 fi
 
 # Check if nginx is already running
@@ -113,5 +124,5 @@ fi
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
 
-# Start nginx with explicit configuration file to avoid defaults
-exec nginx -c /etc/nginx/nginx.conf -g "daemon off;" 
+# Start nginx with explicit configuration file
+exec nginx -c /etc/nginx/nginx.conf 
