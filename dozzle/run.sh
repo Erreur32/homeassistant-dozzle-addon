@@ -68,12 +68,49 @@ get_system_info() {
     # Get Dozzle version
     DOZZLE_VERSION=$(/usr/local/bin/dozzle --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
     
-    # Check if nginx is running
+    # Check if nginx is running and get more details
     if pgrep -x "nginx" > /dev/null; then
         NGINX_STATUS="${GREEN}Running${RESET}"
+        # Check if nginx is listening on port 8099
+        if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
+            NGINX_PORT="${GREEN}Listening on 8099${RESET}"
+        else
+            NGINX_PORT="${RED}Not listening on 8099${RESET}"
+        fi
     else
         NGINX_STATUS="${RED}Not Running${RESET}"
+        NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
     fi
+    
+    # Set colored status for External Access
+    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
+        EXTERNAL_ACCESS_STATUS="${GREEN}${EXTERNAL_ACCESS}${RESET}"
+    else
+        EXTERNAL_ACCESS_STATUS="${RED}${EXTERNAL_ACCESS}${RESET}"
+    fi
+    
+    # Set colored status for Agent Mode
+    if [ "${AGENT_MODE}" = "true" ]; then
+        AGENT_MODE_STATUS="${GREEN}${AGENT_MODE}${RESET}"
+    else
+        AGENT_MODE_STATUS="${RED}${AGENT_MODE}${RESET}"
+    fi
+    
+    # Set colored status for Log Level
+    case "${LOG_LEVEL}" in
+        "debug")
+            LOG_LEVEL_STATUS="${YELLOW}${LOG_LEVEL}${RESET}"
+            ;;
+        "info")
+            LOG_LEVEL_STATUS="${GREEN}${LOG_LEVEL}${RESET}"
+            ;;
+        "error")
+            LOG_LEVEL_STATUS="${RED}${LOG_LEVEL}${RESET}"
+            ;;
+        *)
+            LOG_LEVEL_STATUS="${WHITE}${LOG_LEVEL}${RESET}"
+            ;;
+    esac
 
     # Print header (always shown regardless of log level)
     print_line
@@ -87,11 +124,11 @@ get_system_info() {
     echo -e "${WHITE} Home Assistant Supervisor: Latest${RESET}"
     print_line
     echo -e "${WHITE} Configuration:${RESET}"
-    echo -e "${WHITE} - Log Level: ${LOG_LEVEL}${RESET}"
-    echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${RESET}"
-    echo -e "${WHITE} - Agent Mode: ${AGENT_MODE}${RESET}"
+    echo -e "${WHITE} - Log Level: ${LOG_LEVEL_STATUS}${RESET}"
+    echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS_STATUS}${RESET}"
+    echo -e "${WHITE} - Agent Mode: ${AGENT_MODE_STATUS}${RESET}"
     echo -e "${WHITE} - Ingress Port: 8099${RESET}"
-    echo -e "${WHITE} - Nginx Status: ${NGINX_STATUS}${RESET}"
+    echo -e "${WHITE} - Nginx Status: ${NGINX_STATUS} - ${NGINX_PORT}${RESET}"
     print_line
     echo -e "${WHITE} Please share the above information when looking for help${RESET}"
     echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
@@ -170,7 +207,7 @@ read_config() {
     
     # Dump config file content for debugging
     log_info "Reading configuration from ${CONFIG_PATH}"
-    cat "${CONFIG_PATH}" || log_warning "Failed to read configuration file"
+    #cat "${CONFIG_PATH}" || log_warning "Failed to read configuration file"
     
     # Read log_level using grep and sed to avoid jq segmentation faults
     LOG_LEVEL_TMP=$(grep -o '"log_level"[[:space:]]*:[[:space:]]*"[^"]*"' "${CONFIG_PATH}" 2>/dev/null | sed 's/"log_level"[[:space:]]*:[[:space:]]*"\([^"]*\)"/\1/')
@@ -250,24 +287,6 @@ EOF
     log_info "Nginx configuration for ingress completed"
 }
 
-# Function to check nginx status periodically
-check_nginx_status() {
-    while true; do
-        if pgrep -x "nginx" > /dev/null; then
-            log_info "Nginx is running"
-        else
-            log_warning "Nginx is not running, attempting to restart..."
-            if [ -f "/etc/services.d/nginx/run" ]; then
-                /etc/services.d/nginx/run &
-                log_info "Nginx restart initiated"
-            else
-                log_error "Nginx run script not found"
-            fi
-        fi
-        sleep 60  # Check every minute
-    done
-}
-
 # Main function
 main() {
     # Read configuration
@@ -275,9 +294,6 @@ main() {
     
     # Setup nginx for ingress
     setup_nginx
-    
-    # Start nginx status check in background
-    check_nginx_status &
     
     # Display system information with configuration values at the beginning
     get_system_info
