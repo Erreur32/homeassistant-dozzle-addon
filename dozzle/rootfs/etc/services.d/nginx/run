@@ -18,7 +18,7 @@ rm -f /etc/nginx/http.d/default.conf
 rm -f /etc/nginx/servers/ingress.conf
 
 # S'assurer qu'aucune instance de nginx n'est en cours d'exécution
-if pgrep -x "nginx" > /dev/null; then
+if ps aux | grep -v grep | grep -q "[n]ginx"; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx is already running, stopping it..."
     nginx -s stop || killall -9 nginx
     sleep 2
@@ -46,12 +46,6 @@ if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
     
     # Wait a moment for the port to be released
     sleep 2
-    
-    # Vérifier à nouveau si le port est libre
-    if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Port 8099 is still in use, cannot start nginx"
-        exit 1
-    fi
 fi
 
 # Create a minimal nginx configuration that only listens on port 8099
@@ -139,5 +133,5 @@ fi
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
 
-# Start nginx with explicit configuration file and make sure it stays in foreground
+# Démarrer nginx avec la configuration spécifiée
 exec nginx -c /etc/nginx/nginx.conf 
