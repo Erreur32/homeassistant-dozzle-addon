@@ -380,13 +380,11 @@ main() {
     # Set Dozzle options
     DOZZLE_OPTS="--level ${LOG_LEVEL}"
     
-    # Always listen on all interfaces (0.0.0.0) for both ingress and external access
-    # Home Assistant will handle port exposure based on the external_access setting
-    log_info "Configuring Dozzle to listen on all interfaces (0.0.0.0:8080)"
-    DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
-    
+    # Configure address based on external access setting
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         log_info "External access is enabled (port 8080 will be exposed)"
+        # Listen on all interfaces for external access
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
         
         # Check if port 8080 is already in use
         if netstat -tuln 2>/dev/null | grep -q ":8080 "; then
@@ -401,7 +399,9 @@ main() {
             fi
         fi
     else
-        log_info "External access is disabled (port 8080 will not be exposed)"
+        log_info "External access is disabled (port 8080 will not be accessible from outside)"
+        # Listen only on localhost for ingress
+        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
     fi
     
     # Add base path
