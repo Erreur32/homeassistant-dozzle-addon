@@ -181,30 +181,91 @@ check_docker_connectivity() {
 
 # Function to check if nginx is running and responding
 is_nginx_working() {
-    # First check if process exists
-    if ! pgrep -x "nginx" >/dev/null; then
+    # 1. Vérifier si le master process nginx existe
+    if ! pgrep -f "nginx: master process" > /dev/null; then
+        log_warning "❌ Nginx master process non trouvé"
+        return 1
+    fi
+    log_debug "✅ Master process nginx trouvé"
+    
+    # Récupérer le PID du master process
+    NGINX_PID=$(pgrep -f "nginx: master process")
+    
+    # 2. Vérifier les ports utilisés par nginx
+    NGINX_PORTS=$(netstat -tulnp | awk -v pid="$NGINX_PID" '$0 ~ pid {print $4}' | sed 's/.*://')
+    
+    if echo "$NGINX_PORTS" | grep -q "8099"; then
+        log_debug "✅ Port 8099 en écoute par nginx (PID: $NGINX_PID)"
+    else
+        log_warning "❌ Port 8099 non trouvé dans les ports nginx"
+        log_debug "🔍 Ports utilisés par nginx: $NGINX_PORTS"
         return 1
     fi
     
-    # Then check if port 8099 responds with Dozzle content
-    if wget -qO- http://127.0.0.1:8099 2>/dev/null | grep -q "Dozzle"; then
-        return 0
+    # 3. Vérifier la configuration nginx
+    if [ -f "/etc/nginx/nginx.conf" ]; then
+        if ! nginx -t &>/dev/null; then
+            log_warning "❌ Configuration nginx invalide"
+            return 1
+        fi
+        log_debug "✅ Configuration nginx valide"
+    else
+        log_warning "❌ Fichier de configuration nginx non trouvé"
+        return 1
     fi
     
-    return 1
+    # 4. Vérifier si upstream.conf existe et contient la bonne configuration
+    if [ ! -f "/etc/nginx/includes/upstream.conf" ]; then
+        log_warning "❌ Fichier upstream.conf manquant"
+        return 1
+    fi
+    
+    if ! grep -q "server 127.0.0.1:8080" "/etc/nginx/includes/upstream.conf"; then
+        log_warning "❌ Configuration upstream incorrecte"
+        return 1
+    fi
+    log_debug "✅ Configuration upstream correcte"
+    
+    # 5. Tester l'accès à Dozzle via nginx
+    local response
+    response=$(wget -qO- http://127.0.0.1:8099 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        log_warning "❌ Impossible d'accéder à Dozzle via nginx"
+        return 1
+    fi
+    
+    if ! echo "$response" | grep -q "Dozzle"; then
+        log_warning "❌ La réponse ne contient pas 'Dozzle'"
+        return 1
+    fi
+    log_debug "✅ Dozzle accessible via nginx"
+    
+    return 0
 }
 
 # Function to check nginx status
 check_nginx_status() {
+    log_info "🔍 Vérification complète de nginx..."
+    
     if is_nginx_working; then
-        log_info "Nginx fonctionne correctement et sert Dozzle sur le port 8099"
+        log_info "✅ Nginx fonctionne parfaitement :"
+        log_info "  ✓ Master process en cours d'exécution"
+        log_info "  ✓ Port 8099 en écoute"
+        log_info "  ✓ Configuration valide"
+        log_info "  ✓ Upstream configuré"
+        log_info "  ✓ Dozzle accessible"
         return 0
     else
-        if pgrep -x "nginx" >/dev/null; then
-            log_warning "Nginx est en cours d'exécution mais ne répond pas correctement sur le port 8099"
-        else
-            log_warning "Nginx n'est pas en cours d'exécution"
-        fi
+        log_warning "⚠️ Problèmes détectés avec nginx"
+        
+        # Afficher les processus nginx en cours
+        log_debug "🔍 Processus nginx :"
+        ps aux | grep "[n]ginx" || true
+        
+        # Afficher tous les ports en écoute
+        log_debug "🔍 Tous les ports en écoute :"
+        netstat -tuln | grep "LISTEN" || true
+        
         return 1
     fi
 }
