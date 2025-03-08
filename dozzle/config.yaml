@@ -41,8 +41,8 @@ options_description:
   log_level: "Log level"
 # Port Configuration
 ports:
-  "8080/tcp": "8080|external_access"
-  "7007/tcp": "7007|agent_mode"
+  "8080/tcp": 8080
+  "7007/tcp": null
 ports_description:
   "8080/tcp": "Web interface (only used if external_access is enabled)"
   "7007/tcp": "Dozzle Agent Port (only used if agent_mode is enabled)"
