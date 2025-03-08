@@ -7,13 +7,7 @@
 [![Issues][issues-shield]][issue]
 [![Stargazers][stars-shield]][stars]
 
-> [!WARNING]
-> Current Limitations 
-> **Important Notice**: The Ingress feature is currently not working in this version. 
->
-> Please use direct access via port 8099 to access Dozzle. We are actively working on fixing this issue.
->
->
+
 
 ## About
 

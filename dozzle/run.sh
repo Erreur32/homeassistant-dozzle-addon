@@ -7,6 +7,7 @@ set -e
 
 # Define paths
 DOZZLE_BIN="/usr/local/bin/dozzle"
+DOCKER_SOCKET="/var/run/docker.sock"
 
 # Define colors
 RED='\033[0;31m'
@@ -89,6 +90,23 @@ print_line() {
     echo -e "${CYAN}-----------------------------------------------------------${NC}"
 }
 
+# Check if script is already running
+LOCK_FILE="/tmp/dozzle.lock"
+if [ -f "$LOCK_FILE" ]; then
+    log_warning "Dozzle script is already running"
+    exit 0
+fi
+touch "$LOCK_FILE"
+
+# Cleanup lock file on exit
+trap 'rm -f "$LOCK_FILE"' EXIT
+
+# Check if Dozzle is available
+if [ ! -x "${DOZZLE_BIN}" ]; then
+    log_error "Dozzle executable not found at ${DOZZLE_BIN}"
+    exit 1
+fi
+
 # Get Dozzle version
 DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
 
@@ -129,24 +147,26 @@ echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${NC}"
 print_line
 echo ""
 
-# Check if script is already running
-LOCK_FILE="/tmp/dozzle.lock"
-if [ -f "$LOCK_FILE" ]; then
-    log_warning "Dozzle script is already running"
-    exit 0
-fi
-touch "$LOCK_FILE"
-
-# Cleanup lock file on exit
-trap 'rm -f "$LOCK_FILE"' EXIT
-
-# Check if Dozzle is available
-if [ ! -x "${DOZZLE_BIN}" ]; then
-    log_error "Dozzle executable not found at ${DOZZLE_BIN}"
-    exit 1
-fi
-
 log_info "Dozzle version: ${DOZZLE_VERSION}"
+
+# Wait for Docker socket to be available
+MAX_RETRIES=30
+RETRY_COUNT=0
+log_info "Checking Docker socket access..."
+while [ ! -S "${DOCKER_SOCKET}" ] && [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    log_warning "Docker socket not found at ${DOCKER_SOCKET}, retrying in 2 seconds (${RETRY_COUNT}/${MAX_RETRIES})..."
+    sleep 2
+done
+
+if [ ! -S "${DOCKER_SOCKET}" ]; then
+    log_error "Docker socket not found at ${DOCKER_SOCKET} after ${MAX_RETRIES} retries. Exiting."
+    log_error "Please make sure Docker is running and the socket is accessible."
+    log_error "You may need to add the Docker socket to the addon configuration."
+    exit 1
+else
+    log_info "Docker socket found at ${DOCKER_SOCKET}"
+fi
 
 # Check if agent mode is supported
 AGENT_SUPPORTED=false
@@ -162,14 +182,6 @@ log_debug "Configuration loaded:"
 log_debug "Log level: ${LOG_LEVEL} (${CURRENT_LOG_LEVEL})"
 log_debug "Agent enabled: ${AGENT_ENABLED}"
 log_debug "External access: ${EXTERNAL_ACCESS}"
-
-# Debug Docker socket access
-log_debug "Checking Docker socket access..."
-if [ -S /var/run/docker.sock ]; then
-    log_debug "Docker socket exists"
-else
-    log_warning "Docker socket not found at /var/run/docker.sock"
-fi
 
 log_info "Ingress entry point: '${INGRESS_ENTRY}'"
 

@@ -38,7 +38,7 @@ esac
 log_debug() { 
     if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
         timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
+        echo  -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
     fi
 }
 
@@ -63,16 +63,19 @@ log_error() {
     fi
 }
 
-declare exit_code
-readonly exit_code_container=$(</run/s6-linux-init-container-results/exitcode)
-readonly exit_code_service="${1}"
-readonly exit_code_signal="${2}"
+# Get exit codes
+EXIT_CODE_CONTAINER=0
+if [ -f /run/s6-linux-init-container-results/exitcode ]; then
+    EXIT_CODE_CONTAINER=$(cat /run/s6-linux-init-container-results/exitcode)
+fi
+EXIT_CODE_SERVICE="${1:-0}"
+EXIT_CODE_SIGNAL="${2:-0}"
 
-log_info "Service nginx exited with code ${exit_code_service} (by signal ${exit_code_signal})"
+log_info "Service nginx exited with code ${EXIT_CODE_SERVICE} (by signal ${EXIT_CODE_SIGNAL})"
 
-if [ "${exit_code_service}" -eq 0 ] || [ "${exit_code_container}" -gt 0 ]; then
-  log_info "Service restart not needed"
-  exit "${exit_code_container}"
+if [ "${EXIT_CODE_SERVICE}" -eq 0 ] || [ "${EXIT_CODE_CONTAINER}" -gt 0 ]; then
+    log_info "Service restart not needed"
+    exit "${EXIT_CODE_CONTAINER}"
 fi
 
 log_info "Restarting service..."

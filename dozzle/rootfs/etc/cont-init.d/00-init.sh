@@ -6,6 +6,7 @@
 
 # Define paths
 DOZZLE_BIN="/usr/local/bin/dozzle"
+DOCKER_SOCKET="/var/run/docker.sock"
 
 # Define colors
 RED='\033[0;31m'
@@ -70,8 +71,11 @@ log_debug "Log level set to: ${LOG_LEVEL} (${CURRENT_LOG_LEVEL})"
 log_info "Initializing Dozzle..."
 
 # Check Docker socket access
-if [ ! -S /var/run/docker.sock ]; then
-    log_warning "Docker socket is not accessible!"
+if [ ! -S "${DOCKER_SOCKET}" ]; then
+    log_warning "Docker socket is not accessible at ${DOCKER_SOCKET}!"
+    log_warning "Dozzle will wait for it to become available at startup."
+    log_warning "Make sure Docker is running and the socket is accessible."
+    log_warning "You may need to add the Docker socket to the addon configuration."
 fi
 
 # Check Dozzle executable
@@ -84,6 +88,12 @@ fi
 if [ ! -x /run.sh ]; then
     log_warning "run.sh script not found or not executable!"
     chmod +x /run.sh 2>/dev/null || log_error "Failed to make run.sh executable"
+fi
+
+# Fix permissions for Docker socket if it exists
+if [ -S "${DOCKER_SOCKET}" ]; then
+    log_info "Setting permissions for Docker socket..."
+    chmod 666 "${DOCKER_SOCKET}" 2>/dev/null || log_warning "Failed to set permissions for Docker socket"
 fi
 
 log_info "Initialization completed." 
