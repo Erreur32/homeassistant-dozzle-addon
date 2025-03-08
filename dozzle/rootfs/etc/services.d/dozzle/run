@@ -13,8 +13,14 @@ log_message "Starting Dozzle..."
 # Source configuration
 CONFIG_PATH=/data/options.json
 
-# Get configuration values
+# Get configuration values with default fallbacks
 LOG_LEVEL=$(jq -r '.log_level // "info"' $CONFIG_PATH)
+# Ensure LOG_LEVEL has a valid value
+if [ -z "$LOG_LEVEL" ] || [ "$LOG_LEVEL" = "null" ]; then
+    LOG_LEVEL="info"
+    log_message "Log level not set or invalid, using default: info"
+fi
+
 EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' $CONFIG_PATH)
 AGENT_MODE=$(jq -r '.agent_mode // "false"' $CONFIG_PATH)
 
