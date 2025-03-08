@@ -1,11 +1,17 @@
-#!/bin/shio
-# shellcheck shell=bash
+#!/bin/bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
-# Service shutdown script
 # ==============================================================================
 
-bashio::log.info "Stopping Dozzle service..."
+# Simple logging function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
 
-# Exit code for S6
-exit 0 
+# Get exit code from service
+EXIT_CODE=$1
+
+log_message "Dozzle service exited with code ${EXIT_CODE}"
+
+# Forward exit code
+exit ${EXIT_CODE} 

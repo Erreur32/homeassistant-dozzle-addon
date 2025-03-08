@@ -1,33 +1,41 @@
-#!/bin/sh
-# shellcheck shell=bash
+#!/bin/bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
-# Start Dozzle service
 # ==============================================================================
 
-# Define paths
-BASHIO_BIN="/usr/bin/bashio"
+# Simple logging function
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
+}
 
-# Check if bashio is available
-if [ -x "${BASHIO_BIN}" ]; then
-    # Use bashio if available
-    log_info() { ${BASHIO_BIN} log.info "$1"; }
-    log_error() { ${BASHIO_BIN} log.error "$1"; }
+log_message "Starting Dozzle..."
+
+# Source configuration
+CONFIG_PATH=/data/options.json
+
+# Get configuration values
+LOG_LEVEL=$(jq -r '.log_level // "info"' $CONFIG_PATH)
+EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' $CONFIG_PATH)
+AGENT_MODE=$(jq -r '.agent_mode // "false"' $CONFIG_PATH)
+
+# Set Dozzle options
+if [ "$EXTERNAL_ACCESS" = "true" ]; then
+    # Use 0.0.0.0 to allow external access
+    log_message "External access enabled"
+    DOZZLE_OPTS="--addr 0.0.0.0:8080 --base / --level ${LOG_LEVEL}"
 else
-    # Fallback to echo if bashio is not available
-    echo "Warning: bashio not found at ${BASHIO_BIN}, using fallback logging"
-    log_info() { echo "[INFO] $1"; }
-    log_error() { echo "[ERROR] $1"; }
+    # Use 127.0.0.1 for internal access only (ingress)
+    log_message "External access disabled, using ingress only"
+    DOZZLE_OPTS="--addr 127.0.0.1:8080 --base / --level ${LOG_LEVEL}"
 fi
 
-log_info "Starting Dozzle service via S6..."
-
-# Check if run.sh exists and is executable
-if [ ! -x /run.sh ]; then
-    log_error "run.sh script not found or not executable!"
-    exit 1
+# Add agent mode if enabled
+if [ "$AGENT_MODE" = "true" ]; then
+    DOZZLE_OPTS="${DOZZLE_OPTS} --agent"
+    log_message "Agent mode enabled"
 fi
 
-# Execute main script with proper environment
-cd /
-exec /run.sh 
+log_message "Dozzle options: ${DOZZLE_OPTS}"
+
+# Run Dozzle
+exec /usr/local/bin/dozzle ${DOZZLE_OPTS} 

@@ -13,28 +13,58 @@
 
 ![Dozzle Screenshot](https://github.com/user-attachments/assets/b184931c-03d4-4e8a-b716-a9b17055892d)
 
-[Dozzle](https://github.com/amir20/dozzle) is a lightweight real-time Docker log monitoring tool with a web interface. 
+# **Dozzle - Home Assistant Add-on**  
 
-This version is optimized to work as a Home Assistant add-on with improved ingress support.
-This is not a official addon from Dozzle!
+![Dozzle Screenshot](https://github.com/user-attachments/assets/b184931c-03d4-4e8a-b716-a9b17055892d)
 
-## Features of Dozzle
+[Dozzle](https://github.com/amir20/dozzle) is a lightweight real-time Docker log monitoring tool with a web interface.
 
-- Intuitive web interface for Docker log visualization
-- Real-time log updates
-- Agent mode for distributed logging
+This version is optimized to work as a **Home Assistant add-on** with improved **Ingress support**.
 
-## Features for home Assistant 
-- SSL support with automatic certificate generation
-- Password protection
-- Ingress support for direct Home Assistant integration
+> ⚠️ **This is not an official add-on from Dozzle!**  
 
-## Installation
+---
 
-1. Go to [Home Assistant Store](https://my.home-assistant.io/redirect/supervisor_store/)
-2. Search for "Dozzle" in the Home Assistant Add-on Store
-3. Click "Install"
-4. Start the add-on
+## 🚀 **Features of Dozzle**  
+
+✔️ Intuitive web interface for Docker log visualization  
+✔️ Real-time log updates  
+✔️ Agent mode for distributed logging  
+
+---
+
+## 🏠 **Enhancements for Home Assistant**  
+
+🔐 **SSL support** with automatic certificate generation  
+🔑 **Password protection**  
+🔗 **Ingress support** for direct integration into Home Assistant  
+
+---
+
+## 🛠 **Installation**  
+
+1. **Open the Home Assistant Add-on Store**:  
+   [📌 Access the Store](https://my.home-assistant.io/redirect/supervisor_store/)  
+
+2. **Search for "Dozzle"** in the Add-on Store  
+3. **Install the add-on** and wait for the process to complete  
+4. **Start Dozzle**  
+
+> 🔗 **Access Dozzle once installed**:  
+[📌 Open Dozzle](https://my.home-assistant.io/redirect/supervisor_addon/?addon=dozzle)  
+
+> 🏗 **Add an external repository containing Dozzle** (if necessary):  
+[📌 Add Repository](https://my.home-assistant.io/redirect/supervisor_addon_store/?repository_url=https://github.com/Erreur32/homeassistant-dozzle-addon)  
+
+---
+
+💬 **Need help?** Check the [official documentation](https://github.com/amir20/dozzle) or ask for assistance in the Home Assistant community.
+
+---
+
+🛠 **Optimized text** with direct links for a smoother installation! 🚀
+
+
 
 ## Configuration
 

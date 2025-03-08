@@ -1,29 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
-# Take down the S6 supervision tree when Nginx fails
 # ==============================================================================
 
 # Simple logging function
-log_info() {
-    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "[INFO] ${timestamp} $1"
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
-# Get exit codes
-EXIT_CODE_CONTAINER=0
-if [ -f /run/s6-linux-init-container-results/exitcode ]; then
-    EXIT_CODE_CONTAINER=$(cat /run/s6-linux-init-container-results/exitcode)
-fi
-EXIT_CODE_SERVICE="${1:-0}"
-EXIT_CODE_SIGNAL="${2:-0}"
+# Get exit code from service
+EXIT_CODE=$1
 
-log_info "Service nginx exited with code ${EXIT_CODE_SERVICE} (by signal ${EXIT_CODE_SIGNAL})"
+log_message "Nginx service exited with code ${EXIT_CODE}"
 
-if [ "${EXIT_CODE_SERVICE}" -eq 0 ] || [ "${EXIT_CODE_CONTAINER}" -gt 0 ]; then
-    log_info "Service restart not needed"
-    exit 0
-fi
-
-log_info "Restarting service..."
-s6-svc -r /var/run/s6/services/nginx 
+# Forward exit code
+exit ${EXIT_CODE} 

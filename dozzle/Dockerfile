@@ -18,7 +18,7 @@ ENV DOCKER_HOST=unix:///var/run/docker.sock
 # Update repositories and install dependencies
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
-    && apk update && apk add --no-cache libc6-compat jq curl bash nginx
+    && apk update && apk add --no-cache libc6-compat jq curl bash nginx sed
 
 # Create symlinks for bash
 RUN ln -sf /bin/bash /usr/bin/bash || true
@@ -51,6 +51,8 @@ RUN find /etc/services.d -type f -name run -exec chmod +x {} \; || true
 RUN find /etc/services.d -type f -name finish -exec chmod +x {} \; || true
 RUN find /etc/cont-init.d -type f -exec sed -i 's/\r$//' {} \; || true
 RUN find /etc/services.d -type f -exec sed -i 's/\r$//' {} \; || true
+RUN find /usr/bin -type f -exec sed -i 's/\r$//' {} \; || true
+RUN find /usr/bin -type f -exec chmod +x {} \; || true
 RUN sed -i 's/\r$//' /run.sh || true
 
 # Create docker group with same GID as host

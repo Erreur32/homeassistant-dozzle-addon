@@ -1,16 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
 # Runs the Nginx daemon for ingress support
 # ==============================================================================
 
 # Simple logging function
-log_info() {
-    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-    echo "[INFO] ${timestamp} $1"
+log_message() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $1"
 }
 
-log_info "Starting NGinx for ingress support..."
+log_message "Starting Nginx..."
 
 # Run nginx
 exec nginx -g "daemon off;" 

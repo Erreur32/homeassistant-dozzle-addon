@@ -1,0 +1,13 @@
+#!/bin/sh
+# Simple bashio replacement for logging
+
+# Handle log.info command
+if [ "$1" = "log.info" ]; then
+    shift
+    echo "[INFO] $*"
+    exit 0
+fi
+
+# Echo all other arguments
+echo "$@"
+exit 0 

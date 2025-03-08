@@ -1,140 +1,120 @@
-#!/bin/sh
+#!/bin/bash
 # ==============================================================================
 # Home Assistant Add-on: Dozzle
-# Minimal initialization
+# Initialization script
 # ==============================================================================
 
 # Define paths
-DOZZLE_BIN="/usr/local/bin/dozzle"
 DOCKER_SOCKET="/var/run/docker.sock"
+DOZZLE_BIN="/usr/local/bin/dozzle"
+RUN_SCRIPT="/run.sh"
 
-# Define colors
+# Define colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+RESET='\033[0m'
 
-# Default log level (can be overridden by environment variable)
-LOG_LEVEL="${LOG_LEVEL:-info}"
-
-# Define log level values
-LOG_LEVEL_DEBUG=3
-LOG_LEVEL_INFO=2
-LOG_LEVEL_WARNING=1
-LOG_LEVEL_ERROR=0
-
-# Set current log level based on configuration
-CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
-case "${LOG_LEVEL}" in
-    "debug")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_DEBUG
-        ;;
-    "info")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_INFO
-        ;;
-    "error")
-        CURRENT_LOG_LEVEL=$LOG_LEVEL_ERROR
-        ;;
-esac
-
-# Use colored echo for logging with timestamp and level filtering
-log_debug() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_DEBUG ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${BLUE}[DEBUG]${NC} ${BLUE}${timestamp}${NC} $1"
-    fi
+# Simple logging functions
+log_info() {
+    echo -e "${GREEN}[INFO] $(date '+%Y-%m-%d %H:%M:%S') $1${RESET}"
 }
 
-log_info() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_INFO ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${GREEN}[INFO]${NC} ${BLUE}${timestamp}${NC} $1"
-    fi
+log_warning() {
+    echo -e "${YELLOW}[WARNING] $(date '+%Y-%m-%d %H:%M:%S') $1${RESET}"
 }
 
-log_warning() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_WARNING ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${YELLOW}[WARNING]${NC} ${BLUE}${timestamp}${NC} $1"
-    fi
+log_error() {
+    echo -e "${RED}[ERROR] $(date '+%Y-%m-%d %H:%M:%S') $1${RESET}"
 }
 
-log_error() { 
-    if [ $CURRENT_LOG_LEVEL -ge $LOG_LEVEL_ERROR ]; then
-        timestamp=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${RED}[ERROR]${NC} ${BLUE}${timestamp}${NC} $1"
-    fi
+# Function to check if a command is available
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
 }
 
-log_debug "Log level set to: ${LOG_LEVEL} (${CURRENT_LOG_LEVEL})"
-log_info "Initializing Dozzle..."
-
-# Check Docker socket access
-if [ ! -S "${DOCKER_SOCKET}" ]; then
-    log_warning "Docker socket is not accessible at ${DOCKER_SOCKET}!"
-    log_warning "Dozzle will wait for it to become available at startup."
-    log_warning "Make sure Docker is running and the socket is accessible."
-    log_warning "You may need to add the Docker socket to the addon configuration."
-else
-    log_info "Docker socket found at ${DOCKER_SOCKET}"
-    
-    # Try multiple approaches to fix permissions for Docker socket
-    if [ -w "${DOCKER_SOCKET}" ]; then
-        log_info "Docker socket is already writable."
-    else
-        # Try to fix permissions using chmod
-        if chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
-            log_info "Docker socket permissions set successfully with chmod."
-        else
-            # Try to fix permissions using setfacl if available
-            if command -v setfacl >/dev/null 2>&1; then
-                if setfacl -m u:$(id -u):rw "${DOCKER_SOCKET}" 2>/dev/null; then
-                    log_info "Docker socket permissions set successfully with setfacl."
-                else
-                    log_warning "Failed to set permissions for Docker socket with setfacl."
-                fi
-            else
-                log_warning "Failed to set permissions for Docker socket with chmod."
-                log_warning "You may need to run the addon with additional privileges."
-                log_warning "Consider adding 'docker' to the addon configuration."
-            fi
-        fi
-    fi
-    
-    # Try to check Docker connectivity
-    if command -v docker >/dev/null 2>&1; then
-        if docker info >/dev/null 2>&1; then
-            log_info "Docker is responding correctly."
-        else
-            log_warning "Docker is installed but not responding. This may cause issues."
-            log_warning "Check if the Docker daemon is running and accessible."
-        fi
-    fi
-fi
-
-# Check Dozzle executable
-if [ ! -x "${DOZZLE_BIN}" ]; then
-    log_error "Dozzle executable not found or not executable!"
+# Check if Docker socket exists
+if [ ! -e "${DOCKER_SOCKET}" ]; then
+    log_error "Docker socket not found at ${DOCKER_SOCKET}"
+    log_error "Please make sure Docker is running and the socket is accessible"
     exit 1
-else
-    log_info "Dozzle executable found at ${DOZZLE_BIN}"
+fi
+
+# Check if Docker socket is readable
+if [ ! -r "${DOCKER_SOCKET}" ]; then
+    log_warning "Docker socket is not readable, attempting to fix permissions"
     
-    # Try to get Dozzle version
-    DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>&1 || echo "unknown")
-    log_info "Dozzle version: ${DOZZLE_VERSION}"
-fi
-
-# Check run.sh script
-if [ ! -x /run.sh ]; then
-    log_warning "run.sh script not found or not executable!"
-    if ! chmod +x /run.sh 2>/dev/null; then
-        log_error "Failed to make run.sh executable"
+    # Try to fix permissions with chmod
+    if chmod 666 "${DOCKER_SOCKET}" 2>/dev/null; then
+        log_info "Successfully fixed Docker socket permissions with chmod"
     else
-        log_info "run.sh script permissions set successfully."
+        # Try to fix permissions with setfacl if available
+        if command_exists setfacl; then
+            if setfacl -m u:root:rw "${DOCKER_SOCKET}" 2>/dev/null; then
+                log_info "Successfully fixed Docker socket permissions with setfacl"
+            else
+                log_warning "Failed to fix Docker socket permissions with setfacl"
+            fi
+        else
+            log_warning "Failed to fix Docker socket permissions with chmod"
+        fi
     fi
-else
-    log_info "run.sh script is executable."
 fi
 
-log_info "Initialization completed." 
+# Check if Docker socket is writable
+if [ ! -w "${DOCKER_SOCKET}" ]; then
+    log_warning "Docker socket is still not writable after permission fixes"
+    log_warning "This may cause issues with Dozzle"
+else
+    log_info "Docker socket is writable"
+fi
+
+# Check if Dozzle executable exists
+if [ ! -f "${DOZZLE_BIN}" ]; then
+    log_error "Dozzle executable not found at ${DOZZLE_BIN}"
+    exit 1
+fi
+
+# Check if Dozzle executable is executable
+if [ ! -x "${DOZZLE_BIN}" ]; then
+    log_warning "Dozzle executable is not executable, attempting to fix permissions"
+    
+    if chmod +x "${DOZZLE_BIN}" 2>/dev/null; then
+        log_info "Successfully fixed Dozzle executable permissions"
+    else
+        log_error "Failed to fix Dozzle executable permissions"
+        exit 1
+    fi
+fi
+
+# Get Dozzle version
+DOZZLE_VERSION=$(${DOZZLE_BIN} --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
+log_info "Dozzle version: ${DOZZLE_VERSION}"
+
+# Check if run script exists
+if [ ! -f "${RUN_SCRIPT}" ]; then
+    log_error "Run script not found at ${RUN_SCRIPT}"
+    exit 1
+fi
+
+# Check if run script is executable
+if [ ! -x "${RUN_SCRIPT}" ]; then
+    log_warning "Run script is not executable, attempting to fix permissions"
+    
+    if chmod +x "${RUN_SCRIPT}" 2>/dev/null; then
+        log_info "Successfully fixed run script permissions"
+    else
+        log_error "Failed to fix run script permissions"
+        exit 1
+    fi
+fi
+
+# Create necessary directories
+mkdir -p /var/run/s6/container_environment
+
+# Set environment variables
+echo "DOCKER_HOST=unix:///var/run/docker.sock" > /var/run/s6/container_environment/DOCKER_HOST
+
+log_info "Initialization completed successfully"
+exit 0 
