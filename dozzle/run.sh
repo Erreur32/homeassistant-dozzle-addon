@@ -15,6 +15,7 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
+WHITE='\033[1;37m'
 RESET='\033[0m'
 
 # Define log levels
@@ -40,6 +41,11 @@ log_error() {
     echo -e "${RED}[ERROR] $(date '+%Y-%m-%d %H:%M:%S') $1${RESET}"
 }
 
+# Function to print a line of dashes
+print_line() {
+    echo -e "${CYAN}-----------------------------------------------------------${RESET}"
+}
+
 # Function to get system information
 get_system_info() {
     # Try to get system information using ha command
@@ -62,14 +68,27 @@ get_system_info() {
     # Get Dozzle version
     DOZZLE_VERSION=$(/usr/local/bin/dozzle --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
 
-    echo -e "${BLUE}=======================================================${RESET}"
-    echo -e "${BLUE}= Dozzle Add-on for Home Assistant                   =${RESET}"
-    echo -e "${BLUE}=======================================================${RESET}"
-    echo -e "${BLUE}= Hostname: ${RESET}${HOSTNAME}"
-    echo -e "${BLUE}= OS: ${RESET}${OS}"
-    echo -e "${BLUE}= Home Assistant: ${RESET}${VERSION}"
-    echo -e "${BLUE}= Dozzle: ${RESET}${DOZZLE_VERSION}"
-    echo -e "${BLUE}=======================================================${RESET}"
+    # Print header (always shown regardless of log level)
+    print_line
+    echo -e "${WHITE} Add-on: Dozzle - Docker Log Viewer${RESET}"
+    echo -e "${WHITE} Real-time log viewer for Docker containers in Home Assistant${RESET}"
+    print_line
+    echo -e "${WHITE} Add-on version: 0.1.51${RESET}"
+    echo -e "${WHITE} Dozzle version: ${DOZZLE_VERSION}${RESET}"
+    echo -e "${WHITE} System: ${OS} ($(uname -m))${RESET}"
+    echo -e "${WHITE} Home Assistant Core: ${VERSION}${RESET}"
+    echo -e "${WHITE} Home Assistant Supervisor: Latest${RESET}"
+    print_line
+    echo -e "${WHITE} Configuration:${RESET}"
+    echo -e "${WHITE} - Log Level: ${LOG_LEVEL}${RESET}"
+    echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS}${RESET}"
+    echo -e "${WHITE} - Agent Mode: ${AGENT_MODE}${RESET}"
+    echo -e "${WHITE} - Ingress Port: 8080${RESET}"
+    print_line
+    echo -e "${WHITE} Please share the above information when looking for help${RESET}"
+    echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
+    print_line
+    echo ""
 }
 
 # Function to check if Docker socket is available
@@ -134,9 +153,6 @@ check_command_option() {
 
 # Main function
 main() {
-    # Display system information
-    get_system_info
-
     # Check for lock file to prevent multiple instances
     if [ -f "${LOCK_FILE}" ]; then
         log_warning "Lock file exists, another instance may be running"
@@ -173,24 +189,49 @@ main() {
     
     # Get configuration values
     LOG_LEVEL=$(jq -r '.log_level // "info"' ${CONFIG_PATH})
+    # Ensure LOG_LEVEL has a valid value
+    if [ -z "$LOG_LEVEL" ] || [ "$LOG_LEVEL" = "null" ]; then
+        LOG_LEVEL="info"
+        log_warning "Log level not set or invalid, using default: info"
+    fi
+    
     EXTERNAL_ACCESS=$(jq -r '.external_access // "false"' ${CONFIG_PATH})
+    # Debug: Show the extracted value
+    log_debug "Extracted external_access: ${EXTERNAL_ACCESS}"
+    
     AGENT_MODE=$(jq -r '.agent_mode // "false"' ${CONFIG_PATH})
+    
+    # Display system information with configuration values
+    get_system_info
+    
+    # Check if agent mode is supported
+    AGENT_SUPPORTED=false
+    if /usr/local/bin/dozzle --help 2>&1 | sed -n '/--agent/p' | wc -l > /dev/null 2>&1; then
+        AGENT_SUPPORTED=true
+        log_info "Agent mode is supported in this version of Dozzle"
+    else
+        log_warning "Agent mode is NOT supported in this version of Dozzle (${DOZZLE_VERSION})"
+    fi
     
     # Set Dozzle options
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         # Use 0.0.0.0 to allow external access
-        log_info "External access enabled"
+        log_info "External access enabled on port 8080"
         DOZZLE_OPTS="--addr 0.0.0.0:8080 --base / --level ${LOG_LEVEL}"
     else
         # Use 127.0.0.1 for internal access only (ingress)
-        log_info "External access disabled, using ingress only"
+        log_info "Only ingress access enabled"
         DOZZLE_OPTS="--addr 127.0.0.1:8080 --base / --level ${LOG_LEVEL}"
     fi
     
-    # Add agent mode if enabled
+    # Add agent mode if enabled and supported
     if [ "${AGENT_MODE}" = "true" ]; then
-        DOZZLE_OPTS="${DOZZLE_OPTS} --agent"
-        log_info "Agent mode enabled"
+        if [ "${AGENT_SUPPORTED}" = "true" ]; then
+            log_info "Agent mode enabled on port 7007"
+            DOZZLE_OPTS="${DOZZLE_OPTS} --agent --agent-addr 0.0.0.0:7007"
+        else
+            log_warning "Agent mode is requested but not supported in this version of Dozzle (${DOZZLE_VERSION}). Ignoring agent configuration."
+        fi
     fi
     
     log_info "Starting Dozzle with options: ${DOZZLE_OPTS}"
