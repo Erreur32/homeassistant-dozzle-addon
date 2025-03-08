@@ -66,9 +66,6 @@ backups/
 *.rar
 *.tgz
 
-# Scripts et configurations
-*.sh
-!run.sh
 
 # Fichiers de configuration locaux
 .gitignore.local
@@ -105,4 +102,4 @@ keys/
 Aide
 .cursor/
 update_version.sh
-
+fix_scripts.sh

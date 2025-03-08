@@ -1,9 +1,13 @@
 #!/bin/bash
 # ==============================================================================
-# Start nginx service for ingress support
+# Home Assistant Add-on: Dozzle
+# Configures nginx for ingress support
 # ==============================================================================
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') Starting Nginx for ingress support..."
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+echo "$(date '+%Y-%m-%d %H:%M:%S') Configuring nginx for ingress support..."
 
 # Create required directories
 mkdir -p /var/log/nginx
@@ -16,30 +20,6 @@ rm -f /etc/nginx/sites-enabled/default
 rm -f /etc/nginx/sites-available/default
 rm -f /etc/nginx/http.d/default.conf
 rm -f /etc/nginx/servers/ingress.conf
-
-# Check if port 8099 is already in use
-if netstat -tuln 2>/dev/null | grep -q ":8099 "; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Port 8099 is already in use by another process"
-    # Try to identify which process is using the port
-    if command -v lsof >/dev/null 2>&1; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
-        lsof -i :8099
-    elif command -v fuser >/dev/null 2>&1; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
-        fuser -n tcp 8099
-    else
-        echo "$(date '+%Y-%m-%d %H:%M:%S') Cannot determine which process is using port 8099"
-    fi
-    
-    # Try to kill the process using port 8099
-    echo "$(date '+%Y-%m-%d %H:%M:%S') Attempting to free port 8099..."
-    if command -v fuser >/dev/null 2>&1; then
-        fuser -k -n tcp 8099 || true
-    fi
-    
-    # Wait a moment for the port to be released
-    sleep 2
-fi
 
 # Create a minimal nginx configuration that only listens on port 8099
 echo "$(date '+%Y-%m-%d %H:%M:%S') Creating nginx configuration..."
@@ -104,14 +84,28 @@ else
     # Continue anyway, as we don't want to block the startup
 fi
 
-# Check if nginx is already running
-if pgrep -x "nginx" > /dev/null; then
-    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx is already running, stopping it..."
-    nginx -s stop || killall -9 nginx || true
-    sleep 2
+# Check if port 8099 is already in use
+if netstat -tuln | grep -q ":8099 "; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') WARNING: Port 8099 is already in use"
+    # Show which process is using the port
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Process using port 8099:"
+    if command -v lsof >/dev/null 2>&1; then
+        lsof -i :8099
+    elif command -v fuser >/dev/null 2>&1; then
+        fuser -n tcp 8099
+    else
+        echo "$(date '+%Y-%m-%d %H:%M:%S') Cannot determine which process is using port 8099 (lsof/fuser not available)"
+    fi
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Port 8099 is available for nginx"
 fi
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration ready, starting nginx..."
+# Check if nginx is installed
+if command -v nginx >/dev/null 2>&1; then
+    NGINX_VERSION=$(nginx -v 2>&1 | sed 's/nginx version: nginx\///')
+    echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx version: ${NGINX_VERSION}"
+else
+    echo "$(date '+%Y-%m-%d %H:%M:%S') ERROR: Nginx is not installed"
+fi
 
-# Start nginx with explicit configuration file to avoid defaults
-exec nginx -c /etc/nginx/nginx.conf -g "daemon off;" 
+echo "$(date '+%Y-%m-%d %H:%M:%S') Nginx configuration completed" 
