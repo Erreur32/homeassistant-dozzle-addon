@@ -17,43 +17,38 @@ boot: auto
 
 # Web Interface Configuration
 ingress: true
-ingress_port: 8099
+ingress_port: 8080
 ingress_stream: true
-ingress_ssl: true
 
 # Panel Configuration
 panel_icon: mdi:docker
-panel_admin: true
+panel_admin: false
 panel_title: "Dozzle"
-webui: "http://[HOST]:[PORT:8080]"
+webui: "http://[HOST]:[PORT:8081]"
 
 # Configuration Options
 options:
   external_access: false
   agent_mode: false
   log_level: "info"
-  base: "/"
-
 # Schema Configuration
+
 schema:
   external_access: bool
   agent_mode: bool
-  log_level: list(debug|info|error)
-  base: str
+  log_level: list(debug|info|error)  
 
 # Options Descriptions
 options_description:
   external_access: "Enable direct access"
   agent_mode: "⚙️ Enable Dozzle Agent (automatically disabled if not supported by installed version)"
   log_level: "Log level"
-  base: "Base URL path for Ingress"
-
 # Port Configuration
 ports:
-  "8080/tcp": 8080
+  "8081/tcp": 8099
   "7007/tcp": null
 ports_description:
-  "8080/tcp": "Web interface (only used if external_access is enabled)"
+  "8081/tcp": "Web interface (only used if external_access is enabled)"
   "7007/tcp": "Dozzle Agent Port (only used if agent_mode is enabled)"
 
 # System Configuration
@@ -68,14 +63,13 @@ devices:
 
 # System Permissions
 hassio_api: true
-hassio_role: admin
+hassio_role: default
 docker_api: true
 auth_api: true
 
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
-  - NET_ADMIN
 
 map:
   - config:rw
@@ -83,4 +77,3 @@ map:
   - share:rw
   - backup:rw
   - media:rw
-  - addon_config:rw

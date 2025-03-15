@@ -317,11 +317,29 @@ main() {
         DOZZLE_OPTS="${DOZZLE_OPTS} --agent"
     fi
     
-    # Log the final command
-    log_info "Starting Dozzle with command: ${DOZZLE_CMD} ${DOZZLE_OPTS}"
+    # Start Dozzle with updated parameters
+    log_info "Starting Dozzle with command: /usr/local/bin/dozzle --addr :8080 --base / --level ${LOG_LEVEL}"
+    /usr/local/bin/dozzle --addr :8080 --base / --level ${LOG_LEVEL}
     
-    # Start Dozzle
-    exec ${DOZZLE_CMD} ${DOZZLE_OPTS}
+    # Remove lock file
+    rm -f "${LOCK_FILE}"
+
+    # Start Dozzle with updated parameters
+    /usr/local/bin/dozzle --addr :8080 --base / --level ${LOG_LEVEL}
+    
+    # Attendre un peu que Dozzle démarre
+    sleep 2
+    
+    # Vérifier nginx maintenant que Dozzle est démarré
+    check_nginx_status
+    
+    # Si la vérification a échoué, on log une erreur mais on continue
+    if [ "${NGINX_CHECK_OK}" = "false" ]; then
+        log_warning "Nginx check failed but continuing..."
+    fi
+    
+    # Attendre que Dozzle se termine
+    wait
 }
 
 # Run main function
