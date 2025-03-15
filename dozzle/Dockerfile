@@ -18,7 +18,7 @@ ENV DOCKER_HOST=unix:///var/run/docker.sock
 # Update repositories and install dependencies
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" > /etc/apk/repositories \
     && echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories \
-    && apk update && apk add --no-cache libc6-compat jq curl bash nginx sed
+    && apk update && apk add --no-cache libc6-compat jq curl bash sed
 
 # Create symlinks for bash
 RUN ln -sf /bin/bash /usr/bin/bash || true

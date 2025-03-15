@@ -110,11 +110,29 @@ if [ ! -x "${RUN_SCRIPT}" ]; then
     fi
 fi
 
+# Check Ingress configuration
+if [ "${INGRESS_ENABLED}" = "true" ]; then
+    log_info "Ingress is enabled"
+    if [ -z "${INGRESS_PORT}" ]; then
+        log_warning "INGRESS_PORT is not set, using default port 8099"
+        export INGRESS_PORT=8099
+    fi
+    if [ -z "${INGRESS_HOST}" ]; then
+        log_warning "INGRESS_HOST is not set"
+    fi
+else
+    log_info "Ingress is disabled"
+fi
+
 # Create necessary directories
 mkdir -p /var/run/s6/container_environment
 
 # Set environment variables
 echo "DOCKER_HOST=unix:///var/run/docker.sock" > /var/run/s6/container_environment/DOCKER_HOST
+if [ "${INGRESS_ENABLED}" = "true" ]; then
+    echo "INGRESS_PORT=${INGRESS_PORT}" >> /var/run/s6/container_environment/INGRESS_PORT
+    echo "INGRESS_HOST=${INGRESS_HOST}" >> /var/run/s6/container_environment/INGRESS_HOST
+fi
 
 log_info "Initialization completed successfully"
 exit 0 

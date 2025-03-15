@@ -19,10 +19,11 @@ boot: auto
 ingress: true
 ingress_port: 8099
 ingress_stream: true
+ingress_ssl: true
 
 # Panel Configuration
 panel_icon: mdi:docker
-panel_admin: false
+panel_admin: true
 panel_title: "Dozzle"
 webui: "http://[HOST]:[PORT:8080]"
 
@@ -31,18 +32,22 @@ options:
   external_access: false
   agent_mode: false
   log_level: "info"
-# Schema Configuration
+  base: "/"
 
+# Schema Configuration
 schema:
   external_access: bool
   agent_mode: bool
-  log_level: list(debug|info|error)  
+  log_level: list(debug|info|error)
+  base: str
 
 # Options Descriptions
 options_description:
   external_access: "Enable direct access"
   agent_mode: "⚙️ Enable Dozzle Agent (automatically disabled if not supported by installed version)"
   log_level: "Log level"
+  base: "Base URL path for Ingress"
+
 # Port Configuration
 ports:
   "8080/tcp": 8080
@@ -63,13 +68,14 @@ devices:
 
 # System Permissions
 hassio_api: true
-hassio_role: default
+hassio_role: admin
 docker_api: true
 auth_api: true
 
 privileged:
   - SYS_ADMIN
   - DAC_READ_SEARCH
+  - NET_ADMIN
 
 map:
   - config:rw
@@ -77,3 +83,4 @@ map:
   - share:rw
   - backup:rw
   - media:rw
+  - addon_config:rw

@@ -72,20 +72,6 @@ get_system_info() {
     # Get Dozzle version
     DOZZLE_VERSION=$(/usr/local/bin/dozzle --version 2>/dev/null | sed 's/dozzle version //' || echo "Unknown")
     
-    # Check nginx status
-    if is_nginx_working; then
-        NGINX_STATUS="${GREEN}Running${RESET}"
-        NGINX_PORT="${GREEN}Listening on 8099${RESET}"
-    else
-        if pgrep -x "nginx" >/dev/null; then
-            NGINX_STATUS="${YELLOW}Running${RESET}"
-            NGINX_PORT="${RED}Not responding on 8099${RESET}"
-        else
-            NGINX_STATUS="${RED}Not Running${RESET}"
-            NGINX_PORT="${RED}Port 8099 unavailable${RESET}"
-        fi
-    fi
-    
     # Set colored status for External Access with symbols
     if [ "${EXTERNAL_ACCESS}" = "true" ]; then
         EXTERNAL_ACCESS_STATUS="${GREEN}✓ ${EXTERNAL_ACCESS}${RESET}"
@@ -131,8 +117,6 @@ get_system_info() {
     echo -e "${WHITE} - Log Level: ${LOG_LEVEL_STATUS}${RESET}"
     echo -e "${WHITE} - External Access: ${EXTERNAL_ACCESS_STATUS}${RESET}"
     echo -e "${WHITE} - Agent Mode: ${AGENT_MODE_STATUS}${RESET}"
-    echo -e "${WHITE} - Ingress Port: 8099${RESET}"
-    echo -e "${WHITE} - Nginx Status: ${NGINX_STATUS} - ${NGINX_PORT}${RESET}"
     print_line
     echo -e "${WHITE} Please share the above information when looking for help${RESET}"
     echo -e "${WHITE} or support in GitHub, forums or the Discord chat.${RESET}"
@@ -181,115 +165,6 @@ check_docker_connectivity() {
     # Skip Docker connectivity check to avoid curl segmentation fault
     log_info "Skipping Docker connectivity check (to avoid curl segmentation fault)"
     return 0
-}
-
-# Function to check if nginx is running and responding
-is_nginx_working() {
-    local max_wait=10  # Attendre maximum 10 secondes
-    local wait_count=0
-    
-    # 1. Attendre et vérifier le master process nginx
-    while [ $wait_count -lt $max_wait ]; do
-        if pgrep -f "nginx: master process" > /dev/null; then
-            log_debug "✅ Master process nginx trouvé"
-            break
-        fi
-        wait_count=$((wait_count + 1))
-        if [ $wait_count -eq 1 ]; then
-            log_debug "⏳ Attente du démarrage du master process nginx..."
-        fi
-        sleep 1
-    done
-    
-    if [ $wait_count -eq $max_wait ]; then
-        log_warning "❌ Master process nginx non trouvé après ${max_wait} secondes"
-        # Afficher les processus pour le debug
-        log_debug "🔍 Processus actuels :"
-        ps aux | grep -E "(nginx|s6-supervise)" | grep -v grep || true
-        return 1
-    fi
-    
-    # Récupérer le PID du master process
-    NGINX_PID=$(pgrep -f "nginx: master process")
-    log_debug "✅ Master process nginx trouvé (PID: ${NGINX_PID})"
-    
-    # 2. Vérifier si le port 8099 est en écoute
-    if ! netstat -tuln | grep -q ":8099 "; then
-        log_warning "❌ Port 8099 non trouvé dans netstat"
-        log_debug "🔍 Ports en écoute :"
-        netstat -tuln | grep "LISTEN" | grep -v "127.0.0.11" || true
-        return 1
-    fi
-    log_debug "✅ Port 8099 en écoute"
-    
-    # 3. Vérifier la configuration nginx
-    if [ -f "/etc/nginx/nginx.conf" ]; then
-        if ! nginx -t &>/dev/null; then
-            log_warning "❌ Configuration nginx invalide"
-            return 1
-        fi
-        log_debug "✅ Configuration nginx valide"
-    else
-        log_warning "❌ Fichier de configuration nginx non trouvé"
-        return 1
-    fi
-    
-    # 4. Vérifier si upstream.conf existe et contient la bonne configuration
-    if [ ! -f "/etc/nginx/includes/upstream.conf" ]; then
-        log_warning "❌ Fichier upstream.conf manquant"
-        return 1
-    fi
-    
-    if ! grep -q "server 127.0.0.1:8080;" "/etc/nginx/includes/upstream.conf"; then
-        log_warning "❌ Configuration upstream incorrecte"
-        return 1
-    fi
-    log_debug "✅ Configuration upstream correcte"
-    
-    # 5. Tester l'accès à Dozzle via nginx
-    local response
-    response=$(wget -qO- http://127.0.0.1:8099 2>/dev/null)
-    if [ $? -ne 0 ]; then
-        log_warning "❌ Impossible d'accéder à Dozzle via nginx"
-        return 1
-    fi
-    
-    if ! echo "$response" | grep -q "Dozzle"; then
-        log_warning "❌ La réponse ne contient pas 'Dozzle'"
-        return 1
-    fi
-    log_debug "✅ Dozzle accessible via nginx"
-    
-    return 0
-}
-
-# Function to check nginx status
-check_nginx_status() {
-    log_info "🔍 Vérification complète de nginx..."
-    
-    if is_nginx_working; then
-        log_info "✅ Nginx fonctionne parfaitement :"
-        log_info "  ✓ Master process en cours d'exécution (PID: $(pgrep -f 'nginx: master process'))"
-        log_info "  ✓ Port 8099 en écoute"
-        log_info "  ✓ Configuration valide"
-        log_info "  ✓ Upstream configuré"
-        log_info "  ✓ Dozzle accessible"
-        NGINX_CHECK_OK=true
-        return 0
-    else
-        log_warning "⚠️ Problèmes détectés avec nginx"
-        
-        # Afficher les processus nginx en cours
-        log_debug "🔍 Processus nginx :"
-        ps aux | grep -E "(nginx|s6-supervise)" | grep -v grep || true
-        
-        # Afficher les ports en écoute
-        #log_debug "🔍 Ports en écoute :"
-        #netstat -tuln | grep "LISTEN" | grep -v "127.0.0.11" || true
-        
-        NGINX_CHECK_OK=false
-        return 1
-    fi
 }
 
 # Function to check if a command supports an option
@@ -364,23 +239,39 @@ read_config() {
     log_info "- Agent mode: ${AGENT_MODE}"
 }
 
-# Function to setup nginx for ingress
-setup_nginx() {
-    # Cette fonction est maintenant simplifiée pour éviter les conflits
-    # avec le script de démarrage de nginx géré par S6
-    
-    # Créer le répertoire includes si nécessaire
-    mkdir -p /etc/nginx/includes
-    
-    # Créer upstream.conf pour Dozzle (sera inclus par nginx.conf)
-    log_info "Creating nginx upstream configuration for Dozzle"
-    cat > /etc/nginx/includes/upstream.conf << EOF
-upstream dozzle {
-    server 127.0.0.1:8080;
+# Function to check if we're running in ingress mode
+is_ingress() {
+    if [ "${INGRESS_ENABLED}" = "true" ]; then
+        return 0
+    fi
+    return 1
 }
-EOF
-    
-    log_info "Nginx configuration for ingress completed"
+
+# Function to get the correct port based on ingress status
+get_port() {
+    if is_ingress; then
+        echo "${INGRESS_PORT}"
+    else
+        echo "8080"
+    fi
+}
+
+# Function to get the correct host based on ingress status
+get_host() {
+    if is_ingress; then
+        echo "0.0.0.0"
+    else
+        echo "[HOST]"
+    fi
+}
+
+# Function to get the correct base URL
+get_base_url() {
+    if is_ingress; then
+        echo "http://${INGRESS_HOST}"
+    else
+        echo "http://[HOST]:[PORT:8080]"
+    fi
 }
 
 # Main function
@@ -388,121 +279,50 @@ main() {
     # Read configuration
     read_config
     
-    # Setup nginx for ingress
-    setup_nginx
-    
     # Check for lock file to prevent multiple instances
     if [ -f "${LOCK_FILE}" ]; then
         log_warning "Lock file exists, another instance may be running"
         rm -f "${LOCK_FILE}"
     fi
-    
-    # Create lock file
     touch "${LOCK_FILE}"
     
-    # Check Docker socket with retries
-    local max_retries=5
-    local retry_count=0
-    local retry_delay=5
-    
-    while [ ${retry_count} -lt ${max_retries} ]; do
-        log_info "Checking Docker socket (attempt $((retry_count + 1))/${max_retries})"
-        
-        if check_docker_socket; then
-            log_info "Docker socket is available"
-            break
-        fi
-        
-        retry_count=$((retry_count + 1))
-        
-        if [ ${retry_count} -lt ${max_retries} ]; then
-            log_warning "Retrying in ${retry_delay} seconds..."
-            sleep ${retry_delay}
-        else
-            log_error "Maximum retries reached, unable to connect to Docker"
-            rm -f "${LOCK_FILE}"
-            exit 1
-        fi
-    done
-    
-    # Attendre que S6 démarre les services (5 secondes maximum)
-    log_info "Attente du démarrage des services..."
-    sleep 5
-    
-    # Display system information with configuration values
+    # Get system information
     get_system_info
     
-    # Check if agent mode is supported
-    AGENT_SUPPORTED=false
-    if /usr/local/bin/dozzle --help 2>&1 | sed -n '/--agent/p' | wc -l > /dev/null 2>&1; then
-        AGENT_SUPPORTED=true
-        log_info "Agent mode is supported in this version of Dozzle"
-    else
-        log_warning "Agent mode is NOT supported in this version of Dozzle (${DOZZLE_VERSION})"
+    # Check Docker socket
+    if ! check_docker_socket; then
+        log_error "Failed to verify Docker socket"
+        exit 1
     fi
     
-    # Set Dozzle options
-    DOZZLE_OPTS="--level ${LOG_LEVEL}"
+    # Build Dozzle command
+    DOZZLE_CMD="/usr/local/bin/dozzle"
+    DOZZLE_OPTS="--socket ${DOCKER_SOCKET}"
     
-    # Configure address based on external access setting
-    if [ "${EXTERNAL_ACCESS}" = "true" ]; then
-        log_info "External access is enabled (port 8080 will be exposed)"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 0.0.0.0:8080"
-        
-        if netstat -tuln 2>/dev/null | grep -q ":8080 "; then
-            log_warning "Port 8080 is already in use, external access may not work"
-            if command -v lsof >/dev/null 2>&1; then
-                log_info "Process using port 8080:"
-                lsof -i :8080 || true
-            elif command -v fuser >/dev/null 2>&1; then
-                log_info "Process using port 8080:"
-                fuser -n tcp 8080 || true
-            fi
-        fi
-    else
-        log_info "External access is disabled (port 8080 will not be accessible from outside)"
-        DOZZLE_OPTS="${DOZZLE_OPTS} --addr 127.0.0.1:8080"
+    # Add port configuration
+    PORT=$(get_port)
+    DOZZLE_OPTS="${DOZZLE_OPTS} --port ${PORT}"
+    
+    # Add host configuration
+    HOST=$(get_host)
+    DOZZLE_OPTS="${DOZZLE_OPTS} --host ${HOST}"
+    
+    # Add log level if specified
+    if [ -n "${LOG_LEVEL}" ]; then
+        DOZZLE_OPTS="${DOZZLE_OPTS} --log-level ${LOG_LEVEL}"
     fi
     
-    # Add base path
-    DOZZLE_OPTS="${DOZZLE_OPTS} --base /"
-    
-    # Add agent mode if enabled and supported
+    # Add agent mode if enabled
     if [ "${AGENT_MODE}" = "true" ]; then
-        if [ "${AGENT_SUPPORTED}" = "true" ]; then
-            log_info "Agent mode enabled on port 7007"
-            DOZZLE_OPTS="${DOZZLE_OPTS} --agent --agent-addr 0.0.0.0:7007"
-            
-            if netstat -tuln 2>/dev/null | grep -q ":7007 "; then
-                log_warning "Port 7007 is already in use, agent mode may not work"
-            fi
-        else
-            log_warning "Agent mode is requested but not supported in this version of Dozzle (${DOZZLE_VERSION}). Ignoring agent configuration."
-        fi
+        DOZZLE_OPTS="${DOZZLE_OPTS} --agent"
     fi
     
-    log_info "Starting Dozzle with options: ${DOZZLE_OPTS}"
+    # Log the final command
+    log_info "Starting Dozzle with command: ${DOZZLE_CMD} ${DOZZLE_OPTS}"
     
-    # Remove lock file
-    rm -f "${LOCK_FILE}"
-
-    # Start Dozzle in background
-    /usr/local/bin/dozzle ${DOZZLE_OPTS} &
-    
-    # Attendre un peu que Dozzle démarre
-    sleep 2
-    
-    # Vérifier nginx maintenant que Dozzle est démarré
-    check_nginx_status
-    
-    # Si la vérification a échoué, on log une erreur mais on continue
-    if [ "${NGINX_CHECK_OK}" = "false" ]; then
-        log_warning "Nginx check failed but continuing..."
-    fi
-    
-    # Attendre que Dozzle se termine
-    wait
+    # Start Dozzle
+    exec ${DOZZLE_CMD} ${DOZZLE_OPTS}
 }
 
 # Run main function
-main "$@"
+main
